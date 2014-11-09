@@ -1,4 +1,29 @@
+var TetrisGame,
+    GameBox,
+    GamePieces,
+    Piece,
+    PieceCell,
+    PreviewPane,
+    GameControls,
+    PlayBtn,
+    SaveBtn,
+    PauseBtnl,
+    ScorePane;
+
+
+var TetrisGame = React.createClass({
+  render: function() {
+    return (
+      <div className="TetrisGame">
+        <GameBox/>
+        <PreviewPane/>
+        <GameControls/>
+      </div>
+    );
+  }
+});
+
 React.render(
-        <h1>Hello, world!</h1>,
-        document.getElementById('example')
-      );
+  <TetrisGame/>,
+  document.getElementById('main_Container')
+);
