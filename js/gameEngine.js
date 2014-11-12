@@ -3,6 +3,7 @@ var gameEngine = {
         var x = {};
         x.gameOver = false;
         x.heldPiece = {};
+        x.currentPiece = {};
         x.cells = [];
         for (var i = 0; i < 22; i++) {
             x.cells.push([]);
@@ -26,7 +27,6 @@ var gameEngine = {
                     pieceToDisplay.cells.map(function (cell) {
                         currentBoard[cell.y][cell.x].occupied = true;
                         currentBoard[cell.y][cell.x].color = pieceToDisplay.color;
-
                     })
                 });
             }
