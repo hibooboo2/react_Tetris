@@ -1,0 +1,11 @@
+
+.cell {
+    padding: 5px;
+    position: relative;
+    display: inline;
+    color: rgba(0, 0, 0, 0);
+    border: 1px solid white ;
+}
+.GameBox1 {
+
+}
