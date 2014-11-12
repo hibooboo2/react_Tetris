@@ -4,8 +4,11 @@
     display: inline-block;
     color: rgba(0, 0, 0, 0);
     border: .1em solid white;
-
+    font-size: 15px;
 }
 .GameBox1 {
 
+}
+.row{
+    font-size: 0;
 }
