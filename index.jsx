@@ -6,7 +6,7 @@ var GameBox = React.createClass({
 
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
-        this.gravity = setInterval(this.tick, 10);
+        this.gravity = setInterval(this.tick, 500);
     },
 
     componentWillUnmount: function(){
@@ -21,7 +21,7 @@ var GameBox = React.createClass({
         // This function is called every 50 ms. It updates the
         // elapsed counter. Calling setState causes the component to be re-rendered
         console.log("Ticked" + this.state.ticked);
-        this.state.gameState.currentPiece= randPiece().movePieceDown();
+        this.state.gameState.currentPiece= randPiece();
         this.setState({gameState:this.state.gameState,ticked:this.state.ticked+1});
     },
     render: function() {
