@@ -162,7 +162,7 @@ var pieces = [];
             x: 3,
             y: 1
         }
-    ], "Yellow"));
+    ], "#ffd700"));
     pieces.push(new Piece("T", [
         {
             x: 2,
@@ -252,7 +252,7 @@ var pieces = [];
             x: 4,
             y: 0
         }
-    ], "Orange"));
+    ], "#ff8c00"));
 })();
 
 var randPiece = function () {
