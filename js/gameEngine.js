@@ -3,7 +3,7 @@ var gameEngine = {
         var x = {};
         x.gameOver = false;
         x.heldPiece = {};
-        x.currentPiece = {};
+        x.currentPiece = new Piece();
         x.cells = [];
         for (var i = 0; i < 22; i++) {
             x.cells.push([]);
@@ -22,12 +22,15 @@ var gameEngine = {
                 })
             });
             if (x.peices.length > 0) {
-                console.log(x.peices);
                 x.peices.map(function (pieceToDisplay) {
                     pieceToDisplay.cells.map(function (cell) {
-                        currentBoard[cell.y][cell.x].occupied = true;
-                        currentBoard[cell.y][cell.x].color = pieceToDisplay.color;
+                       currentBoard[cell.y][cell.x] = {occupied: true,color: pieceToDisplay.color};
                     })
+                });
+            }
+            if (x.currentPiece && x.currentPiece.color!="brown") {
+                x.currentPiece.cells.map(function (cell) {
+                    currentBoard[cell.y][cell.x] = {occupied: true,color: x.currentPiece.color};
                 });
             }
             return currentBoard;
@@ -42,9 +45,13 @@ var gameEngine = {
             if (!collides) {
                 this.peices.push(piece);
             }
-            console.log("The Piece collided: " + collides);
-            console.log(piece.name);
-            return collides;
+            if(!collides&&piece==x.currentPiece){
+                x.currentPiece = new Piece();
+            }
+            if(collides){
+                x.gameOver = true;
+            }
+            return this;
         }
         x.dropPiece = function (piece) {
             var currentBoard = this.board();
@@ -61,9 +68,26 @@ var gameEngine = {
 };
 
 function Piece(name, cells, color) {
-    this.name = name;
+    this.name = name ? name : "I";
     this.color = color ? color : "brown";
-    this.cells = cells;
+    this.cells = cells ? cells : [
+        {
+            x: 2,
+            y: 0
+        },
+        {
+            x: 3,
+            y: 0
+        },
+        {
+            x: 4,
+            y: 0
+        },
+        {
+            x: 5,
+            y: 0
+        }
+    ];
 }
 
 Piece.prototype.collides = function (piece) {
@@ -84,7 +108,7 @@ Piece.prototype.movePieceDown = function () {
             y: cell.y + 1
         };
         return newCell;
-    }),this.color)
+    }), this.color)
     return newPiece;
 };
 
@@ -232,7 +256,6 @@ var pieces = [];
 })();
 
 var randPiece = function () {
-    //    return pieces[4];
     return pieces[Math.floor((Math.random() * 7))];
 };
 
@@ -243,7 +266,5 @@ gameA.addPiece(gameA.dropPiece(randPiece()));
 gameA.addPiece(gameA.dropPiece(randPiece()));
 gameA.addPiece(gameA.dropPiece(randPiece()));
 gameA.addPiece(gameA.dropPiece(randPiece()));
-gameA.addPiece(gameA.dropPiece(randPiece()));
-gameA.addPiece(gameA.dropPiece(randPiece()));
-gameA.addPiece(gameA.dropPiece(randPiece()));
-gameA.addPiece(randPiece());
+
+
