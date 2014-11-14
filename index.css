@@ -12,3 +12,9 @@ body {
     width: 24em;
     margin: 0 auto;
 }
+.paused{
+    background: red;
+}
+.notPaused{
+    background: green;
+}
