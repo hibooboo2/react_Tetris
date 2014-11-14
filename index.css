@@ -2,13 +2,13 @@
     padding: 1em;
     position: relative;
     display: inline-block;
-    color: rgba(0, 0, 0, 0);
     border: .1em solid white;
-    font-size: 15px;
+    font-size: 13px;
 }
-.GameBox1 {
-
-}
-.row{
+.GameBox {} .row {
     font-size: 0;
+}
+body {
+    width: 24em;
+    margin: 0 auto;
 }
