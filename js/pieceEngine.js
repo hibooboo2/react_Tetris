@@ -13,7 +13,6 @@ Cell.prototype.canMove = function (currentBoard, newPosition) {
     var canMove = true;
     if (this.y + newPosition.y > 21 || this.x + newPosition.x > 9) {
         canMove = false;
-        console.log("Made False");
     } else {
         if (!(currentBoard[this.y + newPosition.y] && currentBoard[this.y + newPosition.y][this.x + newPosition.x])) {
             canMove = false;
