@@ -88,13 +88,11 @@ var GameBox = React.createClass({
             <button onClick={this.restart}>Restart</button>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             </div>
-            <table>
             {this.state.gameState.board().map(function(row) {
-                return <tr className="row">{row.map(function(cell) {
-                    return <td className={"cell"} style={{"backgroundColor": cell.color}}></td>;
-            })}</tr>;
+                return <div className="row">{row.map(function(cell) {
+                    return <div className={"cell"} style={{"backgroundColor": cell.color}}></td>;
+            })}</div>;
             })}
-            </table>
             </div>
         )
     }
