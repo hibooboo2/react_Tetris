@@ -90,7 +90,7 @@ var GameBox = React.createClass({
             </div>
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
-                    return <div className={"cell"} style={{"backgroundColor": cell.color}}></td>;
+                    return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
             </div>
