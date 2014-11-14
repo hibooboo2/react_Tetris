@@ -1,11 +1,14 @@
 function Cell(x, y, color, name, occupied) {
-    this.x = x;
-    this.y = y;
-    this.color = color;
-    this.name = name;
+    this.x = x ? x : 0;
+    this.y = y ? y : 0;
+    this.color = color ? color : "pink";
+    this.name = name ? name : "Pinky";
     this.occupied = occupied ? occupied : false;
 }
 
+Cell.prototype.equals = function (cell) {
+    return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.occupied === cell.occupied;
+};
 Cell.prototype.collides = function (cell) {
     return this.x === cell.x && this.y === cell.y;
 };
@@ -19,10 +22,10 @@ Cell.prototype.canMove = function (currentBoard, newPosition) {
         }
         if (canMove && currentBoard[this.y + newPosition.y][this.x + newPosition.x].occupied === true && !currentBoard[this.y + newPosition.y][this.x + newPosition.x].currentPiece) {
             console.log("Cell can't move: x: " + (newPosition.x) + " y: " + (newPosition.y));
+            console.log(currentBoard[this.y + newPosition.y][this.x + newPosition.x]);
             canMove = false;
         }
     }
-    if (!canMove) {}
     return canMove;
 };
 Cell.prototype.canMoveDown = function (currentBoard) {
@@ -43,13 +46,22 @@ Cell.prototype.moveDown = function (currentBoard) {
 function Piece(tetromino, position, rotation, occupied) {
     this.tetromino = tetromino ? tetromino : allTetromino.Z;
     this.rotation = rotation ? rotation : 0;
-    this.occupied = occupied;
+    this.occupied = occupied ? occupied : false;
     this.position = position ? position : {
         x: 3,
         y: 0
     };
 }
 
+Piece.prototype.equals = function (piece) {
+    return this.cells().filter(function (cell) {
+        var sameCells = piece.cells().filter(function (thisCell) {
+            return thisCell.equals(cell);
+        })
+        return sameCells.length === 1;
+
+    }).length === 4;
+};
 Piece.prototype.name = function () {
     return this.tetromino.name;
 };
@@ -87,7 +99,6 @@ Piece.prototype.movePiece = function (currentBoard, newPostion) {
 };
 
 Piece.prototype.movePieceDown = function (currentBoard) {
-    var moved = false;
     var newPostion = {
         x: 0,
         y: 1
@@ -130,10 +141,11 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
 };
 
 Piece.prototype.dropPiece = function (currentBoard) {
-    while (this.canMoveDown(currentBoard)) {
-        this.movePieceDown(currentBoard);
+    var curPosy = this.position.y;
+    var curPosx = this.position.x;
+    while (this.movePieceDown(currentBoard)) {
     }
-    return true;
+    return this.position.y===curPosy;
 };
 Piece.prototype.cells = function () {
     var currentCells = [];

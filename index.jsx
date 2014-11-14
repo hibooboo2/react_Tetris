@@ -22,7 +22,6 @@ var GameBox = React.createClass({
     dropPiece: function(){
         this.state.gameState.currentPiece.dropPiece(this.state.gameState.board());
         this.state.gameState.addPiece(this.state.gameState.currentPiece);
-        this.state.gameState.currentPiece = randPiece();
         this.setState({gameState:this.state.gameState});
     },
 
@@ -47,7 +46,7 @@ var GameBox = React.createClass({
         }
         else if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
             if(!this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board())){
-                this.state.gameState.currentPiece.dropPiece(this.state.gameState.board());
+                this.dropPiece();
             }else{
                 this.setState({gameState:this.state.gameState});
             }
@@ -64,7 +63,9 @@ var GameBox = React.createClass({
     },
 
     restart: function(){
-        this.setState({gameState:gameEngine.initialgameState()});
+        if(confirm("Are You Sure You Want to Restart?")){
+        this.setState({gameState:gameEngine.newGame(),paused:false});
+        }
     },
 
     pause: function(){
@@ -89,7 +90,7 @@ var GameBox = React.createClass({
             </div>
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
-                    return <div className={"cell"} style={{"backgroundColor": cell.color}}>{cell.currentPiece + "   "}</div>;
+                    return <div className={"cell"} style={{"backgroundColor": cell.color}}>{}</div>;
             })}</div>;
             })}
             </div>

@@ -3,8 +3,14 @@ var gameEngine = {
         var x = {};
         x.gameOver = false;
         x.currentPiece = randPiece();
-        x.heldPiece = {};
-        x.cellsUsed = [];
+        x.heldPiece = null;
+        x.cellsUsed = [[]];
+        for (var i = 0; i < 22; i++) {
+            x.cellsUsed[i] = [];
+            for (var j = 0; j < 10; j++) {
+                x.cellsUsed[i][j] = new Cell(i, j, "lightgrey", "empty", false);
+            }
+        }
         x.board = function () {
             var currentBoard = [[]];
             for (var i = 0; i < 22; i++) {
@@ -13,12 +19,14 @@ var gameEngine = {
                     currentBoard[i][j] = new Cell(i, j, "lightgrey", "empty", false);
                 }
             }
-            x.cellsUsed.map(function (cell) {
-                if (0 <= cell.y <= 21 && 0 <= cell.x <= 9) {
-                    if (currentBoard[cell.y] && currentBoard[cell.y][cell.x]) {
-                        currentBoard[cell.y][cell.x] = cell;
+            x.cellsUsed.map(function (row) {
+                row.map(function (cell) {
+                    if (0 <= cell.y <= 21 && 0 <= cell.x <= 9) {
+                        if (currentBoard[cell.y] && currentBoard[cell.y][cell.x]) {
+                            currentBoard[cell.y][cell.x] = cell;
+                        }
                     }
-                }
+                });
             });
             if (x.currentPiece) {
                 x.currentPiece.cells().map(function (cell) {
@@ -26,57 +34,79 @@ var gameEngine = {
                         currentBoard[cell.y][cell.x] = cell;
                         cell.currentPiece = true;
                     }
-                console.log(cell);
                 });
             }
-            //clearLines(currentBoard);
             return currentBoard;
         };
         x.addPiece = function (piece) {
             var collides = false;
             console.log("In Add Piece:");
             console.log(piece);
-            var collided = x.cellsUsed.filter(function (cell) {
-                return piece.collidesWithCell(cell);
+            var collided = piece.cells().filter(function (cell) {
+                var doCollide = false;
+                if (x.cellsUsed[cell.y] && x.cellsUsed[cell.y][cell.x]) {
+                    doCollide = cell.collides(x.cellsUsed[cell.y][cell.x]);
+                } else {
+                    console.log("Cell Not Defined");
+                }
+                return doCollide;
             });
-            if (piece == x.currentPiece) {
-                x.currentPiece = new Piece(randPiece());
-            }
             if (collided.length < 1) {
                 piece.cells().map(function (cell) {
-                    x.cellsUsed.push(cell);
+                    if (!x.cellsUsed[cell.y]) {
+                        x.cellsUsed[cell.y] = [];
+                    }
+                    x.cellsUsed[cell.y][cell.x] = cell;
                 });
+            }
+            if (piece.equals(x.currentPiece)) {
+                x.currentPiece = randPiece();
             }
             if (collided.length > 0) {
-                x.gameOver = true;
+                //x.gameOver = true;
             }
             console.log("Collided Cells:" + collided.length);
+            //x.clearLines();
             return this;
         };
-
-        function clearLines(currentBoard) {
-            var linesToClear = [];
-            for (var i = 0; i < 22; i++) {
+        x.clearLines = function () {
+            var occupiedRows = []
+            var randCell = new Cell();
+            randCell.occupied = true;
+            x.cellsUsed.map(function (row, rowIndex) {
+                console.log("row:");
+                console.log(row);
                 var allOccupied = true;
-                for (var j = 0; j < 10; j++) {
-                    if (!currentBoard[i][j].occupied) {
+                row.map(function (cell) {
+                    if (!cell.occupied) {
                         allOccupied = false;
                     }
-                }
+                });
                 if (allOccupied) {
-                    linesToClear.push(i);
+                    occupiedRows.push(rowIndex);
                 }
-            }
-            if (linesToClear.length > 0) {
-                x.cellsUsed = x.cellsUsed.filter(function (cell) {
-                    return !(linesToClear.indexOf(cell.y) > -1);
+                return allOccupied;
+            });
+            if (occupiedRows.length > 0) {
+                occupiedRows.map(function (rowToRemove) {
+                    x.cellsUsed.splice(rowToRemove, 1);
+                    x.cellsUsed.unshift(x.blankRow());
+                });
+                x.cellsUsed.map(function (row, y) {
+                    row.map(function (cell, x) {
+                        cell.x = x;
+                        cell.y = y;
+                    });
                 });
             }
-            console.log("Lines needing clearing: " + linesToClear.length);
+        }
+        x.blankRow = function () {
+            var row = [];
+            for (var j = 0; j < 10; j++) {
+                row[j] = new Cell(0, j, "lightgrey", "empty", false);
+            }
+            return row;
         }
         return x;
-    },
-    rotatePiece: {},
-    holdPiece: {}
-
+    }
 };
