@@ -8,25 +8,14 @@ var gameEngine = {
         for (var i = 0; i < 22; i++) {
             x.cellsUsed[i] = [];
             for (var j = 0; j < 10; j++) {
-                x.cellsUsed[i][j] = new Cell(i, j, "lightgrey", "empty", false);
+                x.cellsUsed[i][j] = new Cell(j, i, "lightgrey", "empty", false);
             }
         }
         x.board = function () {
-            var currentBoard = [[]];
-            for (var i = 0; i < 22; i++) {
-                currentBoard[i] = [];
-                for (var j = 0; j < 10; j++) {
-                    currentBoard[i][j] = new Cell(i, j, "lightgrey", "empty", false);
-                }
-            }
-            x.cellsUsed.map(function (row) {
-                row.map(function (cell) {
-                    if (0 <= cell.y <= 21 && 0 <= cell.x <= 9) {
-                        if (currentBoard[cell.y] && currentBoard[cell.y][cell.x]) {
-                            currentBoard[cell.y][cell.x] = cell;
-                        }
-                    }
-                });
+            var currentBoard = x.cellsUsed.map(function (row) {
+                return row.map(function (cell) {
+                    return cell.copy();
+                })
             });
             if (x.currentPiece) {
                 x.currentPiece.cells().map(function (cell) {
@@ -44,8 +33,8 @@ var gameEngine = {
             console.log(piece);
             var collided = piece.cells().filter(function (cell) {
                 var doCollide = false;
-                if (x.cellsUsed[cell.y] && x.cellsUsed[cell.y][cell.x]) {
-                    doCollide = cell.collides(x.cellsUsed[cell.y][cell.x]);
+                if (x.cellsUsed[cell.x] && x.cellsUsed[cell.x][cell.y]) {
+                    doCollide = cell.collides(x.cellsUsed[cell.x][cell.y]);
                 } else {
                     console.log("Cell Not Defined");
                 }
@@ -66,7 +55,7 @@ var gameEngine = {
                 //x.gameOver = true;
             }
             console.log("Collided Cells:" + collided.length);
-            //x.clearLines();
+            x.clearLines();
             return this;
         };
         x.clearLines = function () {

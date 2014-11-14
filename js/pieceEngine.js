@@ -9,6 +9,15 @@ function Cell(x, y, color, name, occupied) {
 Cell.prototype.equals = function (cell) {
     return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.occupied === cell.occupied;
 };
+Cell.prototype.copy = function () {
+    return {
+        x: this.x,
+        y: this.y,
+        color: this.color,
+        name: this.name,
+        occupied: this.occupied
+    };
+};
 Cell.prototype.collides = function (cell) {
     return this.x === cell.x && this.y === cell.y;
 };
@@ -143,9 +152,8 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
 Piece.prototype.dropPiece = function (currentBoard) {
     var curPosy = this.position.y;
     var curPosx = this.position.x;
-    while (this.movePieceDown(currentBoard)) {
-    }
-    return this.position.y===curPosy;
+    while (this.movePieceDown(currentBoard)) {}
+    return this.position.y === curPosy;
 };
 Piece.prototype.cells = function () {
     var currentCells = [];
