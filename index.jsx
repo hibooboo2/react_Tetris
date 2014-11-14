@@ -1,67 +1,95 @@
 var GameBox = React.createClass({
     getInitialState: function(){
-        return {gameState:this.props.gameState,ticked:0};
+        return {gameState:this.props.gameState,paused:false};
     },
      componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
-        this.tick = setInterval(this.gravity, 100);
+        this.autoGravity = setInterval(this.gravity, 500);
     },
 
     componentWillUnmount: function(){
         // This method is called immediately before the component is removed
         // from the page and destroyed. We can clear the interval here:
-        clearInterVal(this.tick);
+        clearInterVal(this.autoGravity);
     },
 
     addPiece: function(){
-        this.state.gameState.currentPiece = new Piece(randPiece());
+        this.state.gameState.currentPiece = randPiece();
         this.setState({gameState:this.state.gameState});
-    },dropPiece: function(){
+    },
+
+    dropPiece: function(){
         this.state.gameState.currentPiece.dropPiece(this.state.gameState.board());
         this.state.gameState.addPiece(this.state.gameState.currentPiece);
-        this.state.gameState.currentPiece = new Piece(randPiece());
+        this.state.gameState.currentPiece = randPiece();
         this.setState({gameState:this.state.gameState});
-    },rotatePiece: function(){
+    },
+
+    rotatePiece: function(){
         this.state.gameState.currentPiece.rotateClockWise(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
-    },moveLeft: function(){
+    },
+
+    moveLeft: function(){
         this.state.gameState.currentPiece.shiftLeft(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
-    },moveRight: function(){
+    },
+
+    moveRight: function(){
         this.state.gameState.currentPiece.shiftRight(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
-    },gravity: function(){
-        if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
+    },
+
+    gravity: function(){
+        if(this.state.paused) {
+            return;
+        }
+        else if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
             if(!this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board())){
-                this.dropPiece();
+                this.state.gameState.currentPiece.dropPiece(this.state.gameState.board());
             }else{
                 this.setState({gameState:this.state.gameState});
             }
         }else{
-            this.restart();
+            this.pause();
         }
-    },restart: function(){
-        this.setState({gameState:gameEngine.initialgameState()})
+    },
+
+    softDrop: function(){
+        if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
+            this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board());
+            this.setState({gameState:this.state.gameState});
+        }
+    },
+
+    restart: function(){
+        this.setState({gameState:gameEngine.initialgameState()});
+    },
+
+    pause: function(){
+        this.state.paused = !this.state.paused;
+        this.setState({paused:this.state.paused});
     },
     render: function() {
         if(this.state.gameState.gameOver){
             alert("Gameover");
-        };
+        }
         return (
             <div className="GameBox">
             <div className="Controls">
             <button onClick={this.addPiece}>Add Piece</button>
             <button onClick={this.dropPiece}>Drop Piece</button>
-            <button onClick={this.gravity}>Soft Drop Piece</button>
+            <button onClick={this.softDrop}>Soft Drop Piece</button>
             <button onClick={this.rotatePiece}>Rotate</button>
             <button onClick={this.moveLeft}>Move Left</button>
             <button onClick={this.moveRight}>Move Right</button>
             <button onClick={this.restart}>Restart</button>
+            <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             </div>
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
-                    return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
+                    return <div className={"cell"} style={{"backgroundColor": cell.color}}>{cell.currentPiece + "   "}</div>;
             })}</div>;
             })}
             </div>
@@ -81,6 +109,6 @@ var TetrisGame = React.createClass({
 });
 
 React.render(
-  <TetrisGame gameState={gameA}/>,
+  <TetrisGame gameState={gameEngine.newGame()}/>,
   document.getElementById('main_Container')
 );
