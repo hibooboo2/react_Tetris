@@ -1,6 +1,50 @@
-function Piece(tetromino, position, rotation) {
-    this.tetromino = tetromino ? tetromino : allTetromino.I;
+function Cell(x, y, color, name, occupied) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.name = name;
+    this.occupied = occupied ? occupied : false;
+}
+
+Cell.prototype.collides = function (cell) {
+    return this.x === cell.x && this.y === cell.y;
+};
+Cell.prototype.canMove = function (currentBoard, newPosition) {
+    var canMove = true;
+    if (this.y + newPosition.y > 21 || this.x + newPosition.x > 9) {
+        canMove = false;
+        console.log("Made False");
+    } else {
+        if (!(currentBoard[this.y + newPosition.y] && currentBoard[this.y + newPosition.y][this.x + newPosition.x])) {
+            canMove = false;
+        }
+        if (canMove && currentBoard[this.y + newPosition.y][this.x + newPosition.x].occupied === true && !currentBoard[this.y + newPosition.y][this.x + newPosition.x].currentPiece) {
+            console.log("Cell can't move: x: " + (newPosition.x) + " y: " + (newPosition.y));
+            canMove = false;
+        }
+    }
+    if (!canMove) {}
+    return canMove;
+};
+Cell.prototype.canMoveDown = function (currentBoard) {
+    return this.canMove(currentBoard, {
+        x: 0,
+        y: 1
+    });
+};
+Cell.prototype.moveDown = function (currentBoard) {
+    var moved = false;
+    if (this.canMoveDown(currentBoard)) {
+        this.y += 1;
+        moved = true;
+    }
+    return moved;
+};
+
+function Piece(tetromino, position, rotation, occupied) {
+    this.tetromino = tetromino ? tetromino : allTetromino.Z;
     this.rotation = rotation ? rotation : 0;
+    this.occupied = occupied;
     this.position = position ? position : {
         x: 3,
         y: 0
@@ -17,62 +61,47 @@ Piece.prototype.color = function () {
 Piece.prototype.collides = function (piece) {
     var collides = false;
     this.cells().map(function (cell) {
-        piece.cells().map(function (cellToComp) {
-            if (cell.x == cellToComp.x && cell.y == cellToComp.y) {
-                collides = true;
-            }
-        });
+        if (piece.collidesWithCell(cell)) {
+            collides = true;
+        }
     });
     return collides;
 };
 Piece.prototype.collidesWithCell = function (cellToCheck) {
     var collides = false;
     this.cells().map(function (cell) {
-        if (cell.x == cellToCheck.x && cell.y == cellToCheck.y) {
+        if (cell.collides(cellToCheck)) {
             collides = true;
         }
 
     });
     return collides;
 };
-Piece.prototype.movePieceDown = function (currentBoard) {
+Piece.prototype.movePiece = function (currentBoard, newPostion) {
     var moved = false;
-    var newPostion = {
-        x: this.position.x,
-        y: this.position.y + 1
-    };
     if (this.canMove(currentBoard, newPostion)) {
-        this.position = newPostion;
+        this.position.y += newPostion.y;
+        this.position.x += newPostion.x;
         moved = true;
     }
     return moved;
 };
 
+Piece.prototype.movePieceDown = function (currentBoard) {
+    var moved = false;
+    var newPostion = {
+        x: 0,
+        y: 1
+    };
+    return this.movePiece(currentBoard, newPostion);
+};
+
 
 Piece.prototype.canMove = function (currentBoard, newPosition) {
     var canMoveArr = [];
-    var curPos = this.position;
-    this.position = newPosition;
     canMoveArr = this.cells().map(function (cell) {
-        var canMove = true;
-        if ((cell.y > 21 || cell.x > 9)) {
-            canMove = false;
-            console.log("Made False");
-        } else {
-            if(!(currentBoard[cell.y]&&currentBoard[cell.y][cell.x])){
-                canMove = false;
-            }
-            if (canMove && currentBoard[cell.y][cell.x].occupied === true) {
-                canMove = false;
-            }
-        }
-        if (!canMove) {
-            console.log("Cell can't move: x: " + (cell.x) + " y: " + (cell.y));
-        }
-        return canMove;
+        return cell.canMove(currentBoard, newPosition);
     });
-    console.log(this.cells());
-    this.position = curPos;
     return canMoveArr.reduce(function (a, b) {
         return a && b;
     });
@@ -93,7 +122,7 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
         if (cell.y > 21 || cell.x > 9) {
             canMove = false;
         }
-        if (canMove && currentBoard[cell.y][cell.x].occupied) {
+        if (canMove && currentBoard[cell.y][cell.x].occupied && !currentBoard[cell.y][cell.x].currentPiece) {
             canMove = false;
         }
     });
@@ -109,46 +138,33 @@ Piece.prototype.dropPiece = function (currentBoard) {
 };
 Piece.prototype.cells = function () {
     var currentCells = [];
-    var curPos = this.position;
+    var startingPos = this.position;
     var color = this.color();
+    var name = this.name();
+    var occupied = this.occupied;
     this.tetromino.cells[this.rotation].map(function (row, celly) {
-        row.map(function (cell,cellx) {
+        row.map(function (cell, cellx) {
             if (cell) {
-                currentCells.push({
-                    x: cellx + curPos.x,
-                    y: celly + curPos.y,
-                    color: color
-                });
+                currentCells.push(new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, occupied));
             }
         });
     });
-    console.log(currentCells);
     return currentCells;
 };
 
 Piece.prototype.shiftLeft = function (currentBoard) {
-    var moved = false;
     var newPostion = {
-        x: this.position.x - 1,
-        y: this.position.y
+        x: -1,
+        y: 0
     };
-    if (this.canMove(currentBoard, newPostion)) {
-        this.position = newPostion;
-        moved = true;
-    }
-    return moved;
+    return this.movePiece(currentBoard, newPostion);
 };
 Piece.prototype.shiftRight = function (currentBoard) {
-    var moved = false;
     var newPostion = {
-        x: this.position.x + 1,
-        y: this.position.y
+        x: 1,
+        y: 0
     };
-    if (this.canMove(currentBoard, newPostion)) {
-        this.position = newPostion;
-        moved = true;
-    }
-    return moved;
+    return this.movePiece(currentBoard, newPostion);
 };
 Piece.prototype.rotateClockWise = function (currentBoard) {
     var rotated = false;
@@ -184,10 +200,13 @@ var nextPiece = -1;
 var pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
 shuffle(pieceLetters);
 var randPiece = function () {
-    nextPiece += 1;
-    if (nextPiece > 6) {
+    if (nextPiece > 5) {
         nextPiece = -1;
         shuffle(pieceLetters);
     }
-    return allTetromino[pieceLetters[nextPiece]];
+    nextPiece += 1;
+    return new Piece(allTetromino[pieceLetters[nextPiece]], {
+        x: 3,
+        y: 0
+    }, 0, true);
 };
