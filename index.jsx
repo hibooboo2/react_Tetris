@@ -129,6 +129,7 @@ var GameBox = React.createClass({
                     return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
+            Current Lines cleared {this.state.gameState.level*-1}
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
             </div>
             </div>
