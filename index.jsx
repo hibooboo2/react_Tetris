@@ -5,6 +5,7 @@ var GameBox = React.createClass({
      componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
+        window.addEventListener('keydown', this.handleKeys);
         this.autoGravity = setInterval(this.gravity, 500);
     },
 
@@ -71,6 +72,23 @@ var GameBox = React.createClass({
     pause: function(){
         this.state.paused = !this.state.paused;
         this.setState({paused:this.state.paused});
+    },handleKeys:function(evt){
+        var currEvent = evt;
+        if(evt instanceof KeyboardEvent && !this.state.paused){
+                var key = evt.keyCode;
+                console.log(key);
+                var keyMappings = {
+                87:this.dropPiece,
+                83:this.softDrop,
+                39:this.rotatePiece,
+                37:this.rotatePiece,
+                68:this.moveRight,
+                65:this.moveLeft,
+                13:this.restart,
+                32:this.pause
+                }
+                keyMappings[key]();
+        }
     },
     render: function() {
         if(this.state.gameState.gameOver){
@@ -79,21 +97,16 @@ var GameBox = React.createClass({
         return (
             <div className="GameBox">
             <div className="Controls">
-            <button onClick={this.addPiece}>Add Piece</button>
-            <button onClick={this.dropPiece}>Drop Piece</button>
-            <button onClick={this.softDrop}>Soft Drop Piece</button>
-            <button onClick={this.rotatePiece}>Rotate</button>
-            <button onClick={this.moveLeft}>Move Left</button>
-            <button onClick={this.moveRight}>Move Right</button>
-            <button onClick={this.restart}>Restart</button>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             </div>
+            <div className="cells">
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
                     return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
+            </div>
             </div>
         )
     }
