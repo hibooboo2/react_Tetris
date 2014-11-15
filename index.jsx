@@ -143,7 +143,7 @@ var GameBox = React.createClass({
             </div>
             <div className="Controls rightCenter">
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart
+            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart Hold Piece=Shift
             </div>
             </div>
         )
