@@ -54,7 +54,7 @@ var gameEngine = {
                 x.newCurrentPiece();
             }
             if (collided.length > 0) {
-                //x.gameOver = true;
+                x.gameOver = true;
             }
             console.log("Collided Cells:" + collided.length);
             x.clearLines();
