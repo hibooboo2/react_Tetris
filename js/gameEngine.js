@@ -2,6 +2,7 @@ var gameEngine = {
     newGame: function () {
         var x = {};
         x.gameOver = false;
+        x.level = 0;
         x.currentPiece = randPiece();
         x.heldPiece = null;
         x.cellsUsed = [[]];
@@ -79,6 +80,7 @@ var gameEngine = {
             if (occupiedRows.length > 0) {
                 occupiedRows.map(function (rowToRemove) {
                     x.cellsUsed.splice(rowToRemove, 1);
+                    x.level -=1;
                     x.cellsUsed.unshift(x.blankRow());
                 });
                 x.cellsUsed.map(function (row, y) {

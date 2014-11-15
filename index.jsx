@@ -6,7 +6,7 @@ var GameBox = React.createClass({
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
-        this.autoGravity = setInterval(this.gravity, 500);
+        this.autoGravity = setInterval(this.gravity, 500+this.state.gameState.level);
     },
 
     componentWillUnmount: function(){
