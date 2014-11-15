@@ -74,7 +74,7 @@ var GameBox = React.createClass({
         this.setState({paused:this.state.paused});
     },handleKeys:function(evt){
         var currEvent = evt;
-        if(evt instanceof KeyboardEvent){
+        if(evt instanceof KeyboardEvent && !this.state.paused){
                 var key = evt.keyCode;
                 console.log(key);
                 var keyMappings = {
@@ -97,13 +97,6 @@ var GameBox = React.createClass({
         return (
             <div className="GameBox">
             <div className="Controls">
-            <button onClick={this.addPiece}>Add Piece</button>
-            <button onClick={this.dropPiece}>Drop Piece</button>
-            <button onClick={this.softDrop}>Soft Drop Piece</button>
-            <button onClick={this.rotatePiece}>Rotate</button>
-            <button onClick={this.moveLeft}>Move Left</button>
-            <button onClick={this.moveRight}>Move Right</button>
-            <button onClick={this.restart}>Restart</button>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             </div>
             <div className="cells">
