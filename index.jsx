@@ -104,6 +104,7 @@ var GameBox = React.createClass({
             <div className="GameBox">
             <div className="Controls">
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart
             </div>
             <div className="cells">
             {this.state.gameState.board().map(function(row) {
