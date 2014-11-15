@@ -86,13 +86,30 @@ var GameBox = React.createClass({
         13:this.restart,
         32:this.pause
         }
-        if(evt instanceof KeyboardEvent && !this.state.paused){
-                if(this.keyMappings[key]!== undefined){
+        this.arrowMappings = {
+        40:this.softDrop,
+        38:this.rotatePiece,
+        39:this.moveRight,
+        37:this.moveLeft,
+        13:this.restart,
+        32:this.pause
+        }
+        if(evt instanceof KeyboardEvent ){
+            if(key === 192){
+
+                this.setState({useArrows:!this.state.useArrows});
+            }else if(!this.state.paused && !this.state.useArrows){
+                    if(this.keyMappings[key]!== undefined){
+                        this.keyMappings[key]();
+                    }
+            }else if(!this.state.paused && this.state.useArrows){
+                    if(this.arrowMappings[key]!== undefined){
+                        this.arrowMappings[key]();
+                    }
+            }else if(evt instanceof KeyboardEvent && this.state.paused){
+                if(key===32){
                     this.keyMappings[key]();
                 }
-        }else if(evt instanceof KeyboardEvent && this.state.paused){
-            if(key===32){
-                this.keyMappings[key]();
             }
         }
     },
