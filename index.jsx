@@ -105,6 +105,7 @@ var GameBox = React.createClass({
                     return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
+            Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
             </div>
             </div>
         )
