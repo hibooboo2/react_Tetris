@@ -101,7 +101,7 @@ var GameBox = React.createClass({
         }
         this.arrowMappings = {
         40:this.softDrop,
-        38:this.rotatePiece,
+        38:this.rotatePieceClockwise,
         39:this.moveRight,
         37:this.moveLeft,
         16:this.holdPiece,
