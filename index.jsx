@@ -16,7 +16,7 @@ var GameBox = React.createClass({
     },
 
     addPiece: function(){
-        this.state.gameState.currentPiece = randPiece();
+        this.state.gameState.newCurrentPiece();
         this.setState({gameState:this.state.gameState});
     },
 
@@ -26,8 +26,13 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
 
-    rotatePiece: function(){
+    rotatePieceClockwise: function(){
         this.state.gameState.currentPiece.rotateClockWise(this.state.gameState.board());
+        this.setState({gameState:this.state.gameState});
+    },
+
+    rotatePieceCounterClockwise: function(){
+        this.state.gameState.currentPiece.rotateCounterClockWise(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
     },
 
@@ -45,11 +50,13 @@ var GameBox = React.createClass({
         if(this.state.paused) {
             return;
         }
-        else if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
-            if(!this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board())){
-                this.dropPiece();
-            }else{
-                this.setState({gameState:this.state.gameState});
+        else if(!this.state.gameState.gameOver){
+            if(this.state.gameState.currentPiece){
+                if(!this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board())){
+                    this.dropPiece();
+                }else{
+                    this.setState({gameState:this.state.gameState});
+                }
             }
         }else{
             this.pause();
@@ -61,6 +68,11 @@ var GameBox = React.createClass({
             this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board());
             this.setState({gameState:this.state.gameState});
         }
+    },
+
+    holdPiece: function(){
+        this.state.gameState.holdPiece();
+        this.setState({gameState:this.state.gameState});
     },
 
     restart: function(){
@@ -79,10 +91,11 @@ var GameBox = React.createClass({
         this.keyMappings = {
         87:this.dropPiece,
         83:this.softDrop,
-        39:this.rotatePiece,
-        37:this.rotatePiece,
+        39:this.rotatePieceClockwise,
+        37:this.rotatePieceCounterClockwise,
         68:this.moveRight,
         65:this.moveLeft,
+        16:this.holdPiece,
         13:this.restart,
         32:this.pause
         }
@@ -91,12 +104,12 @@ var GameBox = React.createClass({
         38:this.rotatePiece,
         39:this.moveRight,
         37:this.moveLeft,
+        16:this.holdPiece,
         13:this.restart,
         32:this.pause
         }
         if(evt instanceof KeyboardEvent ){
             if(key === 192){
-
                 this.setState({useArrows:!this.state.useArrows});
             }else if(!this.state.paused && !this.state.useArrows){
                     if(this.keyMappings[key]!== undefined){
@@ -119,10 +132,6 @@ var GameBox = React.createClass({
         }
         return (
             <div className="GameBox">
-            <div className="Controls">
-            <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart
-            </div>
             <div className="cells">
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
@@ -131,6 +140,10 @@ var GameBox = React.createClass({
             })}
             Current Lines cleared {this.state.gameState.level*-1}
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
+            </div>
+            <div className="Controls rightCenter">
+            <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart
             </div>
             </div>
         )

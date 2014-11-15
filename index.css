@@ -5,16 +5,36 @@
     border: .1em solid white;
     font-size: 13px;
 }
-.GameBox {} .row {
+.cells {
+    width: 20em;
+    max-width: 20em;
+}
+.GameBox {
+    position: relative;
+}
+.row {
     font-size: 0;
 }
 body {
     width: 40em;
     margin: 0 auto;
 }
-.paused{
+.paused {
     background: red;
 }
-.notPaused{
+.notPaused {
     background: green;
+}
+button{
+    height: 4em;
+    width: 8em;
+}
+.Controls {
+    width: 20em;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    margin-right: -50%;
+    margin-top: -50%;
 }

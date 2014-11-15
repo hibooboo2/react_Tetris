@@ -62,6 +62,12 @@ function Piece(tetromino, position, rotation, occupied) {
     };
 }
 
+Piece.prototype.fromPiece = function (piece) {
+    return new Piece(piece.tetromino, {
+        x: 3,
+        y: 0
+    }, 0, true);
+}
 Piece.prototype.equals = function (piece) {
     return this.cells().filter(function (cell) {
         var sameCells = piece.cells().filter(function (thisCell) {
@@ -210,22 +216,22 @@ Piece.prototype.rotateCounterClockWise = function (currentBoard) {
     return rotated;
 };
 
-
-function shuffle(o) { //v1.0
-    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
-}
-var nextPiece = -1;
-var pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
-shuffle(pieceLetters);
-var randPiece = function () {
-    if (nextPiece > 5) {
-        nextPiece = -1;
-        shuffle(pieceLetters);
+Piece.prototype.rand = function () {
+    if (Piece.prototype.nextPiece > 5) {
+        Piece.prototype.nextPiece = -1;
+        Piece.prototype.shuffle(Piece.prototype.pieceLetters);
     }
-    nextPiece += 1;
-    return new Piece(allTetromino[pieceLetters[nextPiece]], {
+    Piece.prototype.nextPiece += 1;
+    return new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPiece]], {
         x: 3,
         y: 0
     }, 0, true);
 };
+Piece.prototype.shuffle = function (o) { //v1.0
+    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+}
+
+Piece.prototype.nextPiece = -1;
+Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
+Piece.prototype.shuffle(Piece.prototype.pieceLetters);

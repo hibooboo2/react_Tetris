@@ -2,9 +2,10 @@ var gameEngine = {
     newGame: function () {
         var x = {};
         x.gameOver = false;
+        x.justHeld = false;
         x.level = 0;
-        x.currentPiece = randPiece();
-        x.heldPiece = null;
+        x.currentPiece = new Piece().rand();
+        x.heldPiece = false;
         x.cellsUsed = [[]];
         for (var i = 0; i < 22; i++) {
             x.cellsUsed[i] = [];
@@ -50,7 +51,7 @@ var gameEngine = {
                 });
             }
             if (piece.equals(x.currentPiece)) {
-                x.currentPiece = randPiece();
+                x.newCurrentPiece();
             }
             if (collided.length > 0) {
                 //x.gameOver = true;
@@ -58,6 +59,22 @@ var gameEngine = {
             console.log("Collided Cells:" + collided.length);
             x.clearLines();
             return this;
+        };
+        x.newCurrentPiece = function(){
+            x.currentPiece = new Piece().rand();
+            x.justHeld = false;
+        }
+        x.holdPiece = function () {
+            if (!x.justHeld) {
+                var previousHeld = x.heldPiece;
+                x.heldPiece = new Piece().fromPiece(x.currentPiece);
+                if(previousHeld){
+                    x.currentPiece = previousHeld;
+                }else{
+                    x.newCurrentPiece();
+                }
+                x.justHeld = true;
+            }
         };
         x.clearLines = function () {
             var occupiedRows = []
@@ -80,7 +97,7 @@ var gameEngine = {
             if (occupiedRows.length > 0) {
                 occupiedRows.map(function (rowToRemove) {
                     x.cellsUsed.splice(rowToRemove, 1);
-                    x.level -=1;
+                    x.level -= 1;
                     x.cellsUsed.unshift(x.blankRow());
                 });
                 x.cellsUsed.map(function (row, y) {
