@@ -29,7 +29,7 @@ var boardEngine = function () {
         }
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
-            board[cell.y][cell.x].type = 0;
+            board[cell.y][cell.x].type = 1;
         });
         //        var ghostPiece = this.fallingPiece.copy();
         //        ghostPiece.dropPiece(this);
