@@ -55,14 +55,27 @@ var GameBox = React.createClass({
             13:this.restart,
             32:this.pause
         };
+        this.arrowKeys = {
+            40:"moveFallingDown",
+            38:"rotateFallingClockWise",
+            39:"shiftFallingRight",
+            37:"shiftFallingLeft",
+            16:"holdPiece"
+        };
         if(evt instanceof KeyboardEvent ){
             if(key === 192){
                 this.setState({useArrows:!this.state.useArrows});
-            }else if(!this.state.paused && this.state.gameState.fallingPiece){
+            }else if(!this.state.paused && this.state.gameState.fallingPiece&& !this.state.useArrows){
                 if(this.state.gameState[this.keyMappings[key]] !== undefined){
                     this.state.gameState[this.keyMappings[key]]();
                 }else{
                     this.keyMappings[key]();
+                }
+            }else if(!this.state.paused && this.state.gameState.fallingPiece && this.state.useArrows){
+                if(this.state.gameState[this.arrowKeys[key]] !== undefined){
+                    this.state.gameState[this.arrowKeys[key]]();
+                }else{
+                    this.arrowKeys[key]();
                 }
             }else if(evt instanceof KeyboardEvent){
                 if(key===32||key==13){
