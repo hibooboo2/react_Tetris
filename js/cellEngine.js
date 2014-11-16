@@ -1,43 +1,34 @@
-function Cell(x, y, color, name, occupied, currentPiece) {
+function Cell(x, y, color, name, type) {
     this.x = x ? x : 0;
     this.y = y ? y : 0;
-    this.color = color ? color : "pink";
-    this.name = name ? name : "Pinky";
-    this.occupied = occupied ? occupied : false;
-    this.currentPiece = currentPiece ? currentPiece : false;
+    this.color = color ? color : "lightgrey";
+    this.name = name ? name : "empty";
+    this.type = type ? type : 4;
 }
+Cell.prototype.types = ["ghost", "moving", "placed","default"];
 
 Cell.prototype.equals = function (cell) {
-    return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.occupied === cell.occupied;
+    return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.type === cell.type;
 };
+
+Cell.prototype.getType = function () {
+    return Cell.prototype.types[this.type];
+}
+
 Cell.prototype.copy = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        color: this.color,
-        name: this.name,
-        occupied: this.occupied,
-        currentPiece:this.currentPiece
-    };
+    return new Cell(this.x, this.y, this.color, this.name, this.type);
 };
+
 Cell.prototype.collides = function (cell) {
-    return this.x === cell.x && this.y === cell.y;
+    return this.x === cell.x && this.y === cell.y && cell.type === 2;
 };
+
 Cell.prototype.canMove = function (currentBoard, newPosition) {
-    var canMove = true;
-    if (this.y + newPosition.y > 21 || this.x + newPosition.x > 9) {
-        canMove = false;
-    } else {
-        if (!(currentBoard[this.y + newPosition.y] && currentBoard[this.y + newPosition.y][this.x + newPosition.x])) {
-            canMove = false;
-        }
-        if (canMove && currentBoard[this.y + newPosition.y][this.x + newPosition.x].occupied === true && !currentBoard[this.y + newPosition.y][this.x + newPosition.x].currentPiece) {
-            console.log("Cell can't move: x: " + (newPosition.x) + " y: " + (newPosition.y));
-            console.log(currentBoard[this.y + newPosition.y][this.x + newPosition.x]);
-            canMove = false;
-        }
-    }
-    return canMove;
+    var newCell = this.copy();
+    newCell.y += newPosition.y;
+    newCell.x += newPosition.x;
+    // See if the new cell collides on the board.
+    return currentBoard.getCell(newCell.x,newCell.y).type !==2;
 };
 Cell.prototype.canMoveDown = function (currentBoard) {
     return this.canMove(currentBoard, {
