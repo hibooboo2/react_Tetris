@@ -131,6 +131,9 @@ var boardEngine = function () {
         if (piece.equals(this.fallingPiece)) {
             this.newFallingPiece();
         }
+        if (!added){
+//            this.gameOver = true;
+        }
         this.clearLines();
         return added;
     };
