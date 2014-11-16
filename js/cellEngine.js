@@ -1,3 +1,4 @@
+// cellEngine.js relies on pieceEngine.js and boardEngine.js
 function Cell(x, y, color, name, type) {
     this.x = x ? x : 0;
     this.y = y ? y : 0;
