@@ -44,6 +44,13 @@ var GameBox = React.createClass({
         if(confirm("Are You Sure You Want to Restart?")){
         this.setState({gameState:new boardEngine(),paused:true});
         }
+    },changeMapping:function(){
+        if(this.state.currentMap === "default"){
+                this.state.currentMap = "arrows";
+            }else{
+                this.state.currentMap = "default";
+            }
+        this.state.keyMapping = this.state.keyMappings[this.state.currentMap];
     },
     pause: function(){
         this.state.paused = !this.state.paused;
@@ -56,27 +63,19 @@ var GameBox = React.createClass({
 /*        console.log(this.state.currentMap);*/
 /*        console.log(this.state.keyMapping.keys[key]);*/
         if(evt instanceof KeyboardEvent ){
-            if(key === 192){
-                if(this.state.currentMap === "default"){
-                    this.state.currentMap = "arrows";
-                }else{
-                    this.state.currentMap = "default";
-                }
-                this.state.keyMapping = this.state.keyMappings[this.state.currentMap];
-                this.setState({keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
-            }else if(!this.state.paused && this.state.gameState.fallingPiece){
+            if(!this.state.paused && this.state.gameState.fallingPiece){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
                 }else{
                     this[this.state.keyMapping.keys[key].function]();
                 }
             }else if(evt instanceof KeyboardEvent){
-                if(key===32||key==13){
+                if(key === 32||key === 13||key === 192){
                     this[this.state.keyMapping.keys[key].function]();
                 }
             }
         }
-        this.setState({gameState:this.state.gameState});
+        this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -86,6 +85,7 @@ var GameBox = React.createClass({
         currentIssues = currentIssues.map(function(issue){
             return <p>{issue.title}</ p>;
             });
+        console.log(this.state.keyMapping.keys.readableLines());
         return (
             <div className="GameBox">
             <div className="cells">
@@ -102,12 +102,11 @@ var GameBox = React.createClass({
 
             </div>
             <div className="Controls rightCenter">
-            {this.state.keyMapping.keys.readableLines().map(function(line){
-                return <p>{line}</p>
-            })}
             <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            {this.state.keybindings}
+            {this.state.keyMapping.keys.readableLines().map(function(line){
+                return <p className="leftAlign">{line}</p>
+            })}
             </div>
             </div>
         )

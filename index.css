@@ -46,3 +46,6 @@ button{
 .ghost {
     opacity: 0.2;
 }
+.leftAlign{
+    text-align: left;
+}

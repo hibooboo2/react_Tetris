@@ -51,6 +51,10 @@ var keyMappings = function () {
                 function: "pause",
                 english: "Pause Game"
             },
+            192:{
+                function: "changeMapping",
+                english: "Switch mapping between Arrows and wasd"
+            },
             readableLine: function (key) {
                 var readable;
                 if(this[key]!==undefined){
@@ -99,8 +103,25 @@ var keyMappings = function () {
                 function: "pause",
                 english: "Pause Game"
             },
+            192:{
+                function: "changeMapping",
+                english: "Switch mapping between Arrows and wasd"
+            },
             readableLine: function (key) {
-                return codeToKey[key] + " = " + this[key].english;
+                var readable;
+                if(this[key]!==undefined){
+                   readable = codeToKey[key] + " = " + this[key].english;
+                }
+                return readable;
+            },
+            readableLines: function () {
+                var lines = [];
+                for (var i = 0;i < 200;i++){
+                    if(this.readableLine(i)){
+                        lines.push(this.readableLine(i));
+                    }
+                }
+                return lines;
             }
         },
     };
