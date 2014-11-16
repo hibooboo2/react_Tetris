@@ -6,6 +6,7 @@ function Cell(x, y, color, name, type) {
     this.name = name ? name : "empty";
     this.type = type ? type : 4;
 }
+
 Cell.prototype.types = ["ghost", "moving", "placed","default"];
 
 Cell.prototype.equals = function (cell) {
@@ -31,12 +32,14 @@ Cell.prototype.canMove = function (currentBoard, newPosition) {
     // See if the new cell collides on the board.
     return currentBoard.getCell(newCell.x,newCell.y).type !==2;
 };
+
 Cell.prototype.canMoveDown = function (currentBoard) {
     return this.canMove(currentBoard, {
         x: 0,
         y: 1
     });
 };
+
 Cell.prototype.moveDown = function (currentBoard) {
     var moved = false;
     if (this.canMoveDown(currentBoard)) {
