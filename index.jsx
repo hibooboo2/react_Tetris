@@ -3,7 +3,14 @@ var GameBox = React.createClass({
         var issues = "Not sure";
         issues = loadIssuesNumber(issues);
         console.log(issues);
-        return {gameState:this.props.gameState,paused:true,issues:issues};
+        return {
+                gameState: this.props.gameState,
+                paused: true,
+                issues: issues,
+                keyMappings: this.props.keyMappings,
+                keyMapping: this.props.keyMappings["default"],
+                currentMap: "default"
+                };
     },
      componentDidMount: function(){
         // componentDidMount is called by react when the component
@@ -45,44 +52,27 @@ var GameBox = React.createClass({
     handleKeys:function(evt){
         var currEvent = evt;
         var key = evt.keyCode;
-/*        console.log(evt);*/
-/*        console.log(this.state.gameState);*/
-        this.keyMappings = {
-            87:"dropFallingPiece",
-            83:"moveFallingDown",
-            39:"rotateFallingClockWise",
-            37:"rotateFallingCounterClockWise",
-            68:"shiftFallingRight",
-            65:"shiftFallingLeft",
-            16:"holdPiece",
-            13:this.restart,
-            32:this.pause
-        };
-        this.arrowKeys = {
-            40:"moveFallingDown",
-            38:"rotateFallingClockWise",
-            39:"shiftFallingRight",
-            37:"shiftFallingLeft",
-            16:"holdPiece"
-        };
+        console.log(key);
+/*        console.log(this.state.currentMap);*/
+/*        console.log(this.state.keyMapping.keys[key]);*/
         if(evt instanceof KeyboardEvent ){
             if(key === 192){
-                this.setState({useArrows:!this.state.useArrows});
-            }else if(!this.state.paused && this.state.gameState.fallingPiece&& !this.state.useArrows){
-                if(this.state.gameState[this.keyMappings[key]] !== undefined){
-                    this.state.gameState[this.keyMappings[key]]();
+                if(this.state.currentMap === "default"){
+                    this.state.currentMap = "arrows";
                 }else{
-                    this.keyMappings[key]();
+                    this.state.currentMap = "default";
                 }
-            }else if(!this.state.paused && this.state.gameState.fallingPiece && this.state.useArrows){
-                if(this.state.gameState[this.arrowKeys[key]] !== undefined){
-                    this.state.gameState[this.arrowKeys[key]]();
+                this.state.keyMapping = this.state.keyMappings[this.state.currentMap];
+                this.setState({keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
+            }else if(!this.state.paused && this.state.gameState.fallingPiece){
+                if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
+                    this.state.gameState[this.state.keyMapping.keys[key].function]();
                 }else{
-                    this.arrowKeys[key]();
+                    this[this.state.keyMapping.keys[key].function]();
                 }
             }else if(evt instanceof KeyboardEvent){
                 if(key===32||key==13){
-                    this.keyMappings[key]();
+                    this[this.state.keyMapping.keys[key].function]();
                 }
             }
         }
@@ -112,9 +102,12 @@ var GameBox = React.createClass({
 
             </div>
             <div className="Controls rightCenter">
+            {this.state.keyMapping.keys.readableLines().map(function(line){
+                return <p>{line}</p>
+            })}
             <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart Hold Piece=Shift
+            {this.state.keybindings}
             </div>
             </div>
         )
@@ -126,13 +119,13 @@ var TetrisGame = React.createClass({
   render: function() {
     return (
       <div className="TetrisGame">
-        <GameBox gameState={this.props.gameState}/>
+        <GameBox gameState={this.props.gameState} keyMappings={this.props.keyMappings}/>
       </div>
     );
   }
 });
-
+var theKeys = keyMappings();
 React.render(
-  <TetrisGame gameState={new boardEngine()}/>,
+  <TetrisGame gameState={new boardEngine()} keyMappings={theKeys}/>,
   document.getElementById('main_Container')
 );
