@@ -103,9 +103,10 @@ var GameBox = React.createClass({
             </div>
             <div className ="rightCenter">
             <hr />
-            Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
+            Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
             <hr />
-            All Issues: {currentIssues}
+            All Issues: {this.state.issues.length}
+            {currentIssues}
             </ div>
             </div>
         )
