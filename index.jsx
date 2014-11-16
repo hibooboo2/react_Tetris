@@ -1,6 +1,6 @@
 var GameBox = React.createClass({
     getInitialState: function(){
-        return {gameState:this.props.gameState,paused:false};
+        return {gameState:this.props.gameState,paused:true};
     },
      componentDidMount: function(){
         // componentDidMount is called by react when the component
@@ -16,33 +16,33 @@ var GameBox = React.createClass({
     },
 
     addPiece: function(){
-        this.state.gameState.newCurrentPiece();
+        this.state.gameState.newFallingPiece();
         this.setState({gameState:this.state.gameState});
     },
 
     dropPiece: function(){
-        this.state.gameState.currentPiece.dropPiece(this.state.gameState.board());
-        this.state.gameState.addPiece(this.state.gameState.currentPiece);
+        this.state.gameState.fallingPiece.dropPiece(this.state.gameState.board());
+        this.state.gameState.addPiece(this.state.gameState.fallingPiece);
         this.setState({gameState:this.state.gameState});
     },
 
     rotatePieceClockwise: function(){
-        this.state.gameState.currentPiece.rotateClockWise(this.state.gameState.board());
+        this.state.gameState.fallingPiece.rotateClockWise(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
     },
 
     rotatePieceCounterClockwise: function(){
-        this.state.gameState.currentPiece.rotateCounterClockWise(this.state.gameState.board());
+        this.state.gameState.fallingPiece.rotateCounterClockWise(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
     },
 
     moveLeft: function(){
-        this.state.gameState.currentPiece.shiftLeft(this.state.gameState.board());
+        this.state.gameState.fallingPiece.shiftLeft(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
     },
 
     moveRight: function(){
-        this.state.gameState.currentPiece.shiftRight(this.state.gameState.board());
+        this.state.gameState.fallingPiece.shiftRight(this.state.gameState.board());
         this.setState({gameState:this.state.gameState});
     },
 
@@ -51,8 +51,8 @@ var GameBox = React.createClass({
             return;
         }
         else if(!this.state.gameState.gameOver){
-            if(this.state.gameState.currentPiece){
-                if(!this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board())){
+            if(this.state.gameState.fallingPiece){
+                if(!this.state.gameState.fallingPiece.movePieceDown(this.state.gameState.board())){
                     this.dropPiece();
                 }else{
                     this.setState({gameState:this.state.gameState});
@@ -64,8 +64,8 @@ var GameBox = React.createClass({
     },
 
     softDrop: function(){
-        if(this.state.gameState.currentPiece && !this.state.gameState.gameOver){
-            this.state.gameState.currentPiece.movePieceDown(this.state.gameState.board());
+        if(this.state.gameState.fallingPiece && !this.state.gameState.gameOver){
+            this.state.gameState.fallingPiece.movePieceDown(this.state.gameState.board());
             this.setState({gameState:this.state.gameState});
         }
     },
@@ -77,7 +77,7 @@ var GameBox = React.createClass({
 
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
-        this.setState({gameState:gameEngine.newGame(),paused:false});
+        this.setState({gameState:gameEngine.newGame(),paused:true});
         }
     },
 
@@ -135,7 +135,7 @@ var GameBox = React.createClass({
             <div className="cells">
             {this.state.gameState.board().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
-                    return <div className={"cell"} style={{"backgroundColor": cell.color}}></div>;
+                    return <div className={"cell "+cell.type} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
             Current Lines cleared {this.state.gameState.level*-1}
