@@ -1,88 +1,35 @@
-function Cell(x, y, color, name, occupied, currentPiece) {
-    this.x = x ? x : 0;
-    this.y = y ? y : 0;
-    this.color = color ? color : "pink";
-    this.name = name ? name : "Pinky";
-    this.occupied = occupied ? occupied : false;
-    this.currentPiece = currentPiece ? currentPiece : false;
-}
-
-Cell.prototype.equals = function (cell) {
-    return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.occupied === cell.occupied;
-};
-Cell.prototype.copy = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        color: this.color,
-        name: this.name,
-        occupied: this.occupied,
-        currentPiece:this.currentPiece
-    };
-};
-Cell.prototype.collides = function (cell) {
-    return this.x === cell.x && this.y === cell.y;
-};
-Cell.prototype.canMove = function (currentBoard, newPosition) {
-    var canMove = true;
-    if (this.y + newPosition.y > 21 || this.x + newPosition.x > 9) {
-        canMove = false;
-    } else {
-        if (!(currentBoard[this.y + newPosition.y] && currentBoard[this.y + newPosition.y][this.x + newPosition.x])) {
-            canMove = false;
-        }
-        if (canMove && currentBoard[this.y + newPosition.y][this.x + newPosition.x].occupied === true && !currentBoard[this.y + newPosition.y][this.x + newPosition.x].currentPiece) {
-            console.log("Cell can't move: x: " + (newPosition.x) + " y: " + (newPosition.y));
-            console.log(currentBoard[this.y + newPosition.y][this.x + newPosition.x]);
-            canMove = false;
-        }
-    }
-    return canMove;
-};
-Cell.prototype.canMoveDown = function (currentBoard) {
-    return this.canMove(currentBoard, {
-        x: 0,
-        y: 1
-    });
-};
-Cell.prototype.moveDown = function (currentBoard) {
-    var moved = false;
-    if (this.canMoveDown(currentBoard)) {
-        this.y += 1;
-        moved = true;
-    }
-    return moved;
-};
-
-function Piece(tetromino, position, rotation, occupied, currentPiece) {
+//pieceEngine.js relys on cellEngine.js and boardEngine.js
+function Piece(tetromino, position, rotation, type) {
     this.tetromino = tetromino ? tetromino : allTetromino.Z;
     this.rotation = rotation ? rotation : 0;
-    this.occupied = occupied ? occupied : false;
     this.position = position ? position : {
         x: 3,
         y: 0
     };
-    this.currentPiece = currentPiece ? currentPiece : false;
+    this.type = type ? type : 3;
 }
 
-Piece.prototype.fromPiece = function (piece) {
-    return new Piece(piece.tetromino, {
-        x: 3,
-        y: 0
-    }, 0, true,piece.currentPiece);
+Piece.prototype.getType = function () {
+    return Cell.prototype.types[this.type];
 }
+
+Piece.prototype.copy = function () {
+    return new Piece(this.tetromino, this.position, this.rotation, this.type);
+}
+
 Piece.prototype.equals = function (piece) {
     return this.cells().filter(function (cell) {
-        var sameCells = piece.cells().filter(function (thisCell) {
+        return piece.cells().filter(function (thisCell) {
             return thisCell.equals(cell);
-        })
-        return sameCells.length === 1;
+        }).length === 1;
 
     }).length === 4;
 };
+
 Piece.prototype.name = function () {
     return this.tetromino.name;
 };
+
 Piece.prototype.color = function () {
     return this.tetromino.color;
 };
@@ -90,22 +37,31 @@ Piece.prototype.color = function () {
 Piece.prototype.collides = function (piece) {
     var collides = false;
     this.cells().map(function (cell) {
-        if (piece.collidesWithCell(cell)) {
-            collides = true;
-        }
+        piece.cells().map(function (cellB) {
+            if (cell.collides(cellB)) {
+                collides = true;
+            }
+        })
     });
     return collides;
 };
+
 Piece.prototype.collidesWithCell = function (cellToCheck) {
     var collides = false;
     this.cells().map(function (cell) {
         if (cell.collides(cellToCheck)) {
             collides = true;
         }
-
     });
     return collides;
 };
+
+Piece.prototype.collidesWithCells = function (cells) {
+    return cells.reduce(function (cellA, cellB) {
+        return this.collidesWithCell(cellA) || this.collidesWithCell(cellB);
+    })
+}
+
 Piece.prototype.movePiece = function (currentBoard, newPostion) {
     var moved = false;
     if (this.canMove(currentBoard, newPostion)) {
@@ -124,38 +80,29 @@ Piece.prototype.movePieceDown = function (currentBoard) {
     return this.movePiece(currentBoard, newPostion);
 };
 
-
 Piece.prototype.canMove = function (currentBoard, newPosition) {
-    var canMoveArr = [];
-    canMoveArr = this.cells().map(function (cell) {
-        return cell.canMove(currentBoard, newPosition);
-    });
-    return canMoveArr.reduce(function (a, b) {
-        return a && b;
+    return this.cells().reduce(function (cellA, cellB) {
+        return cellA.canMove(currentBoard, newPosition) && cellB.canMove(currentBoard, newPosition);
     });
 };
 
 Piece.prototype.canMoveDown = function (currentBoard) {
-    return this.canMove(currentBoard, {
-        x: this.position.x,
-        y: this.position.y + 1
-    });
+    return this.cells().reduce(function (cellA, cellB) {
+        return cellA.canMoveDown(currentBoard) && cellB.canMoveDown(currentBoard);
+    })
 };
 
 Piece.prototype.canRotate = function (currentBoard, newRotation) {
-    var canMove = true;
+    var canRotate = true;
     var oldRotation = this.rotation;
     this.rotation = newRotation;
     this.cells().map(function (cell) {
-        if (cell.y > 21 || cell.x > 9) {
-            canMove = false;
-        }
-        if (canMove && currentBoard[cell.y][cell.x].occupied && !currentBoard[cell.y][cell.x].currentPiece) {
-            canMove = false;
+        if (currentBoard.getCell(cell.x, cell.y).type === 2) {
+            canRotate = false;
         }
     });
     this.rotation = oldRotation;
-    return canMove;
+    return canRotate;
 };
 
 Piece.prototype.dropPiece = function (currentBoard) {
@@ -164,23 +111,23 @@ Piece.prototype.dropPiece = function (currentBoard) {
     while (this.movePieceDown(currentBoard)) {}
     return this.position.y === curPosy;
 };
+
 Piece.prototype.ghost = function (currentBoard) {
-    var ghostPiece = new Piece().fromPiece(this);
+    var ghostPiece = this.copy();
     ghostPiece.dropPiece(currentBoard);
     return ghostPiece;
 }
+
 Piece.prototype.cells = function () {
     var currentCells = [];
     var startingPos = this.position;
     var color = this.color();
     var name = this.name();
-    var occupied = this.occupied;
-    var currentPiece = this.currentPiece ? this.currentPiece : false;
+    var type = this.type;
     this.tetromino.cells[this.rotation].map(function (row, celly) {
         row.map(function (cell, cellx) {
             if (cell) {
-                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, occupied);
-                cellToAdd.currentPiece = currentPiece;
+                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, type);
                 currentCells.push(cellToAdd);
             }
         });
@@ -195,6 +142,7 @@ Piece.prototype.shiftLeft = function (currentBoard) {
     };
     return this.movePiece(currentBoard, newPostion);
 };
+
 Piece.prototype.shiftRight = function (currentBoard) {
     var newPostion = {
         x: 1,
@@ -202,6 +150,7 @@ Piece.prototype.shiftRight = function (currentBoard) {
     };
     return this.movePiece(currentBoard, newPostion);
 };
+
 Piece.prototype.rotateClockWise = function (currentBoard) {
     var rotated = false;
     var newRotation = this.rotation + 1;
@@ -214,6 +163,7 @@ Piece.prototype.rotateClockWise = function (currentBoard) {
     }
     return rotated;
 };
+
 Piece.prototype.rotateCounterClockWise = function (currentBoard) {
     var rotated = false;
     var newRotation = this.rotation - 1;
@@ -228,27 +178,29 @@ Piece.prototype.rotateCounterClockWise = function (currentBoard) {
 };
 
 Piece.prototype.rand = function () {
-    if (Piece.prototype.nextPiece > 5) {
-        Piece.prototype.nextPiece = -1;
+    if (Piece.prototype.nextPieceNumber > 5) {
+        Piece.prototype.nextPieceNumber = -1;
         Piece.prototype.shuffle(Piece.prototype.pieceLetters);
     }
-    Piece.prototype.nextPiece += 1;
-    return new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPiece]], {
+    Piece.prototype.nextPieceNumber += 1;
+    return new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
         x: 3,
         y: 0
-    }, 0, true, false);
+    }, 0, 0);
 };
 
 Piece.prototype.draw = function () {
-    var drawnPiece = Piece.prototype.rand();
-    drawnPiece.currentPiece = true;
+    Piece.prototype.que.unshift(Piece.prototype.rand());
+    var drawnPiece = Piece.prototype.que.pop();
     return drawnPiece;
 };
+
 Piece.prototype.shuffle = function (o) { //v1.0
     for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
 }
 
-Piece.prototype.nextPiece = -1;
+Piece.prototype.nextPieceNumber = -1;
+Piece.prototype.que = [Piece.prototype.rand(),Piece.prototype.rand(),Piece.prototype.rand(),Piece.prototype.rand()];
 Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
 Piece.prototype.shuffle(Piece.prototype.pieceLetters);
