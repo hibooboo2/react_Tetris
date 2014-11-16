@@ -2,11 +2,12 @@
     padding: 1em;
     position: relative;
     display: inline-block;
-    border: .1em solid white;
+    border: 1px solid white;
     font-size: 13px;
 }
 .cells {
-    width: 20em;
+    background-color: lightgrey;
+    width: 280px;
     max-width: 20em;
 }
 .GameBox {
@@ -37,4 +38,8 @@ button{
     top: 50%;
     margin-right: -50%;
     margin-top: -50%;
+}
+
+.ghost {
+    opacity: 0.2;
 }
