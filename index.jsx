@@ -14,46 +14,14 @@ var GameBox = React.createClass({
         // from the page and destroyed. We can clear the interval here:
         clearInterVal(this.autoGravity);
     },
-
-    addPiece: function(){
-        this.state.gameState.newFallingPiece();
-        this.setState({gameState:this.state.gameState});
-    },
-
-    dropPiece: function(){
-        this.state.gameState.fallingPiece.dropPiece(this.state.gameState.board());
-        this.state.gameState.addPiece(this.state.gameState.fallingPiece);
-        this.setState({gameState:this.state.gameState});
-    },
-
-    rotatePieceClockwise: function(){
-        this.state.gameState.fallingPiece.rotateClockWise(this.state.gameState.board());
-        this.setState({gameState:this.state.gameState});
-    },
-
-    rotatePieceCounterClockwise: function(){
-        this.state.gameState.fallingPiece.rotateCounterClockWise(this.state.gameState.board());
-        this.setState({gameState:this.state.gameState});
-    },
-
-    moveLeft: function(){
-        this.state.gameState.fallingPiece.shiftLeft(this.state.gameState.board());
-        this.setState({gameState:this.state.gameState});
-    },
-
-    moveRight: function(){
-        this.state.gameState.fallingPiece.shiftRight(this.state.gameState.board());
-        this.setState({gameState:this.state.gameState});
-    },
-
     gravity: function(){
         if(this.state.paused) {
             return;
         }
         else if(!this.state.gameState.gameOver){
             if(this.state.gameState.fallingPiece){
-                if(!this.state.gameState.fallingPiece.movePieceDown(this.state.gameState.board())){
-                    this.dropPiece();
+                if(!this.state.gameState.moveFallingDown()){
+                    this.state.gameState.dropFallingPiece();
                 }else{
                     this.setState({gameState:this.state.gameState});
                 }
@@ -62,80 +30,57 @@ var GameBox = React.createClass({
             this.pause();
         }
     },
-
-    softDrop: function(){
-        if(this.state.gameState.fallingPiece && !this.state.gameState.gameOver){
-            this.state.gameState.fallingPiece.movePieceDown(this.state.gameState.board());
-            this.setState({gameState:this.state.gameState});
-        }
-    },
-
-    holdPiece: function(){
-        this.state.gameState.holdPiece();
-        this.setState({gameState:this.state.gameState});
-    },
-
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
-        this.setState({gameState:gameEngine.newGame(),paused:true});
+        this.setState({gameState:boardEngine,paused:true});
         }
     },
-
     pause: function(){
         this.state.paused = !this.state.paused;
         this.setState({paused:this.state.paused});
-    },handleKeys:function(evt){
+    },
+    handleKeys:function(evt){
         var currEvent = evt;
         var key = evt.keyCode;
         console.log(evt);
+        console.log(this.state.gameState);
         this.keyMappings = {
-        87:this.dropPiece,
-        83:this.softDrop,
-        39:this.rotatePieceClockwise,
-        37:this.rotatePieceCounterClockwise,
-        68:this.moveRight,
-        65:this.moveLeft,
-        16:this.holdPiece,
-        13:this.restart,
-        32:this.pause
-        }
-        this.arrowMappings = {
-        40:this.softDrop,
-        38:this.rotatePieceClockwise,
-        39:this.moveRight,
-        37:this.moveLeft,
-        16:this.holdPiece,
-        13:this.restart,
-        32:this.pause
-        }
+            87:"dropFallingPiece",
+            83:"moveFallingDown",
+            39:"rotateFallingClockWise",
+            37:"rotateFallingCounterClockWise",
+            68:"shiftFallingRight",
+            65:"shiftFallingLeft",
+            16:"holdPiece",
+            13:this.restart,
+            32:this.pause
+        };
         if(evt instanceof KeyboardEvent ){
             if(key === 192){
                 this.setState({useArrows:!this.state.useArrows});
-            }else if(!this.state.paused && !this.state.useArrows){
-                    if(this.keyMappings[key]!== undefined){
-                        this.keyMappings[key]();
-                    }
-            }else if(!this.state.paused && this.state.useArrows){
-                    if(this.arrowMappings[key]!== undefined){
-                        this.arrowMappings[key]();
-                    }
+            }else if(!this.state.paused && this.state.gameState.fallingPiece){
+                if(this.keyMappings[key]!== undefined){
+                    this.state.gameState[this.keyMappings[key]]();
+                }
             }else if(evt instanceof KeyboardEvent && this.state.paused){
-                if(key===32){
+                if(key===32||key==13){
                     this.keyMappings[key]();
                 }
             }
         }
+        this.setState({gameState:this.state.gameState});
     },
     render: function() {
         if(this.state.gameState.gameOver){
             alert("Gameover");
         }
+        console.log(this.state.gameState);
         return (
             <div className="GameBox">
             <div className="cells">
-            {this.state.gameState.board().map(function(row) {
+            {this.state.gameState.getCurrentBoard().map(function(row) {
                 return <div className="row">{row.map(function(cell) {
-                    return <div className={"cell "+cell.type} style={{"backgroundColor": cell.color}}></div>;
+                    return <div className={"cell "+cell.getType()} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
             Current Lines cleared {this.state.gameState.level*-1}
@@ -143,6 +88,7 @@ var GameBox = React.createClass({
             </div>
             <div className="Controls rightCenter">
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            <button onClick={this.gravity}>Gravity</button>
             a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart Hold Piece=Shift
             </div>
             </div>
@@ -162,6 +108,6 @@ var TetrisGame = React.createClass({
 });
 
 React.render(
-  <TetrisGame gameState={gameEngine.newGame()}/>,
+  <TetrisGame gameState={A}/>,
   document.getElementById('main_Container')
 );

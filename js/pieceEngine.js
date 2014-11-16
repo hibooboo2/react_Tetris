@@ -6,16 +6,16 @@ function Piece(tetromino, position, rotation, type) {
         x: 3,
         y: 0
     };
-    this.type = type ? type : 3;
+    this.type = type ? type : 0;
 }
 
 Piece.prototype.getType = function () {
     return Cell.prototype.types[this.type];
-}
+};
 
 Piece.prototype.copy = function () {
     return new Piece(this.tetromino, this.position, this.rotation, this.type);
-}
+};
 
 Piece.prototype.equals = function (piece) {
     return this.cells().filter(function (cell) {
@@ -41,7 +41,7 @@ Piece.prototype.collides = function (piece) {
             if (cell.collides(cellB)) {
                 collides = true;
             }
-        })
+        });
     });
     return collides;
 };
@@ -57,10 +57,10 @@ Piece.prototype.collidesWithCell = function (cellToCheck) {
 };
 
 Piece.prototype.collidesWithCells = function (cells) {
-    return cells.reduce(function (cellA, cellB) {
-        return this.collidesWithCell(cellA) || this.collidesWithCell(cellB);
-    })
-}
+    return cells.reduce(function (cellB, cellA) {
+        return this.collidesWithCell(cellA) || cellB;
+    }, false);
+};
 
 Piece.prototype.movePiece = function (currentBoard, newPostion) {
     var moved = false;
@@ -81,15 +81,20 @@ Piece.prototype.movePieceDown = function (currentBoard) {
 };
 
 Piece.prototype.canMove = function (currentBoard, newPosition) {
-    return this.cells().reduce(function (cellA, cellB) {
-        return cellA.canMove(currentBoard, newPosition) && cellB.canMove(currentBoard, newPosition);
+    var pieceCanMove = true;
+    this.cells().map(function (cell) {
+        if (!cell.canMove(currentBoard, newPosition)) {
+            pieceCanMove = false;
+        }
     });
+    return pieceCanMove;
 };
 
 Piece.prototype.canMoveDown = function (currentBoard) {
-    return this.cells().reduce(function (cellA, cellB) {
-        return cellA.canMoveDown(currentBoard) && cellB.canMoveDown(currentBoard);
-    })
+    return this.canMove(currentBoard, {
+        x: 0,
+        y: 1
+    });
 };
 
 Piece.prototype.canRotate = function (currentBoard, newRotation) {
@@ -116,7 +121,7 @@ Piece.prototype.ghost = function (currentBoard) {
     var ghostPiece = this.copy();
     ghostPiece.dropPiece(currentBoard);
     return ghostPiece;
-}
+};
 
 Piece.prototype.cells = function () {
     var currentCells = [];
@@ -178,29 +183,38 @@ Piece.prototype.rotateCounterClockWise = function (currentBoard) {
 };
 
 Piece.prototype.rand = function () {
-    if (Piece.prototype.nextPieceNumber > 5) {
+    if (Piece.prototype.nextPieceNumber > 6) {
         Piece.prototype.nextPieceNumber = -1;
         Piece.prototype.shuffle(Piece.prototype.pieceLetters);
     }
     Piece.prototype.nextPieceNumber += 1;
-    return new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
+    var aRandPiece = new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
         x: 3,
         y: 0
     }, 0, 0);
+    return aRandPiece;
 };
 
 Piece.prototype.draw = function () {
-    Piece.prototype.que.unshift(Piece.prototype.rand());
+    while (Piece.prototype.que.length < 5) {
+        var toPush = Piece.prototype.rand();
+        Piece.prototype.que.push(toPush);
+    }
     var drawnPiece = Piece.prototype.que.pop();
+    drawnPiece.type = 0;
+    Piece.prototype.que.unshift(Piece.prototype.rand());
     return drawnPiece;
 };
 
 Piece.prototype.shuffle = function (o) { //v1.0
     for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
-}
+};
 
 Piece.prototype.nextPieceNumber = -1;
-Piece.prototype.que = [Piece.prototype.rand(),Piece.prototype.rand(),Piece.prototype.rand(),Piece.prototype.rand()];
+
+Piece.prototype.que = [];
+
 Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
+
 Piece.prototype.shuffle(Piece.prototype.pieceLetters);
