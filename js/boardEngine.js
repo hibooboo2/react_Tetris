@@ -35,7 +35,7 @@ BoardEngine.prototype.getPieceCells = function (piece) {
 };
 //Clears all Lines that are full.
 BoardEngine.prototype.clearLines = function () {
-
+    console.log("Clear Lines");
 }
 //Takes A defined Piece and adds it if it can be placed;
 BoardEngine.prototype.addPiece = function (piece) {
