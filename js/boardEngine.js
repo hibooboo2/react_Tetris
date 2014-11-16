@@ -36,6 +36,40 @@ BoardEngine.prototype.getPieceCells = function (piece) {
 //Clears all Lines that are full.
 BoardEngine.prototype.clearLines = function () {
     console.log("Clear Lines");
+/*
+    var blankRow = function () {
+            var row = [];
+            for (var j = 0; j < 10; j++) {
+                row[j] = new Cell(0, j);
+            }
+            return row;
+        }
+    var occupiedRows = []
+    x.cellsUsed.map(function (row, rowIndex) {
+        var allOccupied = true;
+        row.map(function (cell) {
+            if (cell.type !== 2) {
+                allOccupied = false;
+            }
+        });
+        if (allOccupied) {
+            occupiedRows.push(rowIndex);
+        }
+        return allOccupied;
+    });
+    if (occupiedRows.length > 0) {
+        occupiedRows.map(function (rowToRemove) {
+            x.cellsUsed.splice(rowToRemove, 1);
+            x.level -= 1;
+            x.cellsUsed.unshift(blankRow());
+        });
+        x.cellsUsed.map(function (row, y) {
+            row.map(function (cell, x) {
+                cell.x = x;
+                cell.y = y;
+            });
+        });
+    }*/
 }
 //Takes A defined Piece and adds it if it can be placed;
 BoardEngine.prototype.addPiece = function (piece) {
