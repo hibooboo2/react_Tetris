@@ -2,7 +2,6 @@ var GameBox = React.createClass({
     getInitialState: function(){
         var issues = "Not sure";
         issues = loadIssuesNumber(issues);
-        console.log(issues);
         return {
                 gameState: this.props.gameState,
                 paused: true,
@@ -59,7 +58,7 @@ var GameBox = React.createClass({
     handleKeys:function(evt){
         var currEvent = evt;
         var key = evt.keyCode;
-        console.log(key);
+/*        console.log(key);*/
 /*        console.log(this.state.currentMap);*/
 /*        console.log(this.state.keyMapping.keys[key]);*/
         if(evt instanceof KeyboardEvent ){
@@ -85,7 +84,6 @@ var GameBox = React.createClass({
         currentIssues = currentIssues.map(function(issue){
             return <p>{issue.title}</ p>;
             });
-        console.log(this.state.keyMapping.keys.readableLines());
         return (
             <div className="GameBox">
             <div className="cells">

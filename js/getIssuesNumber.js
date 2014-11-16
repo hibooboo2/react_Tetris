@@ -10,7 +10,7 @@ function loadIssuesNumber(whereToPut) {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             x = JSON.parse(xmlhttp.responseText);
             whereToPut = x;
-            console.log(x);
+            //console.log(x);
         }
     }
     xmlhttp.open("GET", "https://api.github.com/repos/hibooboo2/react_Tetris/issues", false);

@@ -106,7 +106,9 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
     var oldRotation = this.rotation;
     this.rotation = newRotation;
     this.cells().map(function (cell) {
-        if (currentBoard.getCell(cell.x, cell.y).type === 2) {
+        var type = currentBoard.getCell(cell).type;
+        console.log(type);
+        if (type === 2 || type === 4) {
             canRotate = false;
         }
     });
