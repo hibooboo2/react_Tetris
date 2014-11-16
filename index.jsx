@@ -1,5 +1,7 @@
 var GameBox = React.createClass({
     getInitialState: function(){
+        var level = parseInt(prompt("Starting Level?"));
+        this.props.gameState.level = -level;
         var issues = "Not sure";
         issues = loadIssuesNumber(issues);
         return {
@@ -75,6 +77,14 @@ var GameBox = React.createClass({
             }
         }
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
+    },toggleGhost:function(){
+
+    },togglePreview:function(){
+        this.state.settings.canPreview = !this.state.settings.canPreview;
+        this.setState({settings:this.state.settings});
+    },toggleHold:function(){
+        this.state.settings.canHold = !this.state.settings.canHold;
+        this.setState({settings:this.state.settings});
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -100,6 +110,11 @@ var GameBox = React.createClass({
                 return <p className="leftAlign">{line}</p>
             })}
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            <div className="Settings inline leftAlign">
+                <input onClick={this.toggleGhost} type="button" value="Ghost"/>
+                <input onClick={this.togglePreview} type="button" value="Preview"/>
+                <input onClick={this.toggleHold} type="button" value="Hold"/>
+            </ div>
             </div>
             <div className ="rightCenter">
             <hr />
@@ -112,7 +127,6 @@ var GameBox = React.createClass({
         )
     }
 });
-
 
 var TetrisGame = React.createClass({
   render: function() {

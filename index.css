@@ -57,3 +57,6 @@ button{
 .leftAlign{
     text-align: left;
 }
+.inline{
+    display: inline-block;
+}
