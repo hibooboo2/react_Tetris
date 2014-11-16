@@ -4,7 +4,7 @@ var gameEngine = {
         x.gameOver = false;
         x.justHeld = false;
         x.level = 0;
-        x.currentPiece = new Piece().rand();
+        x.currentPiece = new Piece().draw();
         x.heldPiece = false;
         x.cellsUsed = [[]];
         for (var i = 0; i < 22; i++) {
@@ -23,9 +23,13 @@ var gameEngine = {
                 x.currentPiece.cells().map(function (cell) {
                     if (0 <= cell.y <= 21 && 0 <= cell.x <= 9) {
                         currentBoard[cell.y][cell.x] = cell;
-                        cell.currentPiece = true;
                     }
                 });
+//                x.currentPiece.ghost(currentBoard).cells().map(function (cell) {
+//                    if (0 <= cell.y <= 21 && 0 <= cell.x <= 9) {
+//                        currentBoard[cell.y][cell.x] = cell;
+//                    }
+//                });
             }
             return currentBoard;
         };
@@ -48,20 +52,22 @@ var gameEngine = {
                         x.cellsUsed[cell.y] = [];
                     }
                     x.cellsUsed[cell.y][cell.x] = cell;
+                    cell.currentPiece = false;
                 });
             }
             if (piece.equals(x.currentPiece)) {
                 x.newCurrentPiece();
             }
             if (collided.length > 0) {
-                x.gameOver = true;
+//                x.gameOver = true;
             }
             console.log("Collided Cells:" + collided.length);
             x.clearLines();
             return this;
         };
         x.newCurrentPiece = function(){
-            x.currentPiece = new Piece().rand();
+            x.currentPiece = new Piece().draw();
+            x.currentPiece.currentPiece = true;
             x.justHeld = false;
         }
         x.holdPiece = function () {

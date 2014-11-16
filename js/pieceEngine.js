@@ -1,9 +1,10 @@
-function Cell(x, y, color, name, occupied) {
+function Cell(x, y, color, name, occupied, currentPiece) {
     this.x = x ? x : 0;
     this.y = y ? y : 0;
     this.color = color ? color : "pink";
     this.name = name ? name : "Pinky";
     this.occupied = occupied ? occupied : false;
+    this.currentPiece = currentPiece ? currentPiece : false;
 }
 
 Cell.prototype.equals = function (cell) {
@@ -15,7 +16,8 @@ Cell.prototype.copy = function () {
         y: this.y,
         color: this.color,
         name: this.name,
-        occupied: this.occupied
+        occupied: this.occupied,
+        currentPiece:this.currentPiece
     };
 };
 Cell.prototype.collides = function (cell) {
@@ -52,7 +54,7 @@ Cell.prototype.moveDown = function (currentBoard) {
     return moved;
 };
 
-function Piece(tetromino, position, rotation, occupied) {
+function Piece(tetromino, position, rotation, occupied, currentPiece) {
     this.tetromino = tetromino ? tetromino : allTetromino.Z;
     this.rotation = rotation ? rotation : 0;
     this.occupied = occupied ? occupied : false;
@@ -60,13 +62,14 @@ function Piece(tetromino, position, rotation, occupied) {
         x: 3,
         y: 0
     };
+    this.currentPiece = currentPiece ? currentPiece : false;
 }
 
 Piece.prototype.fromPiece = function (piece) {
     return new Piece(piece.tetromino, {
         x: 3,
         y: 0
-    }, 0, true);
+    }, 0, true,piece.currentPiece);
 }
 Piece.prototype.equals = function (piece) {
     return this.cells().filter(function (cell) {
@@ -161,16 +164,24 @@ Piece.prototype.dropPiece = function (currentBoard) {
     while (this.movePieceDown(currentBoard)) {}
     return this.position.y === curPosy;
 };
+Piece.prototype.ghost = function (currentBoard) {
+    var ghostPiece = new Piece().fromPiece(this);
+    ghostPiece.dropPiece(currentBoard);
+    return ghostPiece;
+}
 Piece.prototype.cells = function () {
     var currentCells = [];
     var startingPos = this.position;
     var color = this.color();
     var name = this.name();
     var occupied = this.occupied;
+    var currentPiece = this.currentPiece ? this.currentPiece : false;
     this.tetromino.cells[this.rotation].map(function (row, celly) {
         row.map(function (cell, cellx) {
             if (cell) {
-                currentCells.push(new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, occupied));
+                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, occupied);
+                cellToAdd.currentPiece = currentPiece;
+                currentCells.push(cellToAdd);
             }
         });
     });
@@ -225,7 +236,13 @@ Piece.prototype.rand = function () {
     return new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPiece]], {
         x: 3,
         y: 0
-    }, 0, true);
+    }, 0, true, false);
+};
+
+Piece.prototype.draw = function () {
+    var drawnPiece = Piece.prototype.rand();
+    drawnPiece.currentPiece = true;
+    return drawnPiece;
 };
 Piece.prototype.shuffle = function (o) { //v1.0
     for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
