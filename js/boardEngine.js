@@ -132,7 +132,7 @@ var boardEngine = function () {
             this.newFallingPiece();
         }
         if (!added){
-//            this.gameOver = true;
+            this.gameOver = true;
         }
         this.clearLines();
         return added;

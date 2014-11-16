@@ -73,10 +73,9 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
     render: function() {
-        if(this.state.gameState.gameOver){
-            alert("Gameover");
-        }
         var tempBoard = this.state.gameState.getCurrentBoard();
+        tempBoard.shift();
+        tempBoard.shift();
         return (
             <div className="GameBox">
             <div className="cells">
@@ -89,8 +88,8 @@ var GameBox = React.createClass({
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
             </div>
             <div className="Controls rightCenter">
+            <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            <button onClick={this.gravity}>Gravity</button>
             a = left d= right s= softdrop w=harddrop Left/Right=rotate Space=Pause/Unpause Enter=Restart Hold Piece=Shift
             </div>
             </div>

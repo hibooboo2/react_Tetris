@@ -39,7 +39,10 @@ button{
     margin-right: -50%;
     margin-top: -50%;
 }
-
+.gameOver{
+    font-size: 5em;
+    background: red;
+}
 .ghost {
     opacity: 0.2;
 }
