@@ -37,7 +37,15 @@ button{
     left: 50%;
     top: 50%;
     margin-right: -50%;
-    margin-top: -50%;
+    margin-top: -75%;
+}.rightCenter {
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    top: 0%;
+    margin-right: -50%;
+    margin-top: -0%;
 }
 .gameOver{
     font-size: 5em;

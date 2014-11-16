@@ -95,19 +95,20 @@ var GameBox = React.createClass({
             })}</div>;
             })}
             Current Lines cleared {this.state.gameState.level*-1}
+            </div>
+            <div className="Controls">
+            <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
+            {this.state.keyMapping.keys.readableLines().map(function(line){
+                return <p className="leftAlign">{line}</p>
+            })}
+            <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            </div>
+            <div className ="rightCenter">
             <hr />
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
             <hr />
             All Issues: {currentIssues}
-
-            </div>
-            <div className="Controls rightCenter">
-            <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
-            <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
-            {this.state.keyMapping.keys.readableLines().map(function(line){
-                return <p className="leftAlign">{line}</p>
-            })}
-            </div>
+            </ div>
             </div>
         )
     }
