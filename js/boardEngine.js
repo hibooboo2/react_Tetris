@@ -1,11 +1,17 @@
 //BoardEngine Depends on a pieceEngine.js and cellEngine.js
 
-// BoardEngine(pieceEngine,cellEngine) will return a new Board.
-var A = new function () {
+// BoardEngine() will return a new Board.
+var boardEngine = function () {
     function Board() {
         this.height = 22;
         this.width = 10;
-        this.usedCells = [];
+        this.usedCells = [[]];
+        for (var i = 0; i < this.height; i++) {
+            this.usedCells[i] = [];
+            for (var j = 0; j < this.width; j++) {
+                this.usedCells[i][j] = new Cell(j, i);
+            }
+        }
         this.gameOver = false;
         this.justHeld = false;
         this.level = 0;
@@ -15,88 +21,129 @@ var A = new function () {
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
         var board = [[]];
-        for (var i = 0; i < 22; i++) {
+        for (var i = 0; i < this.height; i++) {
             board[i] = [];
-            for (var j = 0; j < 10; j++) {
-                board[i][j] = this.getCell(new Cell(j, i));
+            for (var j = 0; j < this.width; j++) {
+                board[i][j] = this.usedCells[i][j].copy();
             }
         }
-        this.usedCells.map(function (cell) {
-            board[cell.y][cell.x] = cell;
-        });
         this.fallingPiece.cells().map(function (cell) {
-            board[cell.y][cell.x] = cell;
+            board[cell.y][cell.x] = cell.copy();
+            board[cell.y][cell.x].type = 0;
         });
+        //        var ghostPiece = this.fallingPiece.copy();
+        //        ghostPiece.dropPiece(this);
+        //        ghostPiece.cells().map(function (cell) {
+        //            board[cell.y][cell.x] = cell.copy();
+        //            board[cell.y][cell.x].type = 0;
+        //        });
+
         return board;
     };
     //Get one and only one cell with provided x and y.
     Board.prototype.getCell = function (cellGiven) {
-        var matchedCells = this.usedCells.filter(function (cell) {
-            return cell.x === cellGiven.x && cell.y === cellGiven.y;
-        });
-        return matchedCells.length === 1 ? matchedCells[0] : new Cell(cellGiven.x, cellGiven.y);
+        var cellToReturn = null;
+        if (this.cellOnBoard(cellGiven)) {
+            cellToReturn = this.usedCells[cellGiven.y][cellGiven.x].copy();
+        } else {
+            cellToReturn = new Cell(cellGiven.x, cellGiven.y);
+            cellToReturn.type = 4;
+            //            console.log("Cell Given: ");
+            //            console.log(cellGiven);
+            //            console.log("Returned: " + cellGiven.x + " " + cellGiven.y);
+            //            console.log(cellToReturn);
+        }
+
+        return cellToReturn;
+    };
+
+
+    Board.prototype.canAddCell = function (cell) {
+        return this.cellOnBoard(cell) && this.getCell(cell).type !== 4 && !cell.collides(this.getCell(cell));
+    };
+    Board.prototype.addCell = function (cell) {
+        var added = false;
+        if (this.canAddCell(cell)) {
+            this.usedCells[cell.y][cell.x] = cell.copy();
+            this.usedCells[cell.y][cell.x].type = 2;
+            added = true;
+        }
+        return added;
     };
     //Returns the cells where a piece would be located if placed.
     Board.prototype.getPieceCells = function (piece) {
-        return piece.cells().map(function (cell) {
-            return this.getCell(cell.x, cell.y);
-        });
+        var theOrigCells = piece.cells();
+        var pieceCells = [];
+        for (var i = 0; i < theOrigCells.length; i++) {
+            pieceCells.push(this.getCell(theOrigCells[i]));
+        }
+        return pieceCells;
+    };
+    Board.prototype.cellOnBoard = function (cellGiven) {
+        return cellGiven.x < this.width && cellGiven.y < this.height && cellGiven.x >= 0 && cellGiven.y >= 0;
     };
     //Clears all Lines that are full.
     Board.prototype.clearLines = function () {
         console.log("Clear Lines");
-        /*
-    var blankRow = function () {
+
+        var blankRow = function () {
             var row = [];
             for (var j = 0; j < 10; j++) {
                 row[j] = new Cell(0, j);
             }
             return row;
-        }
-    var occupiedRows = []
-    x.cellsUsed.map(function (row, rowIndex) {
-        var allOccupied = true;
-        row.map(function (cell) {
-            if (cell.type !== 2) {
-                allOccupied = false;
-            }
-        });
-        if (allOccupied) {
-            occupiedRows.push(rowIndex);
-        }
-        return allOccupied;
-    });
-    if (occupiedRows.length > 0) {
-        occupiedRows.map(function (rowToRemove) {
-            x.cellsUsed.splice(rowToRemove, 1);
-            x.level -= 1;
-            x.cellsUsed.unshift(blankRow());
-        });
-        x.cellsUsed.map(function (row, y) {
-            row.map(function (cell, x) {
-                cell.x = x;
-                cell.y = y;
+        };
+        var occupiedRows = [];
+        this.usedCells.map(function (row, rowIndex) {
+            var allOccupied = true;
+            row.map(function (cell) {
+                if (cell.type !== 2) {
+                    allOccupied = false;
+                }
             });
+            if (allOccupied) {
+                occupiedRows.push(rowIndex);
+            }
+            return allOccupied;
         });
-    }*/
+        for (var i = 0;i <occupiedRows.length; i++) {
+            this.usedCells.splice(occupiedRows[i], 1);
+            this.level -= 1;
+            this.usedCells.unshift(blankRow());
+            this.usedCells.map(function (row, y) {
+                row.map(function (cell, x) {
+                    cell.x = x;
+                    cell.y = y;
+                });
+            });
+        }
     };
     //Takes A defined Piece and adds it if it can be placed;
     Board.prototype.addPiece = function (piece) {
         var added = false;
         if (this.canAddPiece(piece)) {
-            piece.cells().map(function (cell) {
-                var newCell = cell.copy();
-                cell.type = 2;
-                this.cellsUsed.push(cell);
-            });
+            var pieceCells = piece.cells();
+            for (var i = 0; i < pieceCells.length; i++) {
+                this.addCell(pieceCells[i]);
+            }
             added = true;
         }
+        if (piece.equals(this.fallingPiece)) {
+            this.newFallingPiece();
+        }
+        this.clearLines();
         return added;
     };
     //Takes a piece and tells you if it can be added;
     Board.prototype.canAddPiece = function (piece) {
+        var canAddPiece = true;
         var pieceCells = this.getPieceCells(piece);
-        return !piece.collidesWithCells(pieceCells);
+        for (var i = 0; i < pieceCells.length; i++) {
+            if (!this.canAddCell(pieceCells[i])) {
+                canAddPiece = false;
+            }
+        }
+        return canAddPiece;
     };
 
     Board.prototype.holdPiece = function () {
@@ -118,7 +165,9 @@ var A = new function () {
     };
 
     Board.prototype.dropFallingPiece = function () {
-        return this.fallingPiece.dropPiece(this);
+        this.fallingPiece.dropPiece(this);
+        this.addPiece(this.fallingPiece);
+        return true;
     };
     Board.prototype.rotateFallingClockWise = function () {
         return this.fallingPiece.rotateClockWise(this);
@@ -127,8 +176,6 @@ var A = new function () {
         return this.fallingPiece.rotateCounterClockWise(this);
     };
     Board.prototype.shiftFallingLeft = function () {
-        console.log(this.fallingPiece);
-        console.log(this);
         return this.fallingPiece.shiftLeft(this);
     };
     Board.prototype.shiftFallingRight = function () {
@@ -137,5 +184,5 @@ var A = new function () {
     Board.prototype.moveFallingDown = function () {
         return this.fallingPiece.movePieceDown(this);
     };
-    return new Board();
+    return Board;
 }();

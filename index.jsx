@@ -32,7 +32,7 @@ var GameBox = React.createClass({
     },
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
-        this.setState({gameState:boardEngine,paused:true});
+        this.setState({gameState:new boardEngine(),paused:true});
         }
     },
     pause: function(){
@@ -42,8 +42,8 @@ var GameBox = React.createClass({
     handleKeys:function(evt){
         var currEvent = evt;
         var key = evt.keyCode;
-        console.log(evt);
-        console.log(this.state.gameState);
+/*        console.log(evt);*/
+/*        console.log(this.state.gameState);*/
         this.keyMappings = {
             87:"dropFallingPiece",
             83:"moveFallingDown",
@@ -59,10 +59,12 @@ var GameBox = React.createClass({
             if(key === 192){
                 this.setState({useArrows:!this.state.useArrows});
             }else if(!this.state.paused && this.state.gameState.fallingPiece){
-                if(this.keyMappings[key]!== undefined){
+                if(this.state.gameState[this.keyMappings[key]] !== undefined){
                     this.state.gameState[this.keyMappings[key]]();
+                }else{
+                    this.keyMappings[key]();
                 }
-            }else if(evt instanceof KeyboardEvent && this.state.paused){
+            }else if(evt instanceof KeyboardEvent){
                 if(key===32||key==13){
                     this.keyMappings[key]();
                 }
@@ -74,11 +76,11 @@ var GameBox = React.createClass({
         if(this.state.gameState.gameOver){
             alert("Gameover");
         }
-        console.log(this.state.gameState);
+        var tempBoard = this.state.gameState.getCurrentBoard();
         return (
             <div className="GameBox">
             <div className="cells">
-            {this.state.gameState.getCurrentBoard().map(function(row) {
+            {tempBoard.map(function(row) {
                 return <div className="row">{row.map(function(cell) {
                     return <div className={"cell "+cell.getType()} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
@@ -108,6 +110,6 @@ var TetrisGame = React.createClass({
 });
 
 React.render(
-  <TetrisGame gameState={A}/>,
+  <TetrisGame gameState={new boardEngine()}/>,
   document.getElementById('main_Container')
 );

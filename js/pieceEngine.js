@@ -57,9 +57,13 @@ Piece.prototype.collidesWithCell = function (cellToCheck) {
 };
 
 Piece.prototype.collidesWithCells = function (cells) {
-    return cells.reduce(function (cellB, cellA) {
-        return this.collidesWithCell(cellA) || cellB;
-    }, false);
+    var collided = false;
+    for(var i =0;i<cells.length;i++){
+        if(this.collidesWithCell(cells[i])){
+            collided = true;
+        }
+    }
+    return collided;
 };
 
 Piece.prototype.movePiece = function (currentBoard, newPostion) {

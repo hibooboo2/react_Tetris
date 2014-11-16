@@ -7,7 +7,7 @@ function Cell(x, y, color, name, type) {
     this.type = type ? type : 3;
 }
 
-Cell.prototype.types = ["ghost", "moving", "placed", "default"];
+Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap"];
 
 Cell.prototype.equals = function (cell) {
     return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.type === cell.type;
@@ -30,7 +30,10 @@ Cell.prototype.canMove = function (currentBoard, newPosition) {
     newCell.y += newPosition.y;
     newCell.x += newPosition.x;
     // See if the new cell collides on the board.
-    return currentBoard.getCell(newCell.x, newCell.y).type !== 2;
+    var boardCell = currentBoard.getCell(newCell);
+//    console.log("Cell requested: "+newCell.x+" "+newCell.y);
+//    console.log(boardCell);
+    return boardCell.type !== 2 && boardCell.type !== 4 && currentBoard.cellOnBoard(newCell);
 };
 
 Cell.prototype.canMoveDown = function (currentBoard) {
