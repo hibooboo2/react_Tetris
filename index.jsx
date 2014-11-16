@@ -1,6 +1,9 @@
 var GameBox = React.createClass({
     getInitialState: function(){
-        return {gameState:this.props.gameState,paused:true};
+        var issues = "Not sure";
+        issues = loadIssuesNumber(issues);
+        console.log(issues);
+        return {gameState:this.props.gameState,paused:true,issues:issues};
     },
      componentDidMount: function(){
         // componentDidMount is called by react when the component
@@ -89,6 +92,10 @@ var GameBox = React.createClass({
         var tempBoard = this.state.gameState.getCurrentBoard();
         tempBoard.shift();
         tempBoard.shift();
+        var currentIssues = this.state.issues;
+        currentIssues = currentIssues.map(function(issue){
+            return <p>{issue.title}</ p>;
+            });
         return (
             <div className="GameBox">
             <div className="cells">
@@ -98,7 +105,11 @@ var GameBox = React.createClass({
             })}</div>;
             })}
             Current Lines cleared {this.state.gameState.level*-1}
+            <hr />
             Any issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Issues</a>
+            <hr />
+            All Issues: {currentIssues}
+
             </div>
             <div className="Controls rightCenter">
             <div className={this.state.gameState.gameOver? "gameOver" : ""}>{this.state.gameState.gameOver? "Game Over you Lost" : ""}</div>
