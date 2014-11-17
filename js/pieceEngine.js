@@ -109,9 +109,9 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
     var oldRotation = this.rotation;
     this.rotation = newRotation;
     this.cells().map(function (cell) {
-        var type = currentBoard.getCell(cell).type;
-        console.log(type);
-        if (type === 2 || type === 4) {
+        var canAdd = currentBoard.canAddCell(cell);
+        console.log(canAdd);
+        if (!canAdd) {
             canRotate = false;
         }
     });
