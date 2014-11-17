@@ -1,8 +1,8 @@
 var GameBox = React.createClass({
     getInitialState: function(){
-        //var level = parseInt(prompt("Starting Level?"));
-        //this.props.gameState.level = -level;
-        var issues = "Not sure";
+        var level = parseInt(prompt("Starting Level?",1));
+        this.props.gameState.level = -level;
+        var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
         return {
                 gameState: this.props.gameState,
@@ -40,6 +40,11 @@ var GameBox = React.createClass({
         }else{
             this.pause();
         }
+    },pickAlevel:function(){
+        var level = parseInt(prompt("Starting Level?"));
+        this.state.gameState.restart();
+        this.state.gameState.level = -level;
+        this.setState({gameState:this.state.gameState,paused:true});
     },
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
@@ -117,6 +122,7 @@ var GameBox = React.createClass({
                 <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "on":"off"} type="button" value="Ghost"/>
                 <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "on":"off"} type="button" value="Preview"/>
                 <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
+                {/*<input onClick={this.pickAlevel} type="button" value="Chose Level"/>*/}
             </ div>
             </div>
             <div className ="rightCenter">
