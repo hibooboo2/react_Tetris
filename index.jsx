@@ -1,7 +1,7 @@
 var GameBox = React.createClass({
     getInitialState: function(){
-        var level = parseInt(prompt("Starting Level?"));
-        this.props.gameState.level = -level;
+        //var level = parseInt(prompt("Starting Level?"));
+        //this.props.gameState.level = -level;
         var issues = "Not sure";
         issues = loadIssuesNumber(issues);
         return {
@@ -10,7 +10,7 @@ var GameBox = React.createClass({
                 issues: issues,
                 keyMappings: this.props.keyMappings,
                 keyMapping: this.props.keyMappings["default"],
-                currentMap: "default"
+                currentMap: "default",
                 };
     },
      componentDidMount: function(){
@@ -43,7 +43,8 @@ var GameBox = React.createClass({
     },
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
-        this.setState({gameState:new boardEngine(),paused:true});
+        this.state.gameState.restart();
+        this.setState({gameState:this.state.gameState,paused:true});
         }
     },changeMapping:function(){
         if(this.state.currentMap === "default"){
@@ -78,13 +79,15 @@ var GameBox = React.createClass({
         }
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },toggleGhost:function(){
-
+        console.log("Ghost");
+        this.state.gameState.settings.useGhost = !this.state.gameState.settings.useGhost;
+        this.setState({gameState:this.state.gameState});
     },togglePreview:function(){
-        this.state.settings.canPreview = !this.state.settings.canPreview;
-        this.setState({settings:this.state.settings});
+        this.state.gameState.settings.canPreview = !this.state.gameState.settings.canPreview;
+        this.setState({gameState:this.state.gameState});
     },toggleHold:function(){
-        this.state.settings.canHold = !this.state.settings.canHold;
-        this.setState({settings:this.state.settings});
+        this.state.gameState.settings.canHold = !this.state.gameState.settings.canHold;
+        this.setState({gameState:this.state.gameState});
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -111,9 +114,9 @@ var GameBox = React.createClass({
             })}
             <button onClick={this.pause} className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             <div className="Settings inline leftAlign">
-                <input onClick={this.toggleGhost} type="button" value="Ghost"/>
-                <input onClick={this.togglePreview} type="button" value="Preview"/>
-                <input onClick={this.toggleHold} type="button" value="Hold"/>
+                <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "on":"off"} type="button" value="Ghost"/>
+                <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "on":"off"} type="button" value="Preview"/>
+                <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
             </ div>
             </div>
             <div className ="rightCenter">

@@ -6,38 +6,36 @@ var boardEngine = function () {
         this.height = 22;
         this.width = 10;
         this.usedCells = [[]];
-        for (var i = 0; i < this.height; i++) {
-            this.usedCells[i] = [];
-            for (var j = 0; j < this.width; j++) {
-                this.usedCells[i][j] = new Cell(j, i);
-            }
-        }
+        this.newBoard();
+        this.settings = {
+            canHold: true,
+            useGhost: false
+        };
         this.gameOver = false;
         this.justHeld = false;
         this.level = 0;
         this.fallingPiece = new Piece().draw();
+        this.ghostPiece = this.fallingPiece.ghost(this);
         this.heldPiece = false;
     }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
-        var board = [[]];
+        var board = [];
         for (var i = 0; i < this.height; i++) {
             board[i] = [];
             for (var j = 0; j < this.width; j++) {
-                board[i][j] = this.usedCells[i][j].copy();
+                board[i].push(this.usedCells[i][j].copy());
             }
         }
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
-            board[cell.y][cell.x].type = 1;
         });
-        //        var ghostPiece = this.fallingPiece.copy();
-        //        ghostPiece.dropPiece(this);
-        //        ghostPiece.cells().map(function (cell) {
-        //            board[cell.y][cell.x] = cell.copy();
-        //            board[cell.y][cell.x].type = 0;
-        //        });
-
+        if (this.settings.useGhost) {
+            this.ghostPiece.map(function (cell) {
+                cell.type = 0;
+                board[cell.y][cell.x] = cell.copy();
+            });
+        }
         return board;
     };
     //Get one and only one cell with provided x and y.
@@ -47,11 +45,7 @@ var boardEngine = function () {
             cellToReturn = this.usedCells[cellGiven.y][cellGiven.x].copy();
         } else {
             cellToReturn = new Cell(cellGiven.x, cellGiven.y);
-            cellToReturn.type = 4;
-            //            console.log("Cell Given: ");
-            //            console.log(cellGiven);
-            //            console.log("Returned: " + cellGiven.x + " " + cellGiven.y);
-            //            console.log(cellToReturn);
+            cellToReturn.type = 5;
         }
 
         return cellToReturn;
@@ -59,33 +53,52 @@ var boardEngine = function () {
 
 
     Board.prototype.canAddCell = function (cell) {
-        return this.cellOnBoard(cell) && this.getCell(cell).type !== 4 && !cell.collides(this.getCell(cell));
+        var cellToUse = this.getCell(cell);
+        return this.cellOnBoard(cell) && cellToUse.type !== 4 && cell.collides(cellToUse) && cellToUse.type === 5;
     };
+    Board.prototype.canAddCells = function (cells) {
+        var cellsCanBeAdded = true;
+        for (var i = 0; i < cells.length; i++) {
+            if (!this.canAddCell(cells[i])) {
+                cellsCanBeAdded = false;
+            }
+        }
+        return cellsCanBeAdded;
+    }
     Board.prototype.addCell = function (cell) {
         var added = false;
         if (this.canAddCell(cell)) {
-            this.usedCells[cell.y][cell.x] = cell.copy();
-            this.usedCells[cell.y][cell.x].type = 2;
+            var cellCopy = cell.copy();
+            cellCopy.type = 2;
+            this.usedCells[cell.y][cell.x] = cellCopy;
             added = true;
         }
         return added;
     };
-    //Returns the cells where a piece would be located if placed.
-    Board.prototype.getPieceCells = function (piece) {
-        var theOrigCells = piece.cells();
-        var pieceCells = [];
-        for (var i = 0; i < theOrigCells.length; i++) {
-            pieceCells.push(this.getCell(theOrigCells[i]));
-        }
-        return pieceCells;
-    };
     Board.prototype.cellOnBoard = function (cellGiven) {
         return cellGiven.x < this.width && cellGiven.y < this.height && cellGiven.x >= 0 && cellGiven.y >= 0;
     };
+    //Takes A defined Piece and adds it if it can be placed;
+    Board.prototype.addPiece = function (piece) {
+        var added = false;
+        if (this.canAddPiece(piece)) {
+            var pieceCells = piece.cells();
+            for (var i = 0; i < pieceCells.length; i++) {
+                this.addCell(pieceCells[i]);
+            }
+            added = true;
+        }
+        if (piece.equals(this.fallingPiece) && added) {
+            this.newFallingPiece();
+        }
+        if (!added) {
+            this.gameOver = true;
+        }
+        this.clearLines();
+        return added;
+    };
     //Clears all Lines that are full.
     Board.prototype.clearLines = function () {
-        console.log("Clear Lines");
-
         var blankRow = function () {
             var row = [];
             for (var j = 0; j < 10; j++) {
@@ -106,7 +119,7 @@ var boardEngine = function () {
             }
             return allOccupied;
         });
-        for (var i = 0;i <occupiedRows.length; i++) {
+        for (var i = 0; i < occupiedRows.length; i++) {
             this.usedCells.splice(occupiedRows[i], 1);
             this.level -= 1;
             this.usedCells.unshift(blankRow());
@@ -118,39 +131,14 @@ var boardEngine = function () {
             });
         }
     };
-    //Takes A defined Piece and adds it if it can be placed;
-    Board.prototype.addPiece = function (piece) {
-        var added = false;
-        if (this.canAddPiece(piece)) {
-            var pieceCells = piece.cells();
-            for (var i = 0; i < pieceCells.length; i++) {
-                this.addCell(pieceCells[i]);
-            }
-            added = true;
-        }
-        if (piece.equals(this.fallingPiece)) {
-            this.newFallingPiece();
-        }
-        if (!added){
-            this.gameOver = true;
-        }
-        this.clearLines();
-        return added;
-    };
     //Takes a piece and tells you if it can be added;
     Board.prototype.canAddPiece = function (piece) {
-        var canAddPiece = true;
-        var pieceCells = this.getPieceCells(piece);
-        for (var i = 0; i < pieceCells.length; i++) {
-            if (!this.canAddCell(pieceCells[i])) {
-                canAddPiece = false;
-            }
-        }
-        return canAddPiece;
+        var pieceCells = piece.cells();
+        return this.canAddCells(pieceCells);
     };
 
     Board.prototype.holdPiece = function () {
-        if (!this.justHeld) {
+        if (!this.justHeld && this.settings.canHold) {
             var previousHeld = this.heldPiece;
             this.heldPiece = this.fallingPiece.tetromino;
             if (previousHeld) {
@@ -164,6 +152,7 @@ var boardEngine = function () {
 
     Board.prototype.newFallingPiece = function () {
         this.fallingPiece = new Piece().draw();
+        this.ghostPiece = this.fallingPiece.ghost(this);
         this.justHeld = false;
     };
 
@@ -185,7 +174,27 @@ var boardEngine = function () {
         return this.fallingPiece.shiftRight(this);
     };
     Board.prototype.moveFallingDown = function () {
-        return this.fallingPiece.movePieceDown(this);
+        var moved = this.fallingPiece.movePieceDown(this);
+        if (moved) {
+            this.ghostPiece = this.fallingPiece.ghost(this);
+        }
+        return moved;
+    };
+    Board.prototype.restart = function () {
+        this.newBoard();
+        this.gameOver = false;
+        this.justHeld = false;
+        this.level = 0;
+        this.fallingPiece = new Piece().draw();
+        this.heldPiece = false;
+    };
+    Board.prototype.newBoard = function () {
+        for (var i = 0; i < this.height; i++) {
+            this.usedCells[i] = [];
+            for (var j = 0; j < this.width; j++) {
+                this.usedCells[i][j] = new Cell(j, i);
+            }
+        }
     };
     return Board;
 }();

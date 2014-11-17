@@ -58,8 +58,8 @@ Piece.prototype.collidesWithCell = function (cellToCheck) {
 
 Piece.prototype.collidesWithCells = function (cells) {
     var collided = false;
-    for(var i =0;i<cells.length;i++){
-        if(this.collidesWithCell(cells[i])){
+    for (var i = 0; i < cells.length; i++) {
+        if (this.collidesWithCell(cells[i])) {
             collided = true;
         }
     }
@@ -85,7 +85,10 @@ Piece.prototype.movePieceDown = function (currentBoard) {
 };
 
 Piece.prototype.canMove = function (currentBoard, newPosition) {
-    var pieceCanMove = true;
+    var pieceCanMove = {
+        x: this.position.x + newPosition.x,
+        y: this.position.y + newPosition.y
+    };
     this.cells().map(function (cell) {
         if (!cell.canMove(currentBoard, newPosition)) {
             pieceCanMove = false;
@@ -123,10 +126,32 @@ Piece.prototype.dropPiece = function (currentBoard) {
     return this.position.y === curPosy;
 };
 
+Piece.prototype.ghostDropPiece = function (currentBoard) {
+    var currentPosition = {
+        x: this.position.x,
+        y: this.position.y
+    };
+    console.log(this);
+    var newPosition = this.canMoveDown(currentBoard);
+    var moved = newPosition !== false && (currentPosition.x === newPosition.x && currentPosition.y < newPosition.y);
+        console.log(currentPosition);
+        console.log(newPosition);
+        console.log("Moved");
+        console.log(moved);
+    while (moved) {
+        console.log("moved");
+        currentPosition = newPosition;
+        newPosition = this.canMoveDown(currentBoard);
+        moved = newPosition !== false && (currentPosition.x === newPosition.x && currentPosition.y < newPosition.y);
+    }
+    currentPosition = newPosition;
+    return currentPosition;
+};
+
 Piece.prototype.ghost = function (currentBoard) {
-    var ghostPiece = this.copy();
-    ghostPiece.dropPiece(currentBoard);
-    return ghostPiece;
+    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, this.type);
+    var newPosition = ghostPiece.ghostDropPiece(currentBoard);
+    return new Piece(this.tetromino, newPosition, this.rotation, this.type).cells();
 };
 
 Piece.prototype.cells = function () {
@@ -207,7 +232,7 @@ Piece.prototype.draw = function () {
         Piece.prototype.que.push(toPush);
     }
     var drawnPiece = Piece.prototype.que.pop();
-    drawnPiece.type = 0;
+    drawnPiece.type = 1;
     Piece.prototype.que.unshift(Piece.prototype.rand());
     return drawnPiece;
 };
