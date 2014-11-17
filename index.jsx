@@ -70,7 +70,7 @@ var GameBox = React.createClass({
 /*        console.log(this.state.currentMap);*/
 /*        console.log(this.state.keyMapping.keys[key]);*/
         if(evt instanceof KeyboardEvent ){
-            if(!this.state.paused && this.state.gameState.fallingPiece){
+            if(!this.state.paused && this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
                 }else{
