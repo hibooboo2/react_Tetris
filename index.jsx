@@ -119,8 +119,8 @@ var GameBox = React.createClass({
             })}
             <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>Pause</button>
             <div className="Settings inline leftAlign">
-                <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "on":"off"} type="button" value="Ghost"/>
-                <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "on":"off"} type="button" value="Preview"/>
+                <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
+                <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                 <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
                 {/*<input onClick={this.pickAlevel} type="button" value="Chose Level"/>*/}
             </ div>
