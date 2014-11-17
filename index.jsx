@@ -117,7 +117,7 @@ var GameBox = React.createClass({
             {this.state.keyMapping.keys.readableLines().map(function(line){
                 return <p className="leftAlign">{line}</p>
             })}
-            <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>Pause</button>
+            <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>{this.state.paused ?"Play":"Pause"}</button>
             <div className="Settings inline leftAlign">
                 <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                 <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
