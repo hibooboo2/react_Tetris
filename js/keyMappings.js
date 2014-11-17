@@ -13,59 +13,70 @@ var keyMappings = function () {
         16: "Shift",
         192: "`"
     };
+    var functions = {
+        drop: {
+            function: "dropFallingPiece",
+            english: "Drop Current Piece."
+        },
+        softDrop: {
+            function: "moveFallingDown",
+            english: "Soft Drop Current Piece"
+        },
+        rotateClockWise: {
+            function: "rotateFallingClockWise",
+            english: "Rotate Piece ClockWise"
+        },
+        rotateCounterClockWise: {
+
+        },
+        shiftRight: {
+            function: "shiftFallingRight",
+            english: "Shift Piece Right"
+        },
+        shiftLeft: {
+            function: "shiftFallingLeft",
+            english: "Shift Piece Left"
+        },
+        hold: {
+            function: "holdPiece",
+            english: "Hold Current Piece For Later"
+        },
+        restart: {
+            function: "restart",
+            english: "Restart Game"
+        },
+        pause: {
+            function: "pause",
+            english: "Play / Pause Game"
+        },
+        changeMapping: {
+            function: "changeMapping",
+            english: "Switch mapping between Arrows and wasd"
+        }
+    }
     var remapToDefaultKeys = {
         keys: {
-            87: {
-                function: "dropFallingPiece",
-                english: "Drop Current Piece."
-            },
-            83: {
-                function: "moveFallingDown",
-                english: "Soft Drop Current Piece"
-            },
-            39: {
-                function: "rotateFallingClockWise",
-                english: "Rotate Piece ClockWise"
-            },
-            37: {
-                function: "rotateFallingCounterClockWise",
-                english: "Rotate Piece CounterClockWise"
-            },
-            68: {
-                function: "shiftFallingRight",
-                english: "Shift Piece Right"
-            },
-            65: {
-                function: "shiftFallingLeft",
-                english: "Shift Piece Left"
-            },
-            16: {
-                function: "holdPiece",
-                english: "Hold Current Piece For Later"
-            },
-            13: {
-                function: "restart",
-                english: "Restart Game"
-            },
-            32: {
-                function: "pause",
-                english: "Pause Game"
-            },
-            192:{
-                function: "changeMapping",
-                english: "Switch mapping between Arrows and wasd"
-            },
+            87: functions.drop,
+            83: functions.softDrop,
+            39: functions.rotateClockWise,
+            37: functions.rotateCounterClockWise,
+            68: functions.shiftRight,
+            65: functions.shiftLeft,
+            16: functions.hold,
+            13: functions.restart,
+            32: functions.pause,
+            192: functions.changeMapping,
             readableLine: function (key) {
                 var readable;
-                if(this[key]!==undefined){
-                   readable = codeToKey[key] + " = " + this[key].english;
+                if (this[key] !== undefined) {
+                    readable = codeToKey[key] + " = " + this[key].english;
                 }
                 return readable;
             },
             readableLines: function () {
                 var lines = [];
-                for (var i = 0;i < 200;i++){
-                    if(this.readableLine(i)){
+                for (var i = 0; i < 200; i++) {
+                    if (this.readableLine(i)) {
                         lines.push(this.readableLine(i));
                     }
                 }
@@ -75,49 +86,25 @@ var keyMappings = function () {
     };
     var remapToArrowKeys = {
         keys: {
-            40: {
-                function: "moveFallingDown",
-                english: "Soft Drop Current Piece"
-            },
-            38: {
-                function: "rotateFallingClockWise",
-                english: "Rotate Piece ClockWise"
-            },
-            39: {
-                function: "shiftFallingRight",
-                english: "Shift Piece Right"
-            },
-            37: {
-                function: "shiftFallingLeft",
-                english: "Shift Piece Left"
-            },
-            16: {
-                function: "holdPiece",
-                english: "Hold Current Piece For Later"
-            },
-            13: {
-                function: "restart",
-                english: "Restart Game"
-            },
-            32: {
-                function: "pause",
-                english: "Pause Game"
-            },
-            192:{
-                function: "changeMapping",
-                english: "Switch mapping between Arrows and wasd"
-            },
+            40: functions.softDrop,
+            38: functions.rotateClockWise,
+            39: functions.shiftRight,
+            37: functions.shiftLeft,
+            16: functions.hold,
+            13: functions.restart,
+            32: functions.pause,
+            192: functions.changeMapping,
             readableLine: function (key) {
                 var readable;
-                if(this[key]!==undefined){
-                   readable = codeToKey[key] + " = " + this[key].english;
+                if (this[key] !== undefined) {
+                    readable = codeToKey[key] + " = " + this[key].english;
                 }
                 return readable;
             },
             readableLines: function () {
                 var lines = [];
-                for (var i = 0;i < 200;i++){
-                    if(this.readableLine(i)){
+                for (var i = 0; i < 200; i++) {
+                    if (this.readableLine(i)) {
                         lines.push(this.readableLine(i));
                     }
                 }
