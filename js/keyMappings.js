@@ -27,7 +27,8 @@ var keyMappings = function () {
             english: "Rotate Piece ClockWise"
         },
         rotateCounterClockWise: {
-
+            function: "rotateFallingCounterClockWise",
+            english: "Rotate Piece Counter ClockWise"
         },
         shiftRight: {
             function: "shiftFallingRight",

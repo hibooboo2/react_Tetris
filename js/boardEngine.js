@@ -30,10 +30,11 @@ var boardEngine = function () {
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
         });
-        if (this.settings.useGhost) {
+        if (this.settings.useGhost && this.ghostPiece && this.ghostPiece.length > 0) {
             this.ghostPiece.map(function (cell) {
-                cell.type = 0;
-                board[cell.y][cell.x] = cell.copy();
+                var newCell = cell.copy();
+                newCell.type = 0;
+                board[newCell.y][newCell.x] = newCell;
             });
         }
         return board;
@@ -152,7 +153,7 @@ var boardEngine = function () {
 
     Board.prototype.newFallingPiece = function () {
         this.fallingPiece = new Piece().draw();
-        this.ghostPiece = this.fallingPiece.ghost(this);
+        //this.ghostPiece = this.fallingPiece.ghost(this);
         this.justHeld = false;
     };
 

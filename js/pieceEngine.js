@@ -126,32 +126,34 @@ Piece.prototype.dropPiece = function (currentBoard) {
     return this.position.y === curPosy;
 };
 
-Piece.prototype.ghostDropPiece = function (currentBoard) {
-    var currentPosition = {
-        x: this.position.x,
-        y: this.position.y
-    };
-    console.log(this);
-    var newPosition = this.canMoveDown(currentBoard);
-    var moved = newPosition !== false && (currentPosition.x === newPosition.x && currentPosition.y < newPosition.y);
-        console.log(currentPosition);
-        console.log(newPosition);
-        console.log("Moved");
-        console.log(moved);
-    while (moved) {
-        console.log("moved");
-        currentPosition = newPosition;
-        newPosition = this.canMoveDown(currentBoard);
-        moved = newPosition !== false && (currentPosition.x === newPosition.x && currentPosition.y < newPosition.y);
+Piece.prototype.canDropPiece = function (currentBoard) {
+    var currentPos = this.position;
+    var nextPosition = this.canMoveDown(currentBoard);
+    while (nextPosition) {
+        currentPos = nextPosition;
+        nextPosition = this.canMoveDown(currentBoard);
+        console.log(currentPos);
+        console.log(nextPosition);
     }
-    currentPosition = newPosition;
-    return currentPosition;
+    return currentPos;
 };
 
 Piece.prototype.ghost = function (currentBoard) {
-    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, this.type);
-    var newPosition = ghostPiece.ghostDropPiece(currentBoard);
-    return new Piece(this.tetromino, newPosition, this.rotation, this.type).cells();
+//    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, 0);
+//    var ghostPosition = ghostPiece.canDropPiece(currentBoard);
+//    var color = this.color();
+//    var name = this.name();
+//    var type = this.type;
+//    this.tetromino.cells[this.rotation].map(function (row, celly) {
+//        row.map(function (cell, cellx) {
+//            if (cell) {
+//                var cellToAdd = new Cell(cellx + ghostPosition.x, celly + ghostPosition.y, color, name, type);
+//                ghostCells.push(cellToAdd);
+//            }
+//        });
+//    });
+    //this.canDropPiece(currentBoard);
+    return this.cells();
 };
 
 Piece.prototype.cells = function () {

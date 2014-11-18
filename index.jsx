@@ -66,7 +66,7 @@ var GameBox = React.createClass({
     handleKeys:function(evt){
         var currEvent = evt;
         var key = evt.keyCode;
-/*        console.log(key);*/
+        console.log(key);
 /*        console.log(this.state.currentMap);*/
 /*        console.log(this.state.keyMapping.keys[key]);*/
         if(evt instanceof KeyboardEvent ){
