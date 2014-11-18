@@ -54,7 +54,7 @@ var keyMappings = function () {
             function: "changeMapping",
             english: "Switch mapping between Arrows and wasd"
         }
-    }
+    };
     var remapToDefaultKeys = {
         keys: {
             87: functions.drop,
