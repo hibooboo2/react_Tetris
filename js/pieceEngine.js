@@ -173,6 +173,23 @@ Piece.prototype.cells = function () {
     return currentCells;
 };
 
+Piece.prototype.cells2d = function () {
+    var currentCells = [];
+    var startingPos = this.position;
+    var color = this.color();
+    var name = this.name();
+    var type = this.type;
+    this.tetromino.cells[this.rotation].map(function (row, celly) {
+        currentCells[celly] = [];
+        row.map(function (cell, cellx) {
+            console.log(cell ? type : 0);
+            var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, cell ? type : 0);
+            currentCells[celly].push(cellToAdd);
+        });
+    });
+    return currentCells;
+};
+
 Piece.prototype.shiftLeft = function (currentBoard) {
     var newPostion = {
         x: -1,

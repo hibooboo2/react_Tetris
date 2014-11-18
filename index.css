@@ -1,4 +1,4 @@
-.cell {
+.cell, .TetrisCell {
     padding: 1em;
     position: relative;
     display: inline-block;
@@ -51,7 +51,7 @@ button{
     font-size: 5em;
     background: red;
 }
-.ghost {
+.ghost, .unused {
     opacity: 0.2;
 }
 .leftAlign{
@@ -59,4 +59,13 @@ button{
 }
 .inline{
     display: inline-block;
+}
+
+.TetrisPiece{
+    position: ;
+    max-width: 112px;
+    min-width: 112px;
+    max-height 112px;
+    min-height 112px;
+    z-index: 9999;
 }
