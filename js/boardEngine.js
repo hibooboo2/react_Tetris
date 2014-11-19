@@ -9,13 +9,13 @@ var boardEngine = function () {
         this.newBoard();
         this.settings = {
             canHold: true,
-            useGhost: false
+            useGhost: false,
+            canPreview: true
         };
         this.gameOver = false;
         this.justHeld = false;
         this.level = 0;
         this.fallingPiece = new Piece().draw();
-        this.ghostPiece = this.fallingPiece.ghost(this);
         this.heldPiece = false;
     }
     //Get a 2d array of the usedCells for mapping.
@@ -30,8 +30,8 @@ var boardEngine = function () {
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
         });
-        if (this.settings.useGhost && this.ghostPiece && this.ghostPiece.length > 0) {
-            this.ghostPiece.map(function (cell) {
+        if (this.settings.useGhost) {
+            this.fallingPiece.cells().map(function (cell) {
                 var newCell = cell.copy();
                 newCell.type = 0;
                 board[newCell.y][newCell.x] = newCell;
@@ -89,13 +89,10 @@ var boardEngine = function () {
             }
             added = true;
         }
+        this.clearLines();
         if (piece.equals(this.fallingPiece) && added) {
             this.newFallingPiece();
         }
-        if (!added) {
-            this.gameOver = true;
-        }
-        this.clearLines();
         return added;
     };
     //Clears all Lines that are full.
@@ -122,7 +119,7 @@ var boardEngine = function () {
         });
         for (var i = 0; i < occupiedRows.length; i++) {
             this.usedCells.splice(occupiedRows[i], 1);
-            this.level -= 1;
+            this.level += 1;
             this.usedCells.unshift(blankRow());
             this.usedCells.map(function (row, y) {
                 row.map(function (cell, x) {
@@ -152,9 +149,11 @@ var boardEngine = function () {
     };
 
     Board.prototype.newFallingPiece = function () {
-        this.fallingPiece = new Piece().draw();
-        //this.ghostPiece = this.fallingPiece.ghost(this);
-        this.justHeld = false;
+        if (!this.isGameOver()) {
+            this.fallingPiece = new Piece().draw();
+            this.justHeld = false;
+            //this.ghostPiece = this.fallingPiece.ghost(this);
+        }
     };
 
     Board.prototype.dropFallingPiece = function () {
@@ -176,9 +175,6 @@ var boardEngine = function () {
     };
     Board.prototype.moveFallingDown = function () {
         var moved = this.fallingPiece.movePieceDown(this);
-        if (moved) {
-            this.ghostPiece = this.fallingPiece.ghost(this);
-        }
         return moved;
     };
     Board.prototype.restart = function () {
@@ -197,5 +193,23 @@ var boardEngine = function () {
             }
         }
     };
+    Board.prototype.getFallingPiece = function () {
+        return this.fallingPiece;
+    }
+    Board.prototype.isGameOver = function () {
+        var isGameOver = false;
+        var rows = [this.usedCells[0], this.usedCells[1]];
+        rows.map(function (row) {
+            row.map(function (cell) {
+                if (cell.type == 2) {
+                    isGameOver = true;
+                }
+            });
+        });
+        if (isGameOver) {
+            this.gameOver = isGameOver;
+        }
+        return isGameOver;
+    }
     return Board;
 }();

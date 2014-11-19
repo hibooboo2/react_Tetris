@@ -1,12 +1,12 @@
 //pieceEngine.js relys on cellEngine.js and boardEngine.js
 function Piece(tetromino, position, rotation, type) {
-    this.tetromino = tetromino ? tetromino : allTetromino.Z;
+    this.tetromino = tetromino ? tetromino : allTetromino.I;
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
         x: 3,
         y: 0
     };
-    this.type = type ? type : 0;
+    this.type = type ? type : 5;
 }
 
 Piece.prototype.getType = function () {
@@ -110,7 +110,6 @@ Piece.prototype.canRotate = function (currentBoard, newRotation) {
     this.rotation = newRotation;
     this.cells().map(function (cell) {
         var canAdd = currentBoard.canAddCell(cell);
-        console.log(canAdd);
         if (!canAdd) {
             canRotate = false;
         }
@@ -139,19 +138,19 @@ Piece.prototype.canDropPiece = function (currentBoard) {
 };
 
 Piece.prototype.ghost = function (currentBoard) {
-//    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, 0);
-//    var ghostPosition = ghostPiece.canDropPiece(currentBoard);
-//    var color = this.color();
-//    var name = this.name();
-//    var type = this.type;
-//    this.tetromino.cells[this.rotation].map(function (row, celly) {
-//        row.map(function (cell, cellx) {
-//            if (cell) {
-//                var cellToAdd = new Cell(cellx + ghostPosition.x, celly + ghostPosition.y, color, name, type);
-//                ghostCells.push(cellToAdd);
-//            }
-//        });
-//    });
+    //    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, 0);
+    //    var ghostPosition = ghostPiece.canDropPiece(currentBoard);
+    //    var color = this.color();
+    //    var name = this.name();
+    //    var type = this.type;
+    //    this.tetromino.cells[this.rotation].map(function (row, celly) {
+    //        row.map(function (cell, cellx) {
+    //            if (cell) {
+    //                var cellToAdd = new Cell(cellx + ghostPosition.x, celly + ghostPosition.y, color, name, type);
+    //                ghostCells.push(cellToAdd);
+    //            }
+    //        });
+    //    });
     //this.canDropPiece(currentBoard);
     return this.cells();
 };
@@ -165,9 +164,27 @@ Piece.prototype.cells = function () {
     this.tetromino.cells[this.rotation].map(function (row, celly) {
         row.map(function (cell, cellx) {
             if (cell) {
-                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, type);
+                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, cell ? type : 5);
                 currentCells.push(cellToAdd);
             }
+        });
+    });
+    return currentCells;
+};
+
+Piece.prototype.cells2d = function () {
+    var currentCells = [];
+    var startingPos = this.position;
+    var color = this.color();
+    var name = this.name();
+    var type = this.type;
+    this.tetromino.cells[this.rotation].map(function (row, celly) {
+        currentCells[celly] = [];
+        row.map(function (cell, cellx) {
+            //console.log(cell ? type : 5);
+            var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, cell ? type : 5);
+            currentCells[celly].push(cellToAdd);
+
         });
     });
     return currentCells;
@@ -224,12 +241,12 @@ Piece.prototype.rand = function () {
     var aRandPiece = new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
         x: 3,
         y: 0
-    }, 0, 0);
+    }, 0, 6);
     return aRandPiece;
 };
 
 Piece.prototype.draw = function () {
-    while (Piece.prototype.que.length < 5) {
+    while (Piece.prototype.que.length < 2) {
         var toPush = Piece.prototype.rand();
         Piece.prototype.que.push(toPush);
     }
