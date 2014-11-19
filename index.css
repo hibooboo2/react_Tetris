@@ -75,7 +75,7 @@ button,
         display: none;
     }
     .Issues {
-       display: none;
+        display: none;
     }
 }
 @media (min-width: 641px) {
@@ -103,18 +103,17 @@ button,
         height: 5em;
         right: 0em;
     }
-    .keyMappings{
-    top: 5em;
-
-    left: 0em;
-    position: absolute;
-}
+    .keyMappings {
+        top: 5em;
+        left: 0em;
+        position: absolute;
+    }
     .previewBox {
         position: absolute;
         height: 6em;
         width: 6em;
         top: 4em;
-        left: 40em;
+        left: 41em;
     }
     .Issues {
         position: absolute;
@@ -122,7 +121,7 @@ button,
         text-align: center;
         top: 25em;
         left: 40em;
-}
+    }
 }
 .rightCenter {
     display: inline-block;
@@ -139,6 +138,17 @@ button,
     z-index: 9999999;
     font-size: 2em;
     background: rgba(26, 255, 0, 0.80);
+    height: 100%;
+    width: 34%;
+    left: 33%;
+    position: absolute;
+}
+.pauseScreen {
+    vertical-align: middle;
+    text-align: center;
+    z-index: 9999999;
+    font-size: 2em;
+    background: rgb(26, 255, 0);
     height: 100%;
     width: 34%;
     left: 33%;
@@ -170,7 +180,7 @@ button,
     text-align: left;
 }
 .inline {
-    display:inline;
+    display: inline;
 }
 div {
     border: 0em solid black;

@@ -153,7 +153,7 @@ var GameBox = React.createClass({
             var ghostPiece = this.drawPiece(fallingCopy);
         }
 
-        var drawnBoard = <div className="cells">
+        var drawnBoard = <div className={"cells"}>
                             {tempBoard.map(function(row) {
                                 return row.map(function(cell) {
                                     return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
@@ -196,6 +196,9 @@ var GameBox = React.createClass({
                         <p>{this.state.gameState.level}</p>
                         <p>Good Job!</p>
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
+                    </div>
+                    <div className={this.state.paused? "pauseScreen" : "disabled"}>
+                        Paused
                     </div>
                 <div>
                     <div className={"previewBox "+(this.state.gameState.settings.canPreview ? "enabled":"disabled")}>
