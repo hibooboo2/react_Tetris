@@ -51,7 +51,7 @@ var GameBox = React.createClass({
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
         this.state.gameState.restart();
-        this.setState({gameState:this.state.gameState,paused:true});
+        this.setState({gameState:this.state.gameState,paused:true,closeGameoverScreen:true});
         }
     },changeMapping:function(){
         if(this.state.currentMap === "default"){
@@ -99,52 +99,55 @@ var GameBox = React.createClass({
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
+/*
         tempBoard.shift();
         tempBoard.shift();
+*/
         var currentIssues = this.state.issues;
-//            <TetrisPreview que={Piece.prototype.que} />
         currentIssues = currentIssues.map(function(issue){
             return <p>{issue.title}</ p>;
             });
-        return (
-            <div className="GameBox">
-            <div className={this.state.gameState.settings.canPreview ? "enabled":"disabled"}>
-            <TetrisPreview que={Piece.prototype.que} />
-            <TetrisPiece thePiece={this.state.gameState.getFallingPiece()}/>
-            </ div>
-            <div className="cells">
+
+        var boardCells = <div className="cells">
             {tempBoard.map(function(row) {
                 return <div className="row">{row.map(function(cell) {
                     return <div className={"cell "+cell.getType()} style={{"backgroundColor": cell.color}}></div>;
             })}</div>;
             })}
             Current Lines cleared {this.state.gameState.level*-1}
-            </div>
-            <div className="Controls">
-                <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
-                    <p>Congratulations! </p>
-                    <p>You made it to level:</p>
-                    <p>{this.state.gameState.level}</p>
-                    <p>Good Job!</p>
-                    <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
-                </div>
-                {this.state.keyMapping.keys.readableLines().map(function(line){
-                    return <p className="leftAlign">{line}</p>
-                })}
-                <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>{this.state.paused ?"Play":"Pause"}</button>
-                <div className="Settings inline leftAlign">
-                    <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
-                    <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
-                    <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
+            </div>;
+        return (
+            <div className="GameBox">
+                {boardCells}
+                    <div className="Controls">
+                        {this.state.keyMapping.keys.readableLines().map(function(line){
+                            return <p className="leftAlign">{line}</p>
+                        })}
+                        <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>{this.state.paused ?"Play":"Pause"}</button>
+                        <div className="Settings">
+                            <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
+                            <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
+                            <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
+                        </ div>
+                    </div>
+                    <div className ="Issues">
+                    <hr />
+                    Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
+                    <hr />
+                    All Issues: {this.state.issues.length}
+                    {currentIssues}
+                    </ div>
+                    <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
+                        <p>Congratulations! </p>
+                        <p>You made it to level:</p>
+                        <p>{this.state.gameState.level}</p>
+                        <p>Good Job!</p>
+                        <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
+                    </div>
+                <div className={"previewBox "+(this.state.gameState.settings.canPreview ? "enabled":"disabled")}>
+                    <TetrisPreview que={Piece.prototype.que} />
+                    <TetrisPiece thePiece={this.state.gameState.getFallingPiece()}/>
                 </ div>
-            </div>
-            <div className ="rightCenter">
-            <hr />
-            Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
-            <hr />
-            All Issues: {this.state.issues.length}
-            {currentIssues}
-            </ div>
             </div>
         )
     }
