@@ -1,3 +1,6 @@
+if( window.location.host==="tetris.jamescarlharris.com"){
+
+}
 var GameBox = React.createClass({
     getInitialState: function(){
         //var level = parseInt(prompt("Starting Level?",1));
@@ -120,10 +123,14 @@ var GameBox = React.createClass({
             <div className="GameBox">
                 {boardCells}
                     <div className="Controls">
+                        <div className="keyMappings">
                         {this.state.keyMapping.keys.readableLines().map(function(line){
                             return <p className="leftAlign">{line}</p>
                         })}
-                        <button focusable="false" className={this.state.paused ?"paused":"notPaused"}>{this.state.paused ?"Play":"Pause"}</button>
+                        </ div>
+                        <div>
+                        <p className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        </div>
                         <div className="Settings">
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
@@ -208,11 +215,9 @@ var TetrisPiece = React.createClass({
 
 var TetrisGame = React.createClass({
   render: function() {
-        var thePreview = <TetrisPiece thePiece={this.props.gameState.getFallingPiece()}/>;
     return (
       <div className="TetrisGame">
         <GameBox gameState={this.props.gameState} keyMappings={this.props.keyMappings}/>
-        {thePreview}
       </div>
     );
   }

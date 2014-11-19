@@ -25,9 +25,8 @@
 }
 .GameBox {
     position: relative;
-    display: block;
-    font-size: 10px;
-    width:  100%;
+    font-size: 12px;
+    width: 100%;
     height: 100%;
 }
 .row {
@@ -57,25 +56,59 @@ button,
     height: 4em;
     width: 8em;
 }
-.Controls {
-    position: absolute;
-    width: 33%;
-    text-align: center;
-    top: 50%;
-    left: 33%;
+@media (max-width: 641px) {
+    .Controls {
+        display: none;
+    }
+    .Settings {
+        display: none;
+    }
+    .previewBox {
+        display: none;
+    }
+    .Issues {
+       display: none;
+    }
 }
-.previewBox {
-    position: absolute;
-    width: 66%;
-    top: 0%;
-    right: 0%;
-}
-.Issues {
-    position: absolute;
-    width: 33%;
-    text-align: center;
-    top: 50%;
-    left: 66%;
+@media (min-width: 641px) {
+    .Controls {
+        border: 2px;
+        position: absolute;
+        display: inline;
+        width: 33%;
+        text-align: center;
+        top: 50%;
+        left: 33%;
+    }
+    .pauseLabel {
+        position: absolute;
+        text-align: center;
+        width: 50%;
+        height: 50%;
+        left: 0px;
+        font-size: 4em;
+    }
+    .Settings {
+        position: absolute;
+        display: table;
+        width: 50%;
+        height: 50%;
+        right: 0px;
+        font-size: 0em;
+    }
+    .previewBox {
+        position: absolute;
+        width: 66%;
+        top: 0%;
+        right: 0%;
+    }
+    .Issues {
+        position: absolute;
+        width: 33%;
+        text-align: center;
+        top: 50%;
+        left: 66%;
+    }
 }
 .rightCenter {
     display: inline-block;
@@ -99,14 +132,7 @@ button,
     top: 0;
     left: 0;
 }
-Cell.prototype.types=["ghost",
-"moving",
-"placed",
-"default",
-"offMap",
-"unused",
-"preview"];
- .ghost {
+.ghost {
     opacity: 0.2;
     border-color: brown;
 }
