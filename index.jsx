@@ -4,7 +4,7 @@ if( window.location.host==="tetris.jamescarlharris.com"){
 var GameBox = React.createClass({
     getInitialState: function(){
         //var level = parseInt(prompt("Starting Level?",1));
-        //this.props.gameState.level = level;
+        //this.props.gameState.score.level = level;
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
         return {
@@ -21,15 +21,16 @@ var GameBox = React.createClass({
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
-        this.autoGravity = setInterval(this.gravity, 500-this.state.gameState.level);
+        this.autoGravity = setTimeout(this.gravity, 500+this.state.gameState.score.level);
     },
 
     componentWillUnmount: function(){
         // This method is called immediately before the component is removed
         // from the page and destroyed. We can clear the interval here:
-        clearInterVal(this.autoGravity);
+        //clearInterval(this.autoGravity);
     },
     gravity: function(){
+        this.autoGravity = setTimeout(this.gravity, 500-this.state.gameState.score.level);
         if(this.state.paused) {
             return;
         }
@@ -48,7 +49,7 @@ var GameBox = React.createClass({
     },pickAlevel:function(){
         var level = parseInt(prompt("Starting Level?"));
         this.state.gameState.restart();
-        this.state.gameState.level = -level;
+        this.state.gameState.score.level = level;
         this.setState({gameState:this.state.gameState,paused:true});
     },
     restart: function(){
@@ -159,7 +160,7 @@ var GameBox = React.createClass({
                                     return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
-                            Current Lines cleared {this.state.gameState.level}
+                            Current Lines cleared {this.state.gameState.score.linesCleared}
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
@@ -193,7 +194,7 @@ var GameBox = React.createClass({
                     <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
                         <p>Congratulations! </p>
                         <p>You made it to level:</p>
-                        <p>{this.state.gameState.level}</p>
+                        <p>{this.state.gameState.score.level}</p>
                         <p>Good Job!</p>
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
                     </div>
