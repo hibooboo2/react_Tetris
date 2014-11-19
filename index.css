@@ -20,6 +20,7 @@
 .cells {
     background-color: lightgrey;
     width: 20em;
+    height: 44em;
     max-width: 20em;
     font-size: 10px;
 }
