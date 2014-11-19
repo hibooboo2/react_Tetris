@@ -7,7 +7,7 @@ function Cell(x, y, color, name, type) {
     this.type = type ? type : 5;
 }
 
-Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap","unused"];
+Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap","unused","preview"];
 
 Cell.prototype.equals = function (cell) {
     return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.type === cell.type;

@@ -1,17 +1,24 @@
-.cell, .TetrisCell {
-    padding: 1em;
+.cell,
+.TetrisCell {
+    padding: 0.9em;
     position: relative;
     display: inline-block;
-    border: 1px solid white;
-    font-size: 13px;
+    border: 0.1em solid white;
+    font-size: 10px;
 }
 .cells {
     background-color: lightgrey;
-    width: 280px;
+    width: 20em;
     max-width: 20em;
+    font-size: 10px;
 }
 .GameBox {
+    text-align: center;
+    margin-right: -50%;
     position: relative;
+    font-size: 10px;
+    width: 50%;
+    height: 100%;
 }
 .row {
     font-size: 0;
@@ -20,13 +27,22 @@ body {
     width: 40em;
     margin: 0 auto;
 }
-.paused, .on {
+.paused,
+.on {
     background: red;
 }
-.notPaused, .off {
+.notPaused,
+.off {
     background: green;
 }
-button{
+.enabled {
+    background-color: white;
+}
+.disabled {
+    display: none;
+}
+button,
+.button {
     height: 4em;
     width: 8em;
 }
@@ -38,7 +54,8 @@ button{
     top: 50%;
     margin-right: -50%;
     margin-top: -75%;
-}.rightCenter {
+}
+.rightCenter {
     display: inline-block;
     text-align: center;
     position: relative;
@@ -47,25 +64,61 @@ button{
     margin-right: -50%;
     margin-top: -0%;
 }
-.gameOver{
-    font-size: 5em;
-    background: red;
+.gameOver {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    z-index: 9999999;
+    font-size: 8em;
+    background: rgba(26, 255, 0, 0.80);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
-.ghost, .unused {
+Cell.prototype.types=["ghost",
+"moving",
+"placed",
+"default",
+"offMap",
+"unused",
+"preview"];
+ .ghost {
     opacity: 0.2;
+    border-color: brown;
 }
-.leftAlign{
+.moving {
+    border-color: teal;
+}
+.placed {
+    border-color: black;
+}
+.default {
+    border-color: orange;
+}
+.offMap {
+    border-color: red;
+}
+.unused {
+    border-color: white;
+}
+.preview {
+    border-color: pink;
+}
+.leftAlign {
     text-align: left;
 }
-.inline{
+.inline {
     display: inline-block;
 }
-
-.TetrisPiece{
-    position: ;
-    max-width: 112px;
-    min-width: 112px;
-    max-height 112px;
-    min-height 112px;
+.TetrisPiece {
+    display: inline-block;
+    margin-left: 15%;
+    max-width: 8em;
+    min-width: 8em;
+    max-height 8em;
+    min-height 8em;
+    font-size: 10px;
     z-index: 9999;
 }

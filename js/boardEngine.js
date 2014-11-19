@@ -15,7 +15,6 @@ var boardEngine = function () {
         this.justHeld = false;
         this.level = 0;
         this.fallingPiece = new Piece().draw();
-        this.ghostPiece = this.fallingPiece.ghost(this);
         this.heldPiece = false;
     }
     //Get a 2d array of the usedCells for mapping.
@@ -30,8 +29,8 @@ var boardEngine = function () {
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
         });
-        if (this.settings.useGhost && this.ghostPiece && this.ghostPiece.length > 0) {
-            this.ghostPiece.map(function (cell) {
+        if (this.settings.useGhost) {
+            this.fallingPiece.cells().map(function (cell) {
                 var newCell = cell.copy();
                 newCell.type = 0;
                 board[newCell.y][newCell.x] = newCell;
@@ -197,5 +196,8 @@ var boardEngine = function () {
             }
         }
     };
+    Board.prototype.getFallingPiece = function(){
+        return this.fallingPiece;
+    }
     return Board;
 }();

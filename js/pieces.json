@@ -1,6 +1,6 @@
-var allTetromino = {
-    I: {
-        cells: [
+    var allTetromino = {
+        I: {
+            cells: [
             [
                 [0, 0, 0, 0],
                 [1, 1, 1, 1],
@@ -26,11 +26,11 @@ var allTetromino = {
                 [0, 1, 0, 0]
             ]
     ],
-        name: "I",
-        color: "Cyan"
-    },
-    J: {
-        cells: [
+            name: "I",
+            color: "Cyan"
+        },
+        J: {
+            cells: [
             [
                 [1, 0, 0],
                 [1, 1, 1],
@@ -52,11 +52,11 @@ var allTetromino = {
                 [1, 1, 0]
             ]
         ],
-        name: "J",
-        color: "Blue"
-    },
-    L: {
-        cells: [
+            name: "J",
+            color: "Blue"
+        },
+        L: {
+            cells: [
             [
                 [0, 0, 1],
                 [1, 1, 1],
@@ -78,33 +78,41 @@ var allTetromino = {
                 [0, 1, 0]
             ]
         ],
-        name: "L",
-        color: "#ff8c00"
-    },
-    O: {
-        cells: [
+            name: "L",
+            color: "#ff8c00"
+        },
+        O: {
+            cells: [
         [
-            [1, 1],
-            [1, 1]
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ],
         [
-            [1, 1],
-            [1, 1]
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ],
         [
-            [1, 1],
-            [1, 1]
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ],
         [
-            [1, 1],
-            [1, 1]
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ]
     ],
-        name: "O",
-        color: "#ffd700"
-    },
-    S: {
-        cells: [
+            name: "O",
+            color: "#ffd700"
+        },
+        S: {
+            cells: [
         [
             [0, 1, 1],
             [1, 1, 0],
@@ -126,11 +134,11 @@ var allTetromino = {
             [0, 1, 0]
         ]
     ],
-        name: "S",
-        color: "Green"
-    },
-    T: {
-        cells: [
+            name: "S",
+            color: "Green"
+        },
+        T: {
+            cells: [
         [
             [0, 1, 0],
             [1, 1, 1],
@@ -152,11 +160,11 @@ var allTetromino = {
             [0, 1, 0]
         ]
     ],
-        name: "T",
-        color: "Purple"
-    },
-    Z: {
-        cells: [
+            name: "T",
+            color: "Purple"
+        },
+        Z: {
+            cells: [
         [
             [1, 1, 0],
             [0, 1, 1],
@@ -178,7 +186,7 @@ var allTetromino = {
             [1, 0, 0]
         ]
     ],
-        name: "Z",
-        color: "Red"
+            name: "Z",
+            color: "Red"
+        }
     }
-}
