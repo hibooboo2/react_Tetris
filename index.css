@@ -29,7 +29,7 @@
     position: absolute;
     font-size: 12px;
     width: 60em;
-    height: 50em;
+    height: 44em;
     top: 2em;
 }
 .heldBox {
@@ -134,17 +134,15 @@ button,
     margin-top: -50%;
 }
 .gameOver {
-    display: table-cell;
     vertical-align: middle;
     text-align: center;
     z-index: 9999999;
-    font-size: 8em;
+    font-size: 2em;
     background: rgba(26, 255, 0, 0.80);
     height: 100%;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
+    width: 34%;
+    left: 33%;
+    position: absolute;
 }
 .ghost {
     opacity: 0.2;

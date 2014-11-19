@@ -65,6 +65,9 @@ var GameBox = React.createClass({
         this.state.keyMapping = this.state.keyMappings[this.state.currentMap];
     },
     pause: function(){
+        if(this.state.gameState.gameOver&&this.state.paused){
+            this.restart();
+        }
         this.state.paused = !this.state.paused;
         this.setState({paused:this.state.paused});
     },
