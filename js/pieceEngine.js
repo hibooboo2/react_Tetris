@@ -1,6 +1,6 @@
 //pieceEngine.js relys on cellEngine.js and boardEngine.js
 function Piece(tetromino, position, rotation, type) {
-    this.tetromino = tetromino ? tetromino : allTetromino.Z;
+    this.tetromino = tetromino ? tetromino : allTetromino.I;
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
         x: 3,

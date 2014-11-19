@@ -9,7 +9,8 @@ var boardEngine = function () {
         this.newBoard();
         this.settings = {
             canHold: true,
-            useGhost: false
+            useGhost: false,
+            canPreview: true
         };
         this.gameOver = false;
         this.justHeld = false;
