@@ -168,7 +168,8 @@ var GameBox = React.createClass({
                                     return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
-                            Current Lines cleared {this.state.gameState.score.linesCleared}
+                            Total Lines cleared: {this.state.gameState.score.linesCleared}
+                            Lines cleared this level: {this.state.gameState.score.lastCleared}
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
