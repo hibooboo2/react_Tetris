@@ -103,6 +103,14 @@ var GameBox = React.createClass({
     },closeGameoverScreen: function(){
         this.state.closeGameoverScreen = true;
         this.setState({closeGameoverScreen:this.state.closeGameoverScreen});
+    },togglefullScreen:function(){
+        this.state.gameState.settings.fullScreen = !this.state.gameState.settings.fullScreen;
+        if(this.state.gameState.settings.fullScreen){
+            document.getElementsByClassName("GameBox")[0].style.fontSize = (Math.floor(window.innerWidth/70))+"px";
+        }else{
+            document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
+            }
+        this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
         //console.log(aPiece);
@@ -182,6 +190,7 @@ var GameBox = React.createClass({
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
+                            <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
                         </ div>
                     </div>
                     <div className ="Issues">
