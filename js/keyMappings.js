@@ -89,6 +89,7 @@ var keyMappings = function () {
     var remapToArrowKeys = {
         keys: {
             40: functions.softDrop,
+            87: functions.drop,
             38: functions.rotateClockWise,
             39: functions.shiftRight,
             37: functions.shiftLeft,
