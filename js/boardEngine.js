@@ -11,7 +11,8 @@ var boardEngine = function () {
         this.settings = {
             canHold: true,
             useGhost: false,
-            canPreview: true
+            canPreview: true,
+            fullScreen: false
         };
         this.gameOver = false;
         this.justHeld = false;
