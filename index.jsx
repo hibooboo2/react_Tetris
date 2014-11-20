@@ -168,8 +168,10 @@ var GameBox = React.createClass({
                                     return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
-                            Total Lines cleared: {this.state.gameState.score.linesCleared}
-                            Lines cleared this level: {this.state.gameState.score.lastCleared}
+                            <p>Total Lines cleared: {this.state.gameState.score.linesCleared}</p>
+                            <p>Next Level Up</p>
+                            <p>From Lines Cleared = {this.state.gameState.score.nextLevelUp().linesToLevelUp}</p>
+                            <p className={this.state.gameState.score.nextLevelUp().linesFromTetris ? "enabled" : "disabled"}>Go for a tetris to Levelup!</p>
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){

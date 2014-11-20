@@ -42,10 +42,22 @@ Score.prototype.hardDrop = function (cellsDropped) {
 };
 Score.prototype.levelUp = function (lines) {
     this.lastCleared += lines;
-    if (this.lastCleared / (this.level / 2) >= 5 || (lines === 4 && this.lastCleared >= 20)) {
+    if (this.lastCleared >= this.levelUpFactor().lines || (lines === 4 && this.lastCleared >= this.levelUpFactor().tetris)) {
         this.lastCleared = 0;
         this.level += 1;
     }
+};
+Score.prototype.levelUpFactor = function () {
+    return {
+        lines: (this.level / 2) * 5,
+        tetris: (((this.level / 2) * 2))
+    };
+};
+Score.prototype.nextLevelUp = function () {
+    return {
+        linesToLevelUp: this.lastCleared + " / " + this.levelUpFactor().lines,
+        linesFromTetris: this.lastCleared >= this.levelUpFactor().tetris
+    };
 };
 Score.prototype.getScore = function () {
     return this.score;
