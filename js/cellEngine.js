@@ -5,7 +5,7 @@ var Cell = function (x, y, color, name, type) {
     this.y = y ? y : 0;
     this.color = color ? color : "lightgrey";
     this.name = name ? name : "empty";
-    this.type = type ? type : 5;
+    this.type = type !== undefined ? type : 5;
 };
 
 Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap", "unused", "preview"];

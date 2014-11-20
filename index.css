@@ -10,7 +10,7 @@
 .cell,
 .TetrisCell {
     padding: 0.9em;
-    position: relative;
+    position: absolute;
     display: inline-block;
     border: 0.1em solid white;
     font-size: 1em;
@@ -160,7 +160,7 @@ button,
     position: absolute;
 }
 .ghost {
-    opacity: 0.2;
+    opacity: 0.35;
     border-color: brown;
 }
 .moving {
@@ -177,6 +177,7 @@ button,
 }
 .unused {
     border-color: white;
+    opacity: 1;
 }
 .preview {
     border-color: pink;

@@ -91,7 +91,6 @@ var GameBox = React.createClass({
         }
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },toggleGhost:function(){
-        console.log("Ghost");
         this.state.gameState.settings.useGhost = !this.state.gameState.settings.useGhost;
         this.setState({gameState:this.state.gameState});
     },togglePreview:function(){
@@ -113,31 +112,25 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
-        //console.log(aPiece);
-
         var positionCell = function(cell){
             return {
-                        position:"absolute",
                         top:(cell.y*2)+"em",
                         left:(cell.x*2)+"em",
-                        backgroundColor: cell.type !==5 ? cell.color:"lightgrey"
+                        backgroundColor: cell.color
                     };
+
         };
-        var cells = aPiece.cells2d();
-        var theCells = cells.map(function(row){
-        return (
-                <div className="TetrisPiece">
-                    <div className="row"> {row.map(function(aCell){
-                        return (
-                            <div className={"TetrisCell "+aCell.getType()}
-                                    style={positionCell(aCell)}>
-                            </div>
-                        );
-                        })}
-                    </ div>
-                </ div>
-        )
+        var cells = aPiece.cells();
+        var theCells = cells.map(function(cell){
+            return (
+                        <div className={"TetrisCell "+cell.getType()}
+                                    style={positionCell(cell)}>
+                        </div>
+                    )
         });
+        var theCells = <div className="TetrisPiece">
+                        {theCells}
+                        </div>;
         return theCells;
     },
     render: function() {
@@ -150,7 +143,6 @@ var GameBox = React.createClass({
             });
         var positionCell = function(cell){
             return {
-                        position:"absolute",
                         top:(2*cell.y)+"em",
                         left:(cell.x*2)+"em",
                         backgroundColor:cell.color
@@ -159,13 +151,13 @@ var GameBox = React.createClass({
         var ghostPiece = {};
         if (this.state.gameState.settings.useGhost){
             var fallingCopy = this.state.gameState.fallingPiece.ghost(this.state.gameState);
-            //var ghostPiece = this.drawPiece(fallingCopy);
+            var ghostPiece = this.drawPiece(fallingCopy);
         }
 
         var drawnBoard = <div className={"cells"}>
                             {tempBoard.map(function(row) {
                                 return row.map(function(cell) {
-                                    return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
+                                    return <div className={"TetrisCell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
                             {ghostPiece}
@@ -241,20 +233,7 @@ var GameBox = React.createClass({
         )
     }
 });
-
-var TetrisCell = React.createClass({
-    getInitialState: function(){
-            return {
-                    theCell:this.props.theCell
-                    };
-        },
-  render: function() {
-    return(
-        <div className={"TetrisCell "+this.state.theCell.getType()} style={{"backgroundColor": this.state.theCell.type !==5 ? this.state.theCell.color:"lightgrey"}}>
-        </div>
-    );
-  }
-});
+/*
 
 var TetrisPreview = React.createClass({
     render: function() {
@@ -282,6 +261,7 @@ var TetrisPreview = React.createClass({
                 );
             }
 });
+*/
 
 var TetrisGame = React.createClass({
   render: function() {
