@@ -106,7 +106,6 @@ var boardEngine = function () {
             return row;
         };
         var occupiedRows = [];
-        this.score.didScore(occupiedRows.length);
         this.usedCells.map(function (row, rowIndex) {
             var allOccupied = true;
             row.map(function (cell) {
@@ -120,6 +119,7 @@ var boardEngine = function () {
             return allOccupied;
         });
         for (var i = 0; i < occupiedRows.length; i++) {
+            this.score.didScore(occupiedRows.length);
             this.usedCells.splice(occupiedRows[i], 1);
             this.usedCells.unshift(blankRow());
             this.usedCells.map(function (row, y) {
@@ -160,7 +160,7 @@ var boardEngine = function () {
     Board.prototype.dropFallingPiece = function () {
         this.fallingPiece.dropPiece(this);
         this.addPiece(this.fallingPiece);
-        this.score.hardDrop(5);
+        this.score.didScore(0);
         return true;
     };
     Board.prototype.rotateFallingClockWise = function () {
@@ -178,7 +178,7 @@ var boardEngine = function () {
     Board.prototype.moveFallingDown = function () {
         var moved = this.fallingPiece.movePieceDown(this);
         if(moved){
-        this.score.softDrop();
+            this.score.didScore(5);
         }
         return moved;
     };

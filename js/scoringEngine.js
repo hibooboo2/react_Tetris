@@ -11,7 +11,7 @@ var Score = function () {
     this.lastCleared = 0;
 };
 
-Score.prototype.linesToScore = ["single", "double", "triple", "tetris"];
+Score.prototype.linesToScore = ["hardDrop", "single", "double", "triple", "tetris", "softDrop"];
 
 Score.prototype.single = function () {
     this.score += 100 * (this.level + 1);
@@ -36,13 +36,13 @@ Score.prototype.combo = function () {
 Score.prototype.softDrop = function () {
     this.score += 1 * this.level;
 };
-Score.prototype.hardDrop = function (linesDropped) {
-    var scoreToAdd = 2 * this.level * linesDropped;
+Score.prototype.hardDrop = function (cellsDropped) {
+    var scoreToAdd = 2 * this.level * (cellsDropped + 1);
     this.score += scoreToAdd;
 };
-Score.prototype.levelUp = function () {
+Score.prototype.levelUp = function (lines) {
     this.lastCleared += lines;
-    if (this.lastCleared/this.level >= 15 && lines === 4) {
+    if (this.lastCleared / this.level >= 15 && lines === 4) {
         this.lastCleared = 0;
         this.level += 1;
     }
@@ -51,9 +51,12 @@ Score.prototype.getScore = function () {
     return this.score;
 };
 Score.prototype.getDelay = function () {
-    return 500-(this.level*30);
+    return 500 - (this.level * 30);
 };
 Score.prototype.didScore = function (lines) {
-    this.levelUp();
-    this[lines]();
+    console.log("Called Did score: " + lines);
+    this.levelUp(lines!==5?lines:0);
+    console.log(this[Score.prototype.linesToScore[lines]]);
+    this[Score.prototype.linesToScore[lines]](lines);
+    console.log(this);
 };
