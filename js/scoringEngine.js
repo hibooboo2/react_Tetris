@@ -51,7 +51,7 @@ Score.prototype.getScore = function () {
     return this.score;
 };
 Score.prototype.getDelay = function () {
-    return 800 - (this.level * 20);
+    return 800 - (this.level * 50);
 };
 Score.prototype.didScore = function (lines) {
     console.log("Called Did score: " + lines);
