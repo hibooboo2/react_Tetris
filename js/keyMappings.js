@@ -1,4 +1,5 @@
 var keyMappings = function () {
+    "use strict";
     var codeToKey = {
         65: "a",
         68: "d",

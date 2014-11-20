@@ -1,13 +1,14 @@
 // cellEngine.js relies on pieceEngine.js and boardEngine.js
-function Cell(x, y, color, name, type) {
+var Cell = function (x, y, color, name, type) {
+    "use strict";
     this.x = x ? x : 0;
     this.y = y ? y : 0;
     this.color = color ? color : "lightgrey";
     this.name = name ? name : "empty";
     this.type = type ? type : 5;
-}
+};
 
-Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap","unused","preview"];
+Cell.prototype.types = ["ghost", "moving", "placed", "default", "offMap", "unused", "preview"];
 
 Cell.prototype.equals = function (cell) {
     return this.x === cell.x && this.y === cell.y && this.color === cell.color && this.name === cell.name && this.type === cell.type;

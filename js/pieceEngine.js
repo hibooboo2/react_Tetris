@@ -1,5 +1,6 @@
-//pieceEngine.js relys on cellEngine.js and boardEngine.js
+//pieceEngine.js relys on cellEngine.js,pieces.json, and boardEngine.js
 function Piece(tetromino, position, rotation, type) {
+    "use strict";
     this.tetromino = tetromino ? tetromino : allTetromino.I;
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
@@ -131,8 +132,6 @@ Piece.prototype.canDropPiece = function (currentBoard) {
     while (nextPosition) {
         currentPos = nextPosition;
         nextPosition = this.canMoveDown(currentBoard);
-        console.log(currentPos);
-        console.log(nextPosition);
     }
     return currentPos;
 };
@@ -181,7 +180,6 @@ Piece.prototype.cells2d = function () {
     this.tetromino.cells[this.rotation].map(function (row, celly) {
         currentCells[celly] = [];
         row.map(function (cell, cellx) {
-            //console.log(cell ? type : 5);
             var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, cell ? type : 5);
             currentCells[celly].push(cellToAdd);
 
