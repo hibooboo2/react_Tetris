@@ -156,10 +156,10 @@ var GameBox = React.createClass({
                         backgroundColor:cell.color
                     };
         };
+        var ghostPiece = {};
         if (this.state.gameState.settings.useGhost){
-            var fallingCopy = this.state.gameState.fallingPiece.copy();
-            //this.state.gameState.fallingPiece.copy().dropPiece(this.state.gameState);
-            var ghostPiece = this.drawPiece(fallingCopy);
+            var fallingCopy = this.state.gameState.fallingPiece.ghost(this.state.gameState);
+            //var ghostPiece = this.drawPiece(fallingCopy);
         }
 
         var drawnBoard = <div className={"cells"}>
@@ -168,6 +168,7 @@ var GameBox = React.createClass({
                                     return <div className={"cell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
+                            {ghostPiece}
                             <p>Total Lines cleared: {this.state.gameState.score.linesCleared}</p>
                             <p>Next Level Up</p>
                             <p>From Lines Cleared = {this.state.gameState.score.nextLevelUp().linesToLevelUp}</p>

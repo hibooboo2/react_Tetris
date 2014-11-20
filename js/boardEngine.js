@@ -32,13 +32,6 @@ var boardEngine = function () {
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
         });
-        if (this.settings.useGhost) {
-            this.fallingPiece.cells().map(function (cell) {
-                var newCell = cell.copy();
-                newCell.type = 0;
-                board[newCell.y][newCell.x] = newCell;
-            });
-        }
         return board;
     };
     //Get one and only one cell with provided x and y.
