@@ -127,13 +127,9 @@ Piece.prototype.dropPiece = function (currentBoard) {
 };
 
 Piece.prototype.canDropPiece = function (currentBoard) {
-    var currentPos = this.position;
-    var nextPosition = this.canMoveDown(currentBoard);
-    while (nextPosition) {
-        currentPos = nextPosition;
-        nextPosition = this.canMoveDown(currentBoard);
-    }
-    return currentPos;
+    var ghostCopy = this.copy();
+    ghostCopy.movePieceDown(currentBoard);
+    return currentBoard.canAddPiece(ghostCopy);
 };
 
 Piece.prototype.ghost = function (currentBoard) {
@@ -150,8 +146,8 @@ Piece.prototype.ghost = function (currentBoard) {
     //            }
     //        });
     //    });
-    //this.canDropPiece(currentBoard);
-    return this.cells();
+    console.log(this.canDropPiece(currentBoard));
+    return this.copy();
 };
 
 Piece.prototype.cells = function () {
