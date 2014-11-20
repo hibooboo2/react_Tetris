@@ -105,7 +105,7 @@ var GameBox = React.createClass({
         this.setState({closeGameoverScreen:this.state.closeGameoverScreen});
     },
     drawPiece: function(aPiece) {
-        console.log(aPiece);
+        //console.log(aPiece);
 
         var positionCell = function(cell){
             return {
@@ -169,7 +169,6 @@ var GameBox = React.createClass({
         return (
             <div className="GameBox">
                 {drawnBoard}
-                {this.state.gameState.score}
                     <div className="Controls">
                         <div className="keyMappings">
                         {this.state.keyMapping.keys.readableLines().map(function(line){
@@ -215,6 +214,15 @@ var GameBox = React.createClass({
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>
                             {drawnHeld}
                     </ div>
+                </div>
+                <div className="ScoreBox">
+                    <p>Level: {this.state.gameState.score.level}</p>
+                    <p>Score: {this.state.gameState.score.score}</p>
+                    <p>Singles: {this.state.gameState.score.singles}</p>
+                    <p>Doubles: {this.state.gameState.score.doubles}</p>
+                    <p>Triples: {this.state.gameState.score.triples}</p>
+                    <p>Tetrises: {this.state.gameState.score.tetrises}</p>
+                    <p>Delay:{this.state.gameState.score.getDelay()}</p>
                 </div>
             </div>
         )
