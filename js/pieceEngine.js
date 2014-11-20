@@ -236,7 +236,7 @@ Piece.prototype.rand = function () {
         Piece.prototype.shuffle(Piece.prototype.pieceLetters);
     }
     Piece.prototype.nextPieceNumber += 1;
-    var aRandPiece = new Piece(allTetromino["I"], {
+    var aRandPiece = new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
         x: 3,
         y: 0
     }, 0, 6);
