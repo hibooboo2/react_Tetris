@@ -55,8 +55,8 @@ Score.prototype.getDelay = function () {
 };
 Score.prototype.didScore = function (lines) {
     console.log("Called Did score: " + lines);
-    this.levelUp(lines!==5?lines:0);
-    console.log(this[Score.prototype.linesToScore[lines]]);
+    this.linesCleared += lines !== 5 ? lines : 0;
+    console.log(lines !== 5 ? lines : 0);
+    this.levelUp(lines !== 5 ? lines : 0);
     this[Score.prototype.linesToScore[lines]](lines);
-    console.log(this);
 };

@@ -218,6 +218,8 @@ var GameBox = React.createClass({
                 <div className="ScoreBox">
                     <p>Level: {this.state.gameState.score.level}</p>
                     <p>Score: {this.state.gameState.score.score}</p>
+                    <p>Lines Cleared: {this.state.gameState.score.linesCleared}</p>
+                    <p>Last Cleared: {this.state.gameState.score.lastCleared}</p>
                     <p>Singles: {this.state.gameState.score.singles}</p>
                     <p>Doubles: {this.state.gameState.score.doubles}</p>
                     <p>Triples: {this.state.gameState.score.triples}</p>

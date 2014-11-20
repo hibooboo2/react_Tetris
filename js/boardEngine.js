@@ -118,8 +118,10 @@ var boardEngine = function () {
             }
             return allOccupied;
         });
-        for (var i = 0; i < occupiedRows.length; i++) {
+        if(occupiedRows.length>0){
             this.score.didScore(occupiedRows.length);
+        }
+        for (var i = 0; i < occupiedRows.length; i++) {
             this.usedCells.splice(occupiedRows[i], 1);
             this.usedCells.unshift(blankRow());
             this.usedCells.map(function (row, y) {
