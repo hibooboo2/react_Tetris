@@ -2,6 +2,7 @@
 
 // BoardEngine() will return a new Board.
 var boardEngine = function () {
+    "use strict";
     function Board() {
         this.height = 22;
         this.width = 10;
@@ -14,7 +15,7 @@ var boardEngine = function () {
         };
         this.gameOver = false;
         this.justHeld = false;
-        this.level = 0;
+        this.score = new Score();
         this.fallingPiece = new Piece().draw();
         this.heldPiece = false;
     }
@@ -65,7 +66,7 @@ var boardEngine = function () {
             }
         }
         return cellsCanBeAdded;
-    }
+    };
     Board.prototype.addCell = function (cell) {
         var added = false;
         if (this.canAddCell(cell)) {
@@ -105,6 +106,7 @@ var boardEngine = function () {
             return row;
         };
         var occupiedRows = [];
+        this.score.didScore(occupiedRows.length);
         this.usedCells.map(function (row, rowIndex) {
             var allOccupied = true;
             row.map(function (cell) {
@@ -119,7 +121,6 @@ var boardEngine = function () {
         });
         for (var i = 0; i < occupiedRows.length; i++) {
             this.usedCells.splice(occupiedRows[i], 1);
-            this.level += 1;
             this.usedCells.unshift(blankRow());
             this.usedCells.map(function (row, y) {
                 row.map(function (cell, x) {
@@ -159,6 +160,7 @@ var boardEngine = function () {
     Board.prototype.dropFallingPiece = function () {
         this.fallingPiece.dropPiece(this);
         this.addPiece(this.fallingPiece);
+        this.score.hardDrop(5);
         return true;
     };
     Board.prototype.rotateFallingClockWise = function () {
@@ -175,6 +177,9 @@ var boardEngine = function () {
     };
     Board.prototype.moveFallingDown = function () {
         var moved = this.fallingPiece.movePieceDown(this);
+        if(moved){
+        this.score.softDrop();
+        }
         return moved;
     };
     Board.prototype.restart = function () {
@@ -195,7 +200,7 @@ var boardEngine = function () {
     };
     Board.prototype.getFallingPiece = function () {
         return this.fallingPiece;
-    }
+    };
     Board.prototype.isGameOver = function () {
         var isGameOver = false;
         var rows = [this.usedCells[0], this.usedCells[1]];
@@ -210,6 +215,6 @@ var boardEngine = function () {
             this.gameOver = isGameOver;
         }
         return isGameOver;
-    }
+    };
     return Board;
 }();
