@@ -10,7 +10,7 @@ var boardEngine = function () {
         this.newBoard();
         this.settings = {
             canHold: true,
-            useGhost: false,
+            useGhost: true,
             canPreview: true,
             fullScreen: false
         };
@@ -32,13 +32,6 @@ var boardEngine = function () {
         this.fallingPiece.cells().map(function (cell) {
             board[cell.y][cell.x] = cell.copy();
         });
-        if (this.settings.useGhost) {
-            this.fallingPiece.cells().map(function (cell) {
-                var newCell = cell.copy();
-                newCell.type = 0;
-                board[newCell.y][newCell.x] = newCell;
-            });
-        }
         return board;
     };
     //Get one and only one cell with provided x and y.
@@ -48,7 +41,7 @@ var boardEngine = function () {
             cellToReturn = this.usedCells[cellGiven.y][cellGiven.x].copy();
         } else {
             cellToReturn = new Cell(cellGiven.x, cellGiven.y);
-            cellToReturn.type = 5;
+            cellToReturn.type = 3;
         }
 
         return cellToReturn;
@@ -57,7 +50,7 @@ var boardEngine = function () {
 
     Board.prototype.canAddCell = function (cell) {
         var cellToUse = this.getCell(cell);
-        return this.cellOnBoard(cell) && cellToUse.type !== 4 && cell.collides(cellToUse) && cellToUse.type === 5;
+        return this.cellOnBoard(cell) && cellToUse.type !== 4 && cell.collides(cellToUse) && cellToUse.type === 3;
     };
     Board.prototype.canAddCells = function (cells) {
         var cellsCanBeAdded = true;
@@ -102,7 +95,7 @@ var boardEngine = function () {
         var blankRow = function () {
             var row = [];
             for (var j = 0; j < 10; j++) {
-                row[j] = new Cell(0, j);
+                row[j] = new Cell(0, j,"lightgrey","empty",3);
             }
             return row;
         };
@@ -198,7 +191,7 @@ var boardEngine = function () {
         for (var i = 0; i < this.height; i++) {
             this.usedCells[i] = [];
             for (var j = 0; j < this.width; j++) {
-                this.usedCells[i][j] = new Cell(j, i);
+                this.usedCells[i][j] = new Cell(j, i,"lightgrey","empty",3);
             }
         }
     };

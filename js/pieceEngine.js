@@ -15,7 +15,7 @@ Piece.prototype.getType = function () {
 };
 
 Piece.prototype.copy = function () {
-    return new Piece(this.tetromino, this.position, this.rotation, this.type);
+    return new Piece(this.tetromino, {x:this.position.x,y:this.position.y}, this.rotation, this.type);
 };
 
 Piece.prototype.equals = function (piece) {
@@ -126,32 +126,12 @@ Piece.prototype.dropPiece = function (currentBoard) {
     return this.position.y === curPosy;
 };
 
-Piece.prototype.canDropPiece = function (currentBoard) {
-    var currentPos = this.position;
-    var nextPosition = this.canMoveDown(currentBoard);
-    while (nextPosition) {
-        currentPos = nextPosition;
-        nextPosition = this.canMoveDown(currentBoard);
-    }
-    return currentPos;
-};
-
 Piece.prototype.ghost = function (currentBoard) {
-    //    var ghostPiece = new Piece(this.tetromino, this.position, this.rotation, 0);
-    //    var ghostPosition = ghostPiece.canDropPiece(currentBoard);
-    //    var color = this.color();
-    //    var name = this.name();
-    //    var type = this.type;
-    //    this.tetromino.cells[this.rotation].map(function (row, celly) {
-    //        row.map(function (cell, cellx) {
-    //            if (cell) {
-    //                var cellToAdd = new Cell(cellx + ghostPosition.x, celly + ghostPosition.y, color, name, type);
-    //                ghostCells.push(cellToAdd);
-    //            }
-    //        });
-    //    });
-    //this.canDropPiece(currentBoard);
-    return this.cells();
+    var ghostCopy = this.copy();
+    ghostCopy.type = 0;
+    ghostCopy.dropPiece(currentBoard);
+    console.log(ghostCopy.getType());
+    return ghostCopy;
 };
 
 Piece.prototype.cells = function () {
@@ -163,7 +143,7 @@ Piece.prototype.cells = function () {
     this.tetromino.cells[this.rotation].map(function (row, celly) {
         row.map(function (cell, cellx) {
             if (cell) {
-                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, cell ? type : 5);
+                var cellToAdd = new Cell(cellx + startingPos.x, celly + startingPos.y, color, name, type);
                 currentCells.push(cellToAdd);
             }
         });
