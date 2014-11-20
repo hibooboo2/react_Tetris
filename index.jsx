@@ -76,7 +76,7 @@ var GameBox = React.createClass({
         var currEvent = evt;
         var key = evt.keyCode;
         //console.log(key);
-        if(evt instanceof KeyboardEvent ){
+        if(evt instanceof KeyboardEvent){
             if(!this.state.paused && this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
@@ -187,6 +187,7 @@ var GameBox = React.createClass({
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
                             <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
+                            <TetrisSong/>
                         </ div>
                     </div>
                     <div className ="Issues">
@@ -263,15 +264,43 @@ var TetrisPreview = React.createClass({
 });
 */
 
-var TetrisGame = React.createClass({
-  render: function() {
-    return (
-      <div className="TetrisGame">
-        <GameBox gameState={this.props.gameState} keyMappings={this.props.keyMappings}/>
-      </div>
-    );
-  }
+var TetrisSong = React.createClass({
+    getInitialState: function(){
+        return {
+                play: true,
+                };
+    },componentDidMount: function(){
+        swfobject.embedSWF("http://www.youtube.com/v/Mlx5bWb3t8c?version=3&enablejsapi=1&autoplay=1&loop=1&playlist=Mlx5bWb3t8c", "TetrisSong", "0", "0", "9.0.0");
+    },
+    toggleVideo: function(){
+        this.state.play  = !this.state.play;
+        if(this.state.play){
+            swfobject.embedSWF("http://www.youtube.com/v/Mlx5bWb3t8c?version=3&enablejsapi=1&autoplay=1&loop=1&playlist=Mlx5bWb3t8c", "TetrisSong", "0", "0", "9.0.0");
+        }else{
+            swfobject.embedSWF("//", "TetrisSong", "0", "0", "9.0.0");
+        }
+        this.setState({play:this.state.play});
+    },
+    render: function() {
+        return (
+                <div className="TetrisSong">
+                    <input className={this.state.play ? "on":"off"} type="button" onClick={this.toggleVideo} value={this.state.play ? "Stop Music":"Play Music"}></input>
+                    <div id="TetrisSong">
+                    </ div>
+                </div>
+                );
+            }
 });
+
+var TetrisGame = React.createClass({
+    render: function() {
+        return (
+                    <div className="TetrisGame">
+                        <GameBox gameState={this.props.gameState} keyMappings={this.props.keyMappings}/>
+                    </div>
+                );
+        }
+    });
 
 var theKeys = keyMappings();
 
