@@ -191,6 +191,7 @@ var boardEngine = function () {
         this.level = 0;
         this.fallingPiece = new Piece().draw();
         this.heldPiece = false;
+        this.score = new Score();
     };
     Board.prototype.newBoard = function () {
         for (var i = 0; i < this.height; i++) {

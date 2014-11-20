@@ -34,10 +34,10 @@ Score.prototype.combo = function () {
     this.comboCount += 1;
 };
 Score.prototype.softDrop = function () {
-    this.score += 1 * this.level;
+    this.score += 1 * (this.level+1);
 };
 Score.prototype.hardDrop = function (cellsDropped) {
-    var scoreToAdd = 2 * this.level * (cellsDropped + 1);
+    var scoreToAdd = (2 * (this.level +1) * (cellsDropped + 1)) + 20;
     this.score += scoreToAdd;
 };
 Score.prototype.levelUp = function (lines) {

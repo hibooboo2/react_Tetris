@@ -193,8 +193,13 @@ var GameBox = React.createClass({
                     </ div>
                     <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
                         <p>Congratulations! </p>
-                        <p>You made it to level:</p>
-                        <p>{this.state.gameState.score.level}</p>
+                        <p>You got to level {this.state.gameState.score.level}</p>
+                        <p>Your Score was {this.state.gameState.score.score}</p>
+                        <p>You Cleared {this.state.gameState.score.linesCleared} lines!</p>
+                        <p>You got {this.state.gameState.score.singles} Singles!</p>
+                        <p>You got {this.state.gameState.score.doubles} Doubles!</p>
+                        <p>You got {this.state.gameState.score.triples} Triples!</p>
+                        <p>You got {this.state.gameState.score.tetrises} Tetrises!</p>
                         <p>Good Job!</p>
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
                     </div>
@@ -218,13 +223,6 @@ var GameBox = React.createClass({
                 <div className="ScoreBox">
                     <p>Level: {this.state.gameState.score.level}</p>
                     <p>Score: {this.state.gameState.score.score}</p>
-                    <p>Lines Cleared: {this.state.gameState.score.linesCleared}</p>
-                    <p>Last Cleared: {this.state.gameState.score.lastCleared}</p>
-                    <p>Singles: {this.state.gameState.score.singles}</p>
-                    <p>Doubles: {this.state.gameState.score.doubles}</p>
-                    <p>Triples: {this.state.gameState.score.triples}</p>
-                    <p>Tetrises: {this.state.gameState.score.tetrises}</p>
-                    <p>Delay:{this.state.gameState.score.getDelay()}</p>
                 </div>
             </div>
         )
