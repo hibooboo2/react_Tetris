@@ -231,12 +231,7 @@ Piece.prototype.rotateCounterClockWise = function (currentBoard) {
 };
 
 Piece.prototype.rand = function () {
-    if (Piece.prototype.nextPieceNumber > 6) {
-        Piece.prototype.nextPieceNumber = -1;
-        Piece.prototype.shuffle(Piece.prototype.pieceLetters);
-    }
-    Piece.prototype.nextPieceNumber += 1;
-    var aRandPiece = new Piece(allTetromino[Piece.prototype.pieceLetters[Piece.prototype.nextPieceNumber]], {
+    var aRandPiece = new Piece(allTetromino[Piece.prototype.shuffledPieceLetters.pop()], {
         x: 3,
         y: 0
     }, 0, 6);
@@ -244,25 +239,64 @@ Piece.prototype.rand = function () {
 };
 
 Piece.prototype.draw = function () {
-    while (Piece.prototype.que.length < 2) {
-        var toPush = Piece.prototype.rand();
-        Piece.prototype.que.push(toPush);
+    while (Piece.prototype.que.length < 7) {
+        if (Piece.prototype.shuffledPieceLetters.length == 0) {
+            Piece.prototype.shuffledPieceLetters = Piece.prototype.shuffle(Piece.prototype.pieceLetters);
+        }
+        Piece.prototype.que.unshift(Piece.prototype.rand());
     }
     var drawnPiece = Piece.prototype.que.pop();
     drawnPiece.type = 1;
-    Piece.prototype.que.unshift(Piece.prototype.rand());
     return drawnPiece;
 };
 
-Piece.prototype.shuffle = function (o) { //v1.0
-    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
+Piece.prototype.shuffle = function (array) { //v1.0
+    array = array.slice(0);
+    var currentIndex = array.length,
+        temporaryValue, randomIndex;
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+
 };
 
 Piece.prototype.nextPieceNumber = -1;
 
+Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
+Piece.prototype.shuffledPieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
+
 Piece.prototype.que = [];
 
-Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
-
 Piece.prototype.shuffle(Piece.prototype.pieceLetters);
+
+
+var TestPiecesTypes = {
+    I: 0,
+    L: 0,
+    J: 0,
+    O: 0,
+    S: 0,
+    T: 0,
+    Z: 0
+};
+var TestPieces = [];
+for (var i = 0; i < 500; i++) {
+
+    TestPieces.push(new Piece().draw());
+}
+
+TestPieces.map(function (piece) {
+    TestPiecesTypes[piece.name()] += 1;
+})
+console.log(TestPiecesTypes);

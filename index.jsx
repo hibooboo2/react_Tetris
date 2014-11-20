@@ -220,9 +220,9 @@ var GameBox = React.createClass({
                             Preview:
 
                             Next Piece:
-                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(Piece.prototype.que[1])}</div>
+                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[0])}</div>
 
-                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(Piece.prototype.que[0])}</div>
+                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[1])}</div>
                     </ div>
                     <div className={"heldBox "+(this.state.gameState.settings.canHold ? "enabled":"disabled")}>
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>

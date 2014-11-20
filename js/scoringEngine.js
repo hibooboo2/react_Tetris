@@ -34,15 +34,15 @@ Score.prototype.combo = function () {
     this.comboCount += 1;
 };
 Score.prototype.softDrop = function () {
-    this.score += 1 * (this.level+1);
+    this.score += 1 * (this.level + 1);
 };
 Score.prototype.hardDrop = function (cellsDropped) {
-    var scoreToAdd = (2 * (this.level +1) * (cellsDropped + 1)) + 20;
+    var scoreToAdd = (2 * (this.level + 1) * (cellsDropped + 1)) + 20;
     this.score += scoreToAdd;
 };
 Score.prototype.levelUp = function (lines) {
     this.lastCleared += lines;
-    if (this.lastCleared / this.level >= 15 && lines === 4) {
+    if (this.lastCleared / (this.level / 2) >= 5 || (lines === 4 && this.lastCleared >= 20)) {
         this.lastCleared = 0;
         this.level += 1;
     }
@@ -51,7 +51,7 @@ Score.prototype.getScore = function () {
     return this.score;
 };
 Score.prototype.getDelay = function () {
-    return 500 - (this.level * 30);
+    return 800 - (this.level * 20);
 };
 Score.prototype.didScore = function (lines) {
     console.log("Called Did score: " + lines);
