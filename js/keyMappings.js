@@ -41,7 +41,7 @@ var keyMappings = function () {
         },
         hold: {
             function: "holdPiece",
-            english: "Hold Current Piece For Later"
+            english: "Hold Piece"
         },
         restart: {
             function: "restart",
