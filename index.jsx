@@ -110,9 +110,13 @@ var GameBox = React.createClass({
     },togglefullScreen:function(){
         this.state.gameState.settings.fullScreen = !this.state.gameState.settings.fullScreen;
         if(this.state.gameState.settings.fullScreen){
-            document.getElementsByClassName("GameBox")[0].style.fontSize = (Math.floor(window.innerWidth/70))+"px";
+            document.getElementsByClassName("GameBox")[0].style.fontSize = (Math.floor(window.innerHeight/50))+"px";
+            document.getElementsByClassName("GameBox")[0].style.position = "fixed";
+            document.getElementsByClassName("GameBox")[0].style.left = "1em";
         }else{
             document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
+            document.getElementsByClassName("GameBox")[0].style.left = "";
+            document.getElementsByClassName("GameBox")[0].style.position = "absolute";
             }
         this.setState({gameState:this.state.gameState});
     },
@@ -220,16 +224,8 @@ var GameBox = React.createClass({
                         })}
                         </ div>
                         <div>
-                        <p className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        <p onClick={this.pause} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
                         </div>
-                        <div className="Settings">
-                            <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
-                            <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
-                            <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
-                            <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
-                            <input onClick={this.toggleAnnouncer} className={this.state.gameState.settings.announcer ? "off":"on"} type="button" value="Announcer"/>
-                            <TetrisSong/>
-                        </ div>
                     </div>
                     <div className ="Issues">
                     <hr />
@@ -252,6 +248,16 @@ var GameBox = React.createClass({
                     </div>
                     <div className={this.state.paused? "pauseScreen" : "disabled"}>
                         Paused
+
+                        <div className="Settings">
+                            <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
+                            <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
+                            <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
+                            <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
+                            <input onClick={this.toggleAnnouncer} className={this.state.gameState.settings.announcer ? "off":"on"} type="button" value="Announcer"/>
+                            <TetrisSong/>
+                        </ div>
+
                     </div>
                 <div>
                     <div className={"previewBox "+(this.state.gameState.settings.canPreview ? "enabled":"disabled")}>

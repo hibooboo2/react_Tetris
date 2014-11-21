@@ -7,6 +7,12 @@
     min-height 8em;
     font-size: 1em;
 }
+.TetrisGame{
+    position: absolute;
+    width:inherit;
+    top: 0em;
+    margin: 0 auto;
+}
 .cell,
 .TetrisCell {
     padding: 0.9em;
@@ -37,7 +43,7 @@
     top: 4em;
     left: 1em;
 }
-.ScoreBox{
+.ScoreBox {
     position: absolute;
     left: 5em;
     top: 15em;
@@ -69,11 +75,15 @@ button,
     height: 4em;
     width: 8em;
 }
+.Settings {
+    position: absolute;
+    height: 5em;
+    right: 3em;
+    top: 5em;
+    width: 4em;
+}
 @media (max-width: 641px) {
     .Controls {
-        display: none;
-    }
-    .Settings {
         display: none;
     }
     .previewBox {
@@ -101,12 +111,6 @@ button,
         left: 0em;
         top: 0em;
         font-size: 3.4em;
-    }
-    .Settings {
-        position: absolute;
-        width: 10em;
-        height: 5em;
-        right: 0em;
     }
     .keyMappings {
         top: 5em;
