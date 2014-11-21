@@ -38,6 +38,7 @@ var GameBox = React.createClass({
             if(this.state.gameState.fallingPiece){
                 if(!this.state.gameState.moveFallingDown()){
                     this.state.gameState.dropFallingPiece();
+                    this.playBlock(this.state.gameState.fallingPiece.name());
                 }else{
                 }
             }
@@ -89,6 +90,9 @@ var GameBox = React.createClass({
                 }
             }
         }
+        if (this.state.keyMapping.keys[key].function === "dropFallingPiece" ){
+            this.playBlock(this.state.gameState.fallingPiece.name());
+        }
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },toggleGhost:function(){
         this.state.gameState.settings.useGhost = !this.state.gameState.settings.useGhost;
@@ -110,6 +114,36 @@ var GameBox = React.createClass({
             document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
             }
         this.setState({gameState:this.state.gameState});
+    },
+    playBlock: function(pieceName){
+        console.log("Play Called:" + pieceName);
+        var godBlocks = {
+                            FirstPiece:{start:15.4,end:16.8},
+                            L:{start:13,end:14},
+                            I:{start:110,end:111.6},
+                            S:{start:41,end:41.7},
+                            Z:{start:64.4,end:66},
+                            O:{start:19,end:20.2},
+                            T:{start:34,end:35.2},
+                            J:{start:27,end:28.5}
+                        }
+        var volume = 1;
+        var playSegment = function(time){
+        var godSong = document.getElementById("GodSong");
+            if(godSong){
+                godSong.currentTime = time.start;
+                godSong.muted = false;
+                godSong.volume = volume;
+                godSong.play();
+                setTimeout(function(){
+                    godSong.pause()
+                    godSong.muted = true;
+                    },(time.end-time.start)*1000);
+            }
+        }
+        if(godBlocks[pieceName]){
+            playSegment(godBlocks[pieceName]);
+        }
     },
     drawPiece: function(aPiece) {
         var positionCell = function(cell){
@@ -230,6 +264,10 @@ var GameBox = React.createClass({
                     <p>Level: {this.state.gameState.score.level}</p>
                     <p>Score: {this.state.gameState.score.score}</p>
                 </div>
+                <audio id="GodSong" width="0" height="0" loop="1" autoPlay="1" muted>
+                    <source src={"audio/god.mp4"} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </audio>
             </div>
         )
     }
@@ -267,26 +305,32 @@ var TetrisPreview = React.createClass({
 var TetrisSong = React.createClass({
     getInitialState: function(){
         return {
-                play: true,
+                volume: window.localStorage.gameVolume !== undefined ? parseFloat(window.localStorage.gameVolume): 0.5,
                 };
     },componentDidMount: function(){
-        swfobject.embedSWF("http://www.youtube.com/v/Mlx5bWb3t8c?version=3&enablejsapi=1&autoplay=1&loop=1&playlist=Mlx5bWb3t8c", "TetrisSong", "0", "0", "9.0.0");
+        document.getElementById("TetrisSong").volume = this.state.volume;
     },
     toggleVideo: function(){
-        this.state.play  = !this.state.play;
-        if(this.state.play){
-            swfobject.embedSWF("http://www.youtube.com/v/Mlx5bWb3t8c?version=3&enablejsapi=1&autoplay=1&loop=1&playlist=Mlx5bWb3t8c", "TetrisSong", "0", "0", "9.0.0");
-        }else{
-            swfobject.embedSWF("//", "TetrisSong", "0", "0", "9.0.0");
+        this.state.volume = this.state.volume +0.05;
+        if(this.state.volume> 1){
+            this.state.volume = 0;
+            document.getElementById("TetrisSong").muted = true;
         }
-        this.setState({play:this.state.play});
+        document.getElementById("TetrisSong").volume = this.state.volume;
+        document.getElementById("TetrisSong").muted = false;
+        window.localStorage.gameVolume = this.state.volume;
+        this.setState({volume:this.state.volume});
     },
     render: function() {
+
         return (
                 <div className="TetrisSong">
-                    <input className={this.state.play ? "on":"off"} type="button" onClick={this.toggleVideo} value={this.state.play ? "Stop Music":"Play Music"}></input>
-                    <div id="TetrisSong">
-                    </ div>
+                    <audio id="TetrisSong" width="200" height="50" loop="1" autoPlay="1">
+                        <source src={"audio/tetrisSong.mp4"} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </audio>
+                    <input className={!this.state.volume ? "on":"off"} type="button"
+                        onClick={this.toggleVideo} value={!this.state.volume? "Muted":"Volume: "+Math.floor(this.state.volume*100)+"%"}></input>
                 </div>
                 );
             }
