@@ -82,9 +82,13 @@ var GameBox = React.createClass({
         var newFalling = new Piece().draw();
         this.playBlock("FirstPiece",newFalling.name());
         gameState = this.state.gameState;
-        setTimeout(function(){
+        if(this.state.gameState.settings.announcer){
+            setTimeout(function(){
+                gameState.fallingPiece = newFalling;
+            },8800);
+        }else{
             gameState.fallingPiece = newFalling;
-        },8800);
+        }
         this.setState({paused:this.state.paused,gameState:this.state.gameState});
     },
     handleKeys:function(evt){
