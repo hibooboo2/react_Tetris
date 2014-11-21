@@ -111,12 +111,8 @@ var GameBox = React.createClass({
         this.state.gameState.settings.fullScreen = !this.state.gameState.settings.fullScreen;
         if(this.state.gameState.settings.fullScreen){
             document.getElementsByClassName("GameBox")[0].style.fontSize = (Math.floor(window.innerHeight/50))+"px";
-            document.getElementsByClassName("GameBox")[0].style.position = "fixed";
-            document.getElementsByClassName("GameBox")[0].style.left = "1em";
         }else{
             document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
-            document.getElementsByClassName("GameBox")[0].style.left = "";
-            document.getElementsByClassName("GameBox")[0].style.position = "absolute";
             }
         this.setState({gameState:this.state.gameState});
     },
@@ -319,20 +315,43 @@ var TetrisSong = React.createClass({
     getInitialState: function(){
         return {
                 volume: window.localStorage.gameVolume !== undefined ? parseFloat(window.localStorage.gameVolume): 0.5,
+                muted: window.localStorage.gameMuted !== undefined ? JSON.parse(window.localStorage.gameMuted): false,
                 };
     },componentDidMount: function(){
+        document.getElementById("TetrisSong").muted = this.state.muted;
         document.getElementById("TetrisSong").volume = this.state.volume;
     },
-    toggleVideo: function(){
+    volumeUp: function(){
         this.state.volume = this.state.volume +0.05;
-        if(this.state.volume> 1){
-            this.state.volume = 0;
-            document.getElementById("TetrisSong").muted = true;
-        }
+        this.state.volume = this.state.volume > 1 ? 1: this.state.volume ;
+        this.state.muted = false;
         document.getElementById("TetrisSong").volume = this.state.volume;
         document.getElementById("TetrisSong").muted = false;
         window.localStorage.gameVolume = this.state.volume;
-        this.setState({volume:this.state.volume});
+        window.localStorage.gameMuted = this.state.muted;
+        this.setState({volume:this.state.volume,muted:this.state.muted});
+    },
+    volumeDown: function(){
+        this.state.volume = this.state.volume -0.10;
+        this.state.volume = this.state.volume < 0 ? 0: this.state.volume ;
+        this.state.muted = false;
+        document.getElementById("TetrisSong").volume = this.state.volume;
+        document.getElementById("TetrisSong").muted = false;
+        window.localStorage.gameVolume = this.state.volume;
+        window.localStorage.gameMuted = this.state.muted;
+        this.setState({volume:this.state.volume,muted:this.state.muted});
+    },
+    togglePlay: function(){
+        if(!this.state.muted){
+            this.state.muted = true;
+            document.getElementById("TetrisSong").muted = true;
+        }else{
+            this.state.muted = false;
+            document.getElementById("TetrisSong").muted = false;
+
+        }
+        window.localStorage.gameMuted = this.state.muted;
+        this.setState({muted:this.state.muted});
     },
     render: function() {
 
@@ -342,8 +361,9 @@ var TetrisSong = React.createClass({
                         <source src={"audio/tetrisSong.mp4"} type="video/mp4" />
                         Your browser does not support the video tag.
                     </audio>
-                    <input className={!this.state.volume ? "on":"off"} type="button"
-                        onClick={this.toggleVideo} value={!this.state.volume? "Muted":"Volume: "+Math.floor(this.state.volume*100)+"%"}></input>
+                        <img onClick={this.togglePlay} height="20px" width="20px" src={!this.state.muted ? "https://cdn1.iconfinder.com/data/icons/material-audio-video/20/pause-circle-outline-128.png" : "https://cdn1.iconfinder.com/data/icons/material-audio-video/20/play-circle-fill-128.png"} alt="Play Pause Button"/>
+                    <img onClick={this.volumeDown} height="20px" width="20px" alt="Volume Down" src="https://cdn2.iconfinder.com/data/icons/freecns-cumulus/16/519648-152_VolumeDown-128.png"/>
+                    <img onClick={this.volumeUp} height="20px" width="20px" alt="Volume Up" src="https://cdn2.iconfinder.com/data/icons/freecns-cumulus/16/519649-153_VolumeUp-128.png"/>
                 </div>
                 );
             }
