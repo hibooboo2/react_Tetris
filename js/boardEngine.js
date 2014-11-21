@@ -19,8 +19,9 @@ var boardEngine = function () {
         this.gameOver = false;
         this.justHeld = false;
         this.score = new Score();
-        this.fallingPiece = new Piece().draw();
+        this.fallingPiece = false;
         this.heldPiece = false;
+        this.started = false;
     }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
@@ -31,9 +32,11 @@ var boardEngine = function () {
                 board[i].push(this.usedCells[i][j].copy());
             }
         }
-        this.fallingPiece.cells().map(function (cell) {
-            board[cell.y][cell.x] = cell.copy();
-        });
+        if(this.fallingPiece){
+            this.fallingPiece.cells().map(function (cell) {
+                board[cell.y][cell.x] = cell.copy();
+            });
+        }
         return board;
     };
     //Get one and only one cell with provided x and y.

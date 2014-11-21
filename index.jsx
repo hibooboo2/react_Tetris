@@ -15,7 +15,7 @@ var GameBox = React.createClass({
                 keyMappings: this.props.keyMappings,
                 keyMapping: this.props.keyMappings["default"],
                 currentMap: "default",
-                closeGameoverScreen: true
+                closeGameoverScreen: true,
                 };
     },
      componentDidMount: function(){
@@ -73,6 +73,17 @@ var GameBox = React.createClass({
         }
         this.state.paused = !this.state.paused;
         this.setState({paused:this.state.paused});
+    },
+    play: function(){
+        this.state.paused = false;
+        this.state.gameState.started = true;
+        var newFalling = new Piece().draw();
+        this.playBlock("FirstPiece",newFalling.name());
+        gameState = this.state.gameState;
+        setTimeout(function(){
+            gameState.fallingPiece = newFalling;
+        },8800);
+        this.setState({paused:this.state.paused,gameState:this.state.gameState});
     },
     handleKeys:function(evt){
         var currEvent = evt;
@@ -196,7 +207,7 @@ var GameBox = React.createClass({
                     };
         };
         var ghostPiece = {};
-        if (this.state.gameState.settings.useGhost){
+        if (this.state.gameState.settings.useGhost && this.state.gameState.fallingPiece){
             var fallingCopy = this.state.gameState.fallingPiece.ghost(this.state.gameState);
             var ghostPiece = this.drawPiece(fallingCopy);
         }
@@ -227,7 +238,7 @@ var GameBox = React.createClass({
                         })}
                         </ div>
                         <div>
-                        <p onClick={this.pause} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
                         </div>
                     </div>
                     <div className ="Issues">
