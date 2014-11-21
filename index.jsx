@@ -120,12 +120,12 @@ var GameBox = React.createClass({
         var godBlocks = {
                             FirstPiece:{start:15.4,end:16.8},
                             L:{start:13,end:14},
-                            I:{start:110,end:111.6},
-                            S:{start:41,end:41.7},
-                            Z:{start:64.4,end:66},
-                            O:{start:19,end:20.2},
-                            T:{start:34,end:35.2},
-                            J:{start:27,end:28.5}
+                            I:{start:110,end:111.8},
+                            S:{start:41,end:41.95},
+                            Z:{start:64.4,end:66.2},
+                            O:{start:19,end:20.4},
+                            T:{start:34,end:35.4},
+                            J:{start:27,end:28.6}
                         }
         var volume = 1;
         var playSegment = function(time){
