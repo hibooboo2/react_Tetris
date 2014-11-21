@@ -356,7 +356,7 @@ var TetrisSong = React.createClass({
     render: function() {
 
         return (
-                <div className="TetrisSong">
+                <div className="TetrisSong" style={{margin:"0.1em"}}>
                     <audio id="TetrisSong" width="200" height="50" loop="1" autoPlay="1">
                         <source src={"audio/tetrisSong.mp4"} type="video/mp4" />
                         Your browser does not support the video tag.
