@@ -22,6 +22,7 @@ var GameBox = React.createClass({
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
+        document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
 
@@ -39,6 +40,7 @@ var GameBox = React.createClass({
             if(this.state.gameState.fallingPiece){
                 if(!this.state.gameState.moveFallingDown()){
                     this.state.gameState.dropFallingPiece();
+                    document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
                     this.playBlock(this.state.gameState.fallingPiece.name());
                 }else{
                 }
@@ -111,6 +113,7 @@ var GameBox = React.createClass({
                 }
             }
         }
+        document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },toggleGhost:function(){
         this.state.gameState.settings.useGhost = !this.state.gameState.settings.useGhost;
