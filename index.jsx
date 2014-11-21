@@ -101,15 +101,15 @@ var GameBox = React.createClass({
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
                 }else{
                     this[this.state.keyMapping.keys[key].function]();
+                    if (this.state.keyMapping.keys[key].function === "dropFallingPiece" ){
+                        this.playBlock(this.state.gameState.fallingPiece.name());
+                    }
                 }
             }else if(evt instanceof KeyboardEvent){
                 if(key === 32||key === 13||key === 192){
                     this[this.state.keyMapping.keys[key].function]();
                 }
             }
-        }
-        if (this.state.keyMapping.keys[key].function === "dropFallingPiece" ){
-            this.playBlock(this.state.gameState.fallingPiece.name());
         }
         this.setState({gameState:this.state.gameState,keyMapping:this.state.keyMapping,currentMap:this.state.currentMap});
     },toggleGhost:function(){
