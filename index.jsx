@@ -71,7 +71,9 @@ var GameBox = React.createClass({
         if(this.state.gameState.gameOver&&this.state.paused){
             this.restart();
         }
-        this.state.paused = !this.state.paused;
+        if(this.state.gameState.started){
+            this.state.paused = !this.state.paused;
+        }
         this.setState({paused:this.state.paused});
     },
     play: function(){
