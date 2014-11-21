@@ -5,6 +5,7 @@ var GameBox = React.createClass({
     getInitialState: function(){
         //var level = parseInt(prompt("Starting Level?",1));
         //this.props.gameState.score.level = level;
+        this.props.gameState.settings.announcer = window.localStorage.announcer !== undefined ? JSON.parse(window.localStorage.announcer): true;
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
         return {
@@ -128,9 +129,10 @@ var GameBox = React.createClass({
                             J:{start:27,end:28.6}
                         }
         var volume = 1;
+        var announcer =this.state.gameState.settings.announcer;
         var playSegment = function(time){
         var godSong = document.getElementById("GodSong");
-            if(godSong){
+            if(godSong && announcer){
                 godSong.currentTime = time.start;
                 godSong.muted = false;
                 godSong.volume = volume;
@@ -144,6 +146,10 @@ var GameBox = React.createClass({
         if(godBlocks[pieceName]){
             playSegment(godBlocks[pieceName]);
         }
+    },toggleAnnouncer:function(){
+        this.state.gameState.settings.announcer = !this.state.gameState.settings.announcer;
+        window.localStorage.announcer = this.state.gameState.settings.announcer;
+        this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
         var positionCell = function(cell){
@@ -221,6 +227,7 @@ var GameBox = React.createClass({
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
                             <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
+                            <input onClick={this.toggleAnnouncer} className={this.state.gameState.settings.announcer ? "off":"on"} type="button" value="Announcer"/>
                             <TetrisSong/>
                         </ div>
                     </div>
