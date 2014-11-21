@@ -116,10 +116,11 @@ var GameBox = React.createClass({
             }
         this.setState({gameState:this.state.gameState});
     },
-    playBlock: function(pieceName){
+    playBlock: function(pieceName,secondPiece){
+        var playBlock = this.playBlock;
         console.log("Play Called:" + pieceName);
         var godBlocks = {
-                            FirstPiece:{start:15.4,end:16.8},
+                            FirstPiece:{start:3.7,end:12.5},
                             L:{start:13,end:14},
                             I:{start:110,end:111.8},
                             S:{start:41,end:41.95},
@@ -138,8 +139,14 @@ var GameBox = React.createClass({
                 godSong.volume = volume;
                 godSong.play();
                 setTimeout(function(){
-                    godSong.pause()
-                    godSong.muted = true;
+                    if(pieceName!=="FirstPiece"){
+                        godSong.pause();
+                        godSong.muted = true;
+                    }else{
+                        godSong.pause();
+                        godSong.muted = true;
+                        playBlock(secondPiece);
+                    }
                     },(time.end-time.start)*1000);
             }
         }

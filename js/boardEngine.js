@@ -3,6 +3,7 @@
 // BoardEngine() will return a new Board.
 var boardEngine = function () {
     "use strict";
+
     function Board() {
         this.height = 22;
         this.width = 10;
@@ -12,7 +13,8 @@ var boardEngine = function () {
             canHold: true,
             useGhost: true,
             canPreview: true,
-            fullScreen: false
+            fullScreen: false,
+            announcer:true
         };
         this.gameOver = false;
         this.justHeld = false;
@@ -95,7 +97,7 @@ var boardEngine = function () {
         var blankRow = function () {
             var row = [];
             for (var j = 0; j < 10; j++) {
-                row[j] = new Cell(0, j,"lightgrey","empty",3);
+                row[j] = new Cell(0, j, "lightgrey", "empty", 3);
             }
             return row;
         };
@@ -112,7 +114,7 @@ var boardEngine = function () {
             }
             return allOccupied;
         });
-        if(occupiedRows.length>0){
+        if (occupiedRows.length > 0) {
             this.score.didScore(occupiedRows.length);
         }
         for (var i = 0; i < occupiedRows.length; i++) {
@@ -173,7 +175,7 @@ var boardEngine = function () {
     };
     Board.prototype.moveFallingDown = function () {
         var moved = this.fallingPiece.movePieceDown(this);
-        if(moved){
+        if (moved) {
             this.score.didScore(5);
         }
         return moved;
@@ -191,7 +193,7 @@ var boardEngine = function () {
         for (var i = 0; i < this.height; i++) {
             this.usedCells[i] = [];
             for (var j = 0; j < this.width; j++) {
-                this.usedCells[i][j] = new Cell(j, i,"lightgrey","empty",3);
+                this.usedCells[i][j] = new Cell(j, i, "lightgrey", "empty", 3);
             }
         }
     };
@@ -213,5 +215,11 @@ var boardEngine = function () {
         }
         return isGameOver;
     };
+    Board.prototype.fromString = function(previousBoardJSON){
+
+    }
+    Board.prototype.toJson = function(){
+
+    }
     return Board;
 }();
