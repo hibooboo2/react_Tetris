@@ -66,7 +66,7 @@ Score.prototype.getDelay = function () {
     return 800 - (this.level * 50);
 };
 Score.prototype.getPlaybackRate = function () {
-    return 0.113*this.level+0.8;
+    return 0.113 * this.level + 0.8;
 };
 Score.prototype.didScore = function (lines) {
     this.linesCleared += lines !== 5 ? lines : 0;
