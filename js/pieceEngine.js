@@ -15,7 +15,10 @@ Piece.prototype.getType = function () {
 };
 
 Piece.prototype.copy = function () {
-    return new Piece(this.tetromino, {x:this.position.x,y:this.position.y}, this.rotation, this.type);
+    return new Piece(this.tetromino, {
+        x: this.position.x,
+        y: this.position.y
+    }, this.rotation, this.type);
 };
 
 Piece.prototype.equals = function (piece) {
@@ -130,7 +133,6 @@ Piece.prototype.ghost = function (currentBoard) {
     var ghostCopy = this.copy();
     ghostCopy.type = 0;
     ghostCopy.dropPiece(currentBoard);
-    console.log(ghostCopy.getType());
     return ghostCopy;
 };
 
@@ -220,7 +222,7 @@ Piece.prototype.rand = function () {
 
 Piece.prototype.draw = function () {
     while (Piece.prototype.que.length < 7) {
-        if (Piece.prototype.shuffledPieceLetters.length == 0) {
+        if (Piece.prototype.shuffledPieceLetters.length === 0) {
             Piece.prototype.shuffledPieceLetters = Piece.prototype.shuffle(Piece.prototype.pieceLetters);
         }
         Piece.prototype.que.unshift(Piece.prototype.rand());
@@ -260,23 +262,23 @@ Piece.prototype.que = [];
 
 Piece.prototype.shuffle(Piece.prototype.pieceLetters);
 
-
-var TestPiecesTypes = {
-    I: 0,
-    L: 0,
-    J: 0,
-    O: 0,
-    S: 0,
-    T: 0,
-    Z: 0
+Piece.prototype.fromJson = function (jsonPiece) {
+    if (jsonPiece.tetromino === undefined) {
+        jsonPiece = JSON.parse(jsonPiece);
+    }
+    if (jsonPiece) {
+        this.tetromino = jsonPiece.tetromino;
+        this.rotation = jsonPiece.rotation;
+        console.log(jsonPiece);
+        this.position = {
+            x: jsonPiece.position.x,
+            y: jsonPiece.position.y
+        };
+        this.type = jsonPiece.type;
+        return this;
+    } else {
+        return false;
+    }
 };
-var TestPieces = [];
-for (var i = 0; i < 500; i++) {
 
-    TestPieces.push(new Piece().draw());
-}
-
-TestPieces.map(function (piece) {
-    TestPiecesTypes[piece.name()] += 1;
-})
-console.log(TestPiecesTypes);
+new Piece().draw();

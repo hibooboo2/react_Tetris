@@ -73,3 +73,18 @@ Score.prototype.didScore = function (lines) {
     this.levelUp(lines !== 5 ? lines : 0);
     this[Score.prototype.linesToScore[lines]](lines);
 };
+Score.prototype.fromJson = function (previousScore) {
+    if (previousScore.level === undefined) {
+        previousScore = JSON.parse(previousScore);
+    }
+    this.level = previousScore.level;
+    this.score = previousScore.score;
+    this.linesCleared = previousScore.linesCleared;
+    this.singles = previousScore.singles;
+    this.doubles = previousScore.doubles;
+    this.triples = previousScore.triples;
+    this.tetrises = previousScore.tetrises;
+    this.comboCount = previousScore.comboCount;
+    this.lastCleared = previousScore.lastCleared;
+    return this;
+}

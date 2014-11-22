@@ -14,7 +14,7 @@ var boardEngine = function () {
             useGhost: true,
             canPreview: true,
             fullScreen: false,
-            announcer:true
+            announcer: true
         };
         this.gameOver = false;
         this.justHeld = false;
@@ -22,6 +22,7 @@ var boardEngine = function () {
         this.fallingPiece = false;
         this.heldPiece = false;
         this.started = false;
+        this.useAutoSave = false;
     }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
@@ -32,7 +33,7 @@ var boardEngine = function () {
                 board[i].push(this.usedCells[i][j].copy());
             }
         }
-        if(this.fallingPiece){
+        if (this.fallingPiece) {
             this.fallingPiece.cells().map(function (cell) {
                 board[cell.y][cell.x] = cell.copy();
             });
@@ -219,11 +220,30 @@ var boardEngine = function () {
         }
         return isGameOver;
     };
-    Board.prototype.fromString = function(previousBoardJSON){
-
-    }
-    Board.prototype.toJson = function(){
-
+    Board.prototype.fromJson = function (previousBoardJSON) {
+        previousBoardJSON = JSON.parse(previousBoardJSON);
+        this.height = previousBoardJSON.height;
+        this.width = previousBoardJSON.width;
+        this.usedCells = previousBoardJSON.usedCells.map(function (row) {
+            return row.map(function (cell) {
+                return new Cell().fromJson(cell);
+            });
+        });
+        this.settings = {
+            canHold: previousBoardJSON.settings.canHold,
+            useGhost: previousBoardJSON.settings.useGhost,
+            canPreview: previousBoardJSON.settings.canPreview,
+            fullScreen: previousBoardJSON.settings.fullScreen,
+            announcer: previousBoardJSON.settings.announcer
+        };
+        this.gameOver = previousBoardJSON.gameOver;
+        this.justHeld = previousBoardJSON.justHeld;
+        this.score = new Score().fromJson(previousBoardJSON.score);
+        this.fallingPiece = new Piece().fromJson(previousBoardJSON.fallingPiece);
+        this.heldPiece = previousBoardJSON.heldPiece;
+        this.started = previousBoardJSON.started;
+        this.useAutoSave = previousBoardJSON.useAutoSave;
+        return this;
     }
     return Board;
 }();

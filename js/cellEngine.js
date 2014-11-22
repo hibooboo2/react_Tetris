@@ -50,3 +50,14 @@ Cell.prototype.moveDown = function (currentBoard) {
     }
     return moved;
 };
+Cell.prototype.fromJson = function (jsonCell) {
+    if (jsonCell.x === undefined) {
+        jsonCell = JSON.parse(jsonCell);
+    }
+    this.x = jsonCell.x;
+    this.y = jsonCell.y;
+    this.color = jsonCell.color;
+    this.name = jsonCell.name;
+    this.type = jsonCell.type;
+    return this;
+};

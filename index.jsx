@@ -5,7 +5,17 @@ var GameBox = React.createClass({
     getInitialState: function(){
         //var level = parseInt(prompt("Starting Level?",1));
         //this.props.gameState.score.level = level;
-        this.props.gameState.settings.announcer = window.localStorage.announcer !== undefined ? JSON.parse(window.localStorage.announcer): true;
+        if(window.localStorage.board !== null && window.localStorage.board !== undefined && window.localStorage.board !== "null"){
+            console.log(window.localStorage.board);
+            this.props.gameState = new boardEngine().fromJson(window.localStorage.board);
+        }
+        this.props.gameState.settings = window.localStorage.settings !== undefined ? JSON.parse(window.localStorage.settings): {
+            canHold: true,
+            useGhost: true,
+            canPreview: true,
+            fullScreen: false,
+            announcer: true
+        };
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
         return {
@@ -48,6 +58,12 @@ var GameBox = React.createClass({
         }else{
             this.state.closeGameoverScreen = false;
             this.pause();
+        }
+        if( this.state.gameState.settings.useAutoSave ){
+            window.localStorage.board = JSON.stringify(this.state.gameState);
+            console.log(window.localStorage.board);
+        }else{
+            window.localStorage.board = null;
         }
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
@@ -178,6 +194,9 @@ var GameBox = React.createClass({
         this.state.gameState.settings.announcer = !this.state.gameState.settings.announcer;
         window.localStorage.announcer = this.state.gameState.settings.announcer;
         this.setState({gameState:this.state.gameState});
+    },toggleAutoSave:function(){
+        this.state.gameState.settings.useAutoSave = !this.state.gameState.settings.useAutoSave;
+        this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
         var positionCell = function(cell){
@@ -274,6 +293,7 @@ var GameBox = React.createClass({
                         Paused
 
                         <div className="Settings">
+                            <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "on":"off"} type="button" value="Auto Save"/>
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
