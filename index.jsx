@@ -322,7 +322,7 @@ var GameBox = React.createClass({
                     <p>Score: {this.state.gameState.score.score}</p>
                 </div>
                 <audio id="GodSong" width="0" height="0" loop="1" autoPlay="1" muted>
-                    <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="video/mp3" />
+                    <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="audio/mp3" />
                     Your browser does not support the video tag.
                 </audio>
             </div>
