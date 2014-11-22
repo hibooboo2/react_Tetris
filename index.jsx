@@ -101,11 +101,11 @@ var GameBox = React.createClass({
             if(!this.state.paused && this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
-                }else{
-                    this[this.state.keyMapping.keys[key].function]();
                     if (this.state.keyMapping.keys[key].function === "dropFallingPiece" ){
                         this.playBlock(this.state.gameState.fallingPiece.name());
                     }
+                }else{
+                    this[this.state.keyMapping.keys[key].function]();
                 }
             }else if(evt instanceof KeyboardEvent){
                 if(key === 32||key === 13||key === 192){
@@ -301,7 +301,7 @@ var GameBox = React.createClass({
                     <p>Score: {this.state.gameState.score.score}</p>
                 </div>
                 <audio id="GodSong" width="0" height="0" loop="1" autoPlay="1" muted>
-                    <source src={"audio/god.mp4"} type="video/mp4" />
+                    <source src={"http://hibooboo2.github.io/react_Tetris/audio/god.mp4"} type="video/mp4" />
                     Your browser does not support the video tag.
                 </audio>
             </div>
