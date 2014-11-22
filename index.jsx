@@ -158,13 +158,13 @@ var GameBox = React.createClass({
         var godBlocks = {
                             FirstPiece:{start:3.7,end:12.5},
                             Tetris:{start:76.5,end:80.6},
-                            L:{start:13,end:14},
+                            L:{start:13,end:14.4},
                             I:{start:110,end:111.8},
-                            S:{start:41,end:41.95},
-                            Z:{start:64.4,end:66.2},
+                            S:{start:41,end:42},
+                            Z:{start:64.4,end:66.3},
                             O:{start:19,end:20.4},
                             T:{start:34,end:35.4},
-                            J:{start:27,end:28.6}
+                            J:{start:27,end:28.8}
                         }
         var volume = 1;
         var announcer =this.state.gameState.settings.announcer;
