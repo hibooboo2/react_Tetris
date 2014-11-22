@@ -141,6 +141,7 @@ var GameBox = React.createClass({
         console.log("Play Called:" + pieceName);
         var godBlocks = {
                             FirstPiece:{start:3.7,end:12.5},
+                            Tetris:{start:76.5,end:80.6},
                             L:{start:13,end:14},
                             I:{start:110,end:111.8},
                             S:{start:41,end:41.95},
