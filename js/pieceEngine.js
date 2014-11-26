@@ -1,7 +1,7 @@
 //pieceEngine.js relys on cellEngine.js,pieces.json, and boardEngine.js
 function Piece(tetromino, position, rotation, type) {
     "use strict";
-    this.tetromino = tetromino ? tetromino : allTetromino.I;
+    this.tetromino = tetromino ? tetromino : allTetromino[0];
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
         x: 3,
@@ -213,7 +213,7 @@ Piece.prototype.rotateCounterClockWise = function (currentBoard) {
 };
 
 Piece.prototype.rand = function () {
-    var aRandPiece = new Piece(allTetromino[Piece.prototype.shuffledPieceLetters.pop()], {
+    var aRandPiece = new Piece(Piece.prototype.shuffledPieces.pop(), {
         x: 3,
         y: 0
     }, 0, 6);
@@ -222,8 +222,8 @@ Piece.prototype.rand = function () {
 
 Piece.prototype.draw = function () {
     while (Piece.prototype.que.length < 7) {
-        if (Piece.prototype.shuffledPieceLetters.length === 0) {
-            Piece.prototype.shuffledPieceLetters = Piece.prototype.shuffle(Piece.prototype.pieceLetters);
+        if (Piece.prototype.shuffledPieces.length === 0) {
+            Piece.prototype.shuffledPieces = Piece.prototype.shuffle(allTetromino);
         }
         Piece.prototype.que.unshift(Piece.prototype.rand());
     }
@@ -233,6 +233,7 @@ Piece.prototype.draw = function () {
 };
 
 Piece.prototype.shuffle = function (array) { //v1.0
+    console.log(allTetromino);
     array = array.slice(0);
     var currentIndex = array.length,
         temporaryValue, randomIndex;
@@ -255,12 +256,11 @@ Piece.prototype.shuffle = function (array) { //v1.0
 
 Piece.prototype.nextPieceNumber = -1;
 
-Piece.prototype.pieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
-Piece.prototype.shuffledPieceLetters = ["I", "J", "L", "S", "T", "O", "Z"];
+Piece.prototype.shuffledPieces = allTetromino.slice();
 
 Piece.prototype.que = [];
 
-Piece.prototype.shuffle(Piece.prototype.pieceLetters);
+Piece.prototype.shuffle(allTetromino);
 
 Piece.prototype.fromJson = function (jsonPiece) {
     if (jsonPiece.tetromino === undefined) {
