@@ -151,10 +151,8 @@ var GameBox = React.createClass({
             document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
             }
         this.setState({gameState:this.state.gameState});
-    },
-    playBlock: function(pieceName,secondPiece){
+    },playBlock: function(pieceName,secondPiece){
         var playBlock = this.playBlock;
-        console.log("Play Called:" + pieceName);
         var godBlocks = {
                             FirstPiece:{start:3.7,end:12.5},
                             Tetris:{start:76.5,end:80.6},
@@ -235,19 +233,12 @@ var GameBox = React.createClass({
                         backgroundColor:cell.color
                     };
         };
-        var ghostPiece = {};
-        if (this.state.gameState.settings.useGhost && this.state.gameState.fallingPiece){
-            var fallingCopy = this.state.gameState.fallingPiece.ghost(this.state.gameState);
-            var ghostPiece = this.drawPiece(fallingCopy);
-        }
-
         var drawnBoard = <div className={"cells"}>
                             {tempBoard.map(function(row) {
                                 return row.map(function(cell) {
                                     return <div className={"TetrisCell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
-                            {ghostPiece}
                             <p>Total Lines cleared: {this.state.gameState.score.linesCleared}</p>
                             <p>Next Level Up</p>
                             <p>From Lines Cleared = {this.state.gameState.score.nextLevelUp().linesToLevelUp}</p>

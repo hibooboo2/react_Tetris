@@ -7,13 +7,31 @@
     min-height 8em;
     font-size: 1em;
 }
+@-webkit-keyframes greenPulse {
+    from {
+        opacity: 0;
+        -webkit-box-shadow: 0 0 9px #333;
+    }
+    to {
+        opacity: 1;
+        -webkit-box-shadow: 0 0 9px #333;
+    }
+}
 .cell,
 .TetrisCell {
+    transition-property: background-color;
+    transition-duration: 0.5s;
     padding: 0.9em;
     position: absolute;
     display: inline-block;
     border: 0.1em solid white;
     font-size: 1em;
+}
+.TetrisCell:hover {
+
+    -webkit-animation-name: greenPulse;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: 1;
 }
 .cells {
     background-color: lightgrey;
@@ -27,7 +45,7 @@
 }
 .GameBox {
     position: fixed;
-    width:inherit;
+    width: inherit;
     font-size: 12px;
     width: 60em;
     height: 44em;
