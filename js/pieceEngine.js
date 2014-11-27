@@ -2,7 +2,6 @@
 function Piece(tetromino, position, rotation, type) {
     "use strict";
     this.tetromino = tetromino ? tetromino : allTetromino[0];
-    this.tetromino = allTetromino[allTetromino.length - 1];
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
         x: 3,
