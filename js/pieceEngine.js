@@ -2,6 +2,7 @@
 function Piece(tetromino, position, rotation, type) {
     "use strict";
     this.tetromino = tetromino ? tetromino : allTetromino[0];
+    this.tetromino = allTetromino[allTetromino.length - 1];
     this.rotation = rotation ? rotation : 0;
     this.position = position ? position : {
         x: 3,
@@ -22,12 +23,7 @@ Piece.prototype.copy = function () {
 };
 
 Piece.prototype.equals = function (piece) {
-    return this.cells().filter(function (cell) {
-        return piece.cells().filter(function (thisCell) {
-            return thisCell.equals(cell);
-        }).length === 1;
-
-    }).length === 4;
+    return piece.type === this.type && this.position.x === piece.position.x && this.position.y === piece.position.y && this.rotation === piece.rotation;
 };
 
 Piece.prototype.name = function () {
@@ -189,7 +185,7 @@ Piece.prototype.shiftRight = function (currentBoard) {
 Piece.prototype.rotateClockWise = function (currentBoard) {
     var rotated = false;
     var newRotation = this.rotation + 1;
-    if (newRotation > 3) {
+    if (newRotation > this.tetromino.cells.length - 1) {
         newRotation = 0;
     }
     if (this.canRotate(currentBoard, newRotation)) {
