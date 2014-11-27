@@ -34,6 +34,11 @@ var boardEngine = function () {
             }
         }
         if (this.fallingPiece) {
+            if (this.settings.useGhost) {
+                this.fallingPiece.ghost(this).cells().map(function (cell) {
+                    board[cell.y][cell.x] = cell.copy();
+                });
+            }
             this.fallingPiece.cells().map(function (cell) {
                 board[cell.y][cell.x] = cell.copy();
             });
@@ -47,9 +52,8 @@ var boardEngine = function () {
             cellToReturn = this.usedCells[cellGiven.y][cellGiven.x].copy();
         } else {
             cellToReturn = new Cell(cellGiven.x, cellGiven.y);
-            cellToReturn.type = 3;
+            cellToReturn.type = 4;
         }
-
         return cellToReturn;
     };
 
