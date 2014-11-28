@@ -33,6 +33,31 @@ var GameBox = React.createClass({
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
         document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
+        var messages = document.getElementById("messages");
+        var messageBox = document.getElementById("messageBox");
+        var sendMessage = document.getElementById("sendMessage");
+        var socket = io.connect();
+        var name = window.localStorage.name ? window.localStorage.name : prompt("What is your name?");
+        window.localStorage.name =  name;
+        sendMessage.onclick = function () {
+            socket.emit("hello", {
+                name: name,
+                message: messageBox.value
+            });
+        };
+        socket.on('connected', function (data) {
+            messages.innerHTML = "<p>" + data + "</p>" + messages.innerHTML;
+            messageBox.value = "";
+            console.log(data);
+        });
+        messageBox.onkeydown = function (evt) {
+            if (evt.keyCode === 20) {
+                socket.emit("hello", {
+                    name: name,
+                    message: messageBox.value
+                });
+            }
+        };
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
 
@@ -92,6 +117,7 @@ var GameBox = React.createClass({
         if(this.state.gameState.started){
             this.state.paused = !this.state.paused;
         }
+        window.localStorage.settings = JSON.stringify(this.state.gameState.settings);
         this.setState({paused:this.state.paused});
     },
     play: function(){
@@ -315,6 +341,13 @@ var GameBox = React.createClass({
                     <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="audio/mp3" />
                     Your browser does not support the video tag.
                 </audio>
+                <div id="chat_Box">
+                    <div id="messages">
+                        <p></p>
+                    </div>
+                    <input id="messageBox"></input>
+                    <button id="sendMessage">Send Message</button>
+                </div>
             </div>
         )
     }
