@@ -252,22 +252,7 @@ var GameBox = React.createClass({
             <div className="GameBox">
                 {drawnBoard}
                     <div className="Controls">
-                        <div className="keyMappings">
-                        {this.state.keyMapping.keys.readableLines().map(function(line){
-                            return <p className="leftAlign">{line}</p>
-                        })}
-                        </ div>
-                        <div>
-                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
-                        </div>
                     </div>
-                    <div className ="Issues">
-                    <hr />
-                    Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
-                    <hr />
-                    All Issues: {this.state.issues.length}
-                    {currentIssues}
-                    </ div>
                     <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
                         <p>Congratulations! </p>
                         <p>You got to level {this.state.gameState.score.level}</p>
@@ -281,8 +266,15 @@ var GameBox = React.createClass({
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
                     </div>
                     <div className={this.state.paused? "pauseScreen" : "disabled"}>
-                        Paused
 
+                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        <div className="keyMappings">
+                        {this.state.keyMapping.keys.readableLines().map(function(line){
+                            return <p className="leftAlign">{line}</p>
+                        })}
+                        </ div>
+                        <div>
+                        </div>
                         <div className="Settings">
                             <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "on":"off"} type="button" value="Auto Save"/>
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
@@ -291,6 +283,13 @@ var GameBox = React.createClass({
                             <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
                             <input onClick={this.toggleAnnouncer} className={this.state.gameState.settings.announcer ? "off":"on"} type="button" value="Announcer"/>
                             <TetrisSong/>
+                        </ div>
+                        <div className ="Issues">
+                        <hr />
+                        Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
+                        <hr />
+                        All Issues: {this.state.issues.length}
+                        {currentIssues}
                         </ div>
 
                     </div>
