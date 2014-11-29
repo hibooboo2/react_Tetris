@@ -251,7 +251,6 @@ function PieceEngine() {
         return array;
 
     };
-    allTetromino = allTetromino.slice(-2);
     this.shuffledPieces = allTetromino.slice(0);
     this.que = [];
 

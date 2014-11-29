@@ -30,7 +30,7 @@
 .cell,
 .TetrisCell {
     transition-property: background-color;
-    transition-duration: 0.5s;
+    transition-duration: 0s;
     padding: 0.9em;
     position: absolute;
     display: inline-block;
