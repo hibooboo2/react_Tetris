@@ -1,7 +1,7 @@
 //pieceEngine.js relys on cellEngine.js,pieces.json, and boardEngine.js
 function PieceEngine() {
 
-    this.newPiece = function (tetromino, position, rotation, type) {
+    function newPiece(tetromino, position, rotation, type) {
         "use strict";
         this.tetromino = tetromino ? tetromino : allTetromino[0];
         this.rotation = rotation ? rotation : 0;
@@ -12,12 +12,14 @@ function PieceEngine() {
         this.type = type ? type : 5;
     };
 
+    this.newPiece = newPiece;
+
     this.newPiece.prototype.getType = function () {
         return Cell.prototype.types[this.type];
     };
 
     this.newPiece.prototype.copy = function () {
-        return new this.newPiece(this.tetromino, {
+        return new newPiece(this.tetromino, {
             x: this.position.x,
             y: this.position.y
         }, this.rotation, this.type);
@@ -222,7 +224,7 @@ function PieceEngine() {
             if (this.shuffledPieces.length === 0) {
                 this.shuffledPieces = this.shuffle(allTetromino);
             }
-            this.que.unshift(this.newPiece.prototype.rand());
+            this.que.unshift(this.rand());
         }
         var drawnPiece = this.que.pop();
         drawnPiece.type = 1;
@@ -252,9 +254,11 @@ function PieceEngine() {
 
     this.shuffledPieces = allTetromino.slice();
 
+    this.shuffle(this.shuffledPieces);
     this.que = [];
-
-    this.shuffle(allTetromino);
+    for (var i = 0; i < this.shuffledPieces.length; i++) {
+        this.que.push(new this.newPiece(this.shuffledPieces[i]));
+    };
 
     this.newPiece.prototype.fromJson = function (jsonPiece) {
         if (jsonPiece.tetromino === undefined) {

@@ -23,6 +23,7 @@ var boardEngine = function () {
         this.heldPiece = false;
         this.started = false;
         this.useAutoSave = false;
+        this.pieceEngine = new PieceEngine();
     }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
@@ -147,7 +148,7 @@ var boardEngine = function () {
             var previousHeld = this.heldPiece;
             this.heldPiece = this.fallingPiece.tetromino;
             if (previousHeld) {
-                this.fallingPiece = new Piece(previousHeld);
+                this.fallingPiece = new this.pieceEngine.newPiece(previousHeld);
             } else {
                 this.newFallingPiece();
             }
@@ -157,7 +158,7 @@ var boardEngine = function () {
 
     Board.prototype.newFallingPiece = function () {
         if (!this.isGameOver()) {
-            this.fallingPiece = new Piece().draw();
+            this.fallingPiece = this.pieceEngine.draw();
             this.justHeld = false;
             //this.ghostPiece = this.fallingPiece.ghost(this);
         }
@@ -243,7 +244,7 @@ var boardEngine = function () {
         this.gameOver = previousBoardJSON.gameOver;
         this.justHeld = previousBoardJSON.justHeld;
         this.score = new Score().fromJson(previousBoardJSON.score);
-        this.fallingPiece = new Piece().fromJson(previousBoardJSON.fallingPiece);
+        this.fallingPiece = new this.pieceEngine.newPiece().fromJson(previousBoardJSON.fallingPiece);
         this.heldPiece = previousBoardJSON.heldPiece;
         this.started = previousBoardJSON.started;
         this.useAutoSave = previousBoardJSON.useAutoSave;

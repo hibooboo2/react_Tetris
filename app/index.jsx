@@ -37,27 +37,29 @@ var GameBox = React.createClass({
         var messageBox = document.getElementById("messageBox");
         var sendMessage = document.getElementById("sendMessage");
         var socket = io.connect();
-        var name = window.localStorage.name ? window.localStorage.name : prompt("What is your name?");
+        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
+        var name = prompt("What is your name?");
         window.localStorage.name =  name;
-        sendMessage.onclick = function () {
-            socket.emit("hello", {
-                name: name,
-                message: messageBox.value
-            });
+        var sendMessage = sendMessage.onclick = function(){
+                    if(messageBox.value !== ""){
+                    socket.emit("send message", {
+                            name: name,
+                            message: messageBox.value
+                        });
+                    messageBox.value = "";
+                    }
         };
-        socket.on('connected', function (data) {
+        socket.on('new message', function (data) {
             messages.innerHTML = "<p>" + data + "</p>" + messages.innerHTML;
-            messageBox.value = "";
             console.log(data);
         });
         messageBox.onkeydown = function (evt) {
-            if (evt.keyCode === 20) {
-                socket.emit("hello", {
-                    name: name,
-                    message: messageBox.value
-                });
+            if (evt.keyCode === 17){
+                sendMessage();
             }
         };
+        socket.emit("login", {name: name});
+        this.socket = socket;
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
 
@@ -90,6 +92,7 @@ var GameBox = React.createClass({
         }else{
             window.localStorage.board = null;
         }
+        this.socket.emit("game",this.state);
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
         var level = parseInt(prompt("Starting Level?"));
@@ -123,7 +126,7 @@ var GameBox = React.createClass({
     play: function(){
         this.state.paused = false;
         this.state.gameState.started = true;
-        var newFalling = new Piece().draw();
+        var newFalling = this.state.gameState.pieceEngine.draw();
         this.playBlock("FirstPiece",newFalling.name());
         gameState = this.state.gameState;
         if(this.state.gameState.settings.announcer){
@@ -324,9 +327,9 @@ var GameBox = React.createClass({
                             Preview:
 
                             Next Piece:
-                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[0])}</div>
+                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[0])}</div>
 
-                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[1])}</div>
+                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[1])}</div>
                     </ div>
                     <div className={"heldBox "+(this.state.gameState.settings.canHold ? "enabled":"disabled")}>
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>
@@ -454,6 +457,5 @@ var theKeys = keyMappings();
 
 React.render(
   <TetrisGame gameState={new boardEngine()} keyMappings={theKeys}/>,
-/*  <TetrisPiece thePiece={new Piece().draw()}/>,*/
   document.getElementById('main_Container')
 );
