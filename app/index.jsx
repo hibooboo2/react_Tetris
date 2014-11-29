@@ -14,7 +14,8 @@ var GameBox = React.createClass({
             useGhost: true,
             canPreview: true,
             fullScreen: false,
-            announcer: true
+            announcer: true,
+            useAutoSave: false
         };
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
@@ -76,6 +77,12 @@ var GameBox = React.createClass({
         else if(!this.state.gameState.gameOver){
             if(this.state.gameState.fallingPiece){
                 if(!this.state.gameState.moveFallingDown()){
+                    if( this.state.gameState.settings.useAutoSave ){
+                        window.localStorage.board = JSON.stringify(this.state.gameState);
+                        console.log(window.localStorage.board);
+                    }else{
+                        window.localStorage.board = null;
+                    }
                     this.state.gameState.dropFallingPiece();
                     document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
                     this.playBlock(this.state.gameState.fallingPiece.name());
@@ -85,12 +92,6 @@ var GameBox = React.createClass({
         }else{
             this.state.closeGameoverScreen = false;
             this.pause();
-        }
-        if( this.state.gameState.settings.useAutoSave ){
-            window.localStorage.board = JSON.stringify(this.state.gameState);
-            console.log(window.localStorage.board);
-        }else{
-            window.localStorage.board = null;
         }
         this.socket.emit("game",this.state);
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
@@ -275,7 +276,7 @@ var GameBox = React.createClass({
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
-            drawnHeld = this.drawPiece(new Piece(this.state.gameState.heldPiece,0,0,6));
+            drawnHeld = this.drawPiece(new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6));
         };
         return (
             <div className="GameBox">
@@ -305,7 +306,7 @@ var GameBox = React.createClass({
                         <div>
                         </div>
                         <div className="Settings">
-                            <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "on":"off"} type="button" value="Auto Save"/>
+                            <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "off":"on"} type="button" value="Auto Save"/>
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>

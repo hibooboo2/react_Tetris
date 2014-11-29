@@ -14,7 +14,8 @@ var boardEngine = function () {
             useGhost: true,
             canPreview: true,
             fullScreen: false,
-            announcer: true
+            announcer: true,
+            useAutoSave: false
         };
         this.gameOver = false;
         this.justHeld = false;
@@ -22,7 +23,6 @@ var boardEngine = function () {
         this.fallingPiece = false;
         this.heldPiece = false;
         this.started = false;
-        this.useAutoSave = false;
         this.pieceEngine = new PieceEngine();
     }
     //Get a 2d array of the usedCells for mapping.
@@ -239,7 +239,8 @@ var boardEngine = function () {
             useGhost: previousBoardJSON.settings.useGhost,
             canPreview: previousBoardJSON.settings.canPreview,
             fullScreen: previousBoardJSON.settings.fullScreen,
-            announcer: previousBoardJSON.settings.announcer
+            announcer: previousBoardJSON.settings.announcer,
+            useAutoSave: previousBoardJSON.settings.useAutoSave
         };
         this.gameOver = previousBoardJSON.gameOver;
         this.justHeld = previousBoardJSON.justHeld;
@@ -247,7 +248,6 @@ var boardEngine = function () {
         this.fallingPiece = new this.pieceEngine.newPiece().fromJson(previousBoardJSON.fallingPiece);
         this.heldPiece = previousBoardJSON.heldPiece;
         this.started = previousBoardJSON.started;
-        this.useAutoSave = previousBoardJSON.useAutoSave;
         return this;
     }
     return Board;

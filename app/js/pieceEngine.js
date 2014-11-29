@@ -251,14 +251,15 @@ function PieceEngine() {
         return array;
 
     };
-
-    this.shuffledPieces = allTetromino.slice();
+    allTetromino = allTetromino.slice(-2);
+    this.shuffledPieces = allTetromino.slice(0);
+    this.que = [];
 
     this.shuffle(this.shuffledPieces);
-    this.que = [];
     for (var i = 0; i < this.shuffledPieces.length; i++) {
         this.que.push(new this.newPiece(this.shuffledPieces[i]));
     };
+    this.shuffle(this.shuffledPieces);
 
     this.newPiece.prototype.fromJson = function (jsonPiece) {
         if (jsonPiece.tetromino === undefined) {
