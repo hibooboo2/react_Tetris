@@ -36,12 +36,12 @@ var GameBox = React.createClass({
         document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
         var messages = document.getElementById("messages");
         var messageBox = document.getElementById("messageBox");
-        var sendMessage = document.getElementById("sendMessage");
+        var sendMessageButton = document.getElementById("sendMessage");
         var socket = io.connect();
         //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
         var name = prompt("What is your name?");
         window.localStorage.name =  name;
-        var sendMessage = sendMessage.onclick = function(){
+        var sendMessage  = function(){
                     if(messageBox.value !== ""){
                     socket.emit("send message", {
                             name: name,
@@ -50,6 +50,7 @@ var GameBox = React.createClass({
                     messageBox.value = "";
                     }
         };
+        sendMessageButton.onclick = sendMessage;
         socket.on('new message', function (data) {
             messages.innerHTML = "<p>" + data + "</p>" + messages.innerHTML;
             console.log(data);
