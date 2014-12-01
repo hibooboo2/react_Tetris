@@ -20,7 +20,7 @@ io.sockets.on('connection', function (socket) {
             spltMessage = data.message.split(":");
         }
         if (spltMessage[0] === "/w") {
-            socket.to(currentUsers["user_" + spltMessage[1]]).emit('new message', data.name + " Whispered: " + spltMessage[2]);
+            socket.to(currentUsers["user_" + spltMessage[1]]).emit('new message', data.name + " Whispered: " + " (" + new Date().toLocaleTimeString() + "): " + spltMessage[2]);
         } else {
             io.emit('new message', data.name + " (" + new Date().toLocaleTimeString() + "): " + data.message);
             console.log(data);
