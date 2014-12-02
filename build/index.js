@@ -1,6 +1,3 @@
-if( window.location.host==="tetris.jamescarlharris.com"){
-
-}
 var GameBox = React.createClass({
     getInitialState: function(){
         //var level = parseInt(prompt("Starting Level?",1));
