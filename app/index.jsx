@@ -228,26 +228,7 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
-        var positionCell = function(cell){
-            return {
-                        top:(cell.y*2)+"em",
-                        left:(cell.x*2)+"em",
-                        backgroundColor: cell.color
-                    };
-
-        };
-        var cells = aPiece.cells();
-        var theCells = cells.map(function(cell){
-            return (
-                        <div className={"TetrisCell "+cell.getType()}
-                                    style={positionCell(cell)}>
-                        </div>
-                    )
-        });
-        var theCells = <div className="TetrisPiece">
-                        {theCells}
-                        </div>;
-        return theCells;
+        return <TetrisPiece piece={aPiece}/>
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -277,7 +258,7 @@ var GameBox = React.createClass({
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
-            drawnHeld = this.drawPiece(new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6));
+            drawnHeld = <TetrisPiece piece={new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6)}/>;
         };
         return (
             <div className="GameBox">
@@ -329,9 +310,12 @@ var GameBox = React.createClass({
                             Preview:
 
                             Next Piece:
-                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[0])}</div>
-
-                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[1])}</div>
+                            <div style={{position:"absolute",top:"0em"}}>
+                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[0]}/>
+                            </div>
+                            <div style={{position:"absolute",top:"8em"}}>
+                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[1]}/>
+                            </div>
                     </ div>
                     <div className={"heldBox "+(this.state.gameState.settings.canHold ? "enabled":"disabled")}>
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>
@@ -386,6 +370,36 @@ var TetrisPreview = React.createClass({
             }
 });
 */
+
+var TetrisPiece = React.createClass({
+    getInitialState: function(){
+        return {piece:this.props.piece};
+    },
+    render: function() {
+        var positionCell = function(cell){
+            return {
+                        top:(cell.y*2)+"em",
+                        left:(cell.x*2)+"em",
+                        backgroundColor: cell.color
+                    };
+
+        };
+        var cells = this.props.piece.cells();
+        var theCells = cells.map(function(cell){
+            return (
+                        <div className={"TetrisCell "+cell.getType()}
+                                    style={positionCell(cell)}>
+                        </div>
+                    )
+        });
+        var theCells = <div className="TetrisPiece">
+                        {theCells}
+                        </div>;
+        return theCells;
+    }
+});
+
+
 
 var TetrisSong = React.createClass({
     getInitialState: function(){
