@@ -1,10 +1,10 @@
-#chat_Box {
+.ChatBox {
     position: absolute;
     top: 21em;
     width: 20em;
     height: 15em;
 }
-#messages {
+.messages {
     overflow-y: scroll;
     height: 10em;
 }
