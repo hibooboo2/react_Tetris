@@ -34,6 +34,34 @@ var GameBox = React.createClass({
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
         document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
+        var messages = document.getElementById("messages");
+        var messageBox = document.getElementById("messageBox");
+        var sendMessageButton = document.getElementById("sendMessage");
+        var socket = io.connect();
+        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
+        var name = prompt("What is your name?");
+        window.localStorage.name =  name;
+        var sendMessage  = function(){
+                    if(messageBox.value !== ""){
+                    socket.emit("send message", {
+                            name: name,
+                            message: messageBox.value
+                        });
+                    messageBox.value = "";
+                    }
+        };
+        sendMessageButton.onclick = sendMessage;
+        socket.on('new message', function (data) {
+            messages.innerHTML = "<p>" + data + "</p>" + messages.innerHTML;
+            console.log(data);
+        });
+        messageBox.onkeydown = function (evt) {
+            if (evt.keyCode === 17){
+                sendMessage();
+            }
+        };
+        socket.emit("login", {name: name});
+        this.socket = socket;
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
 
@@ -66,6 +94,7 @@ var GameBox = React.createClass({
             this.state.closeGameoverScreen = false;
             this.pause();
         }
+        this.socket.emit("game",this.state);
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
         var level = parseInt(prompt("Starting Level?"));
@@ -199,7 +228,26 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
-        return <TetrisPiece piece={aPiece}/>
+        var positionCell = function(cell){
+            return {
+                        top:(cell.y*2)+"em",
+                        left:(cell.x*2)+"em",
+                        backgroundColor: cell.color
+                    };
+
+        };
+        var cells = aPiece.cells();
+        var theCells = cells.map(function(cell){
+            return (
+                        <div className={"TetrisCell "+cell.getType()}
+                                    style={positionCell(cell)}>
+                        </div>
+                    )
+        });
+        var theCells = <div className="TetrisPiece">
+                        {theCells}
+                        </div>;
+        return theCells;
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -229,7 +277,7 @@ var GameBox = React.createClass({
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
-            drawnHeld = <TetrisPiece piece={new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6)}/>;
+            drawnHeld = this.drawPiece(new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6));
         };
         return (
             <div className="GameBox">
@@ -281,12 +329,9 @@ var GameBox = React.createClass({
                             Preview:
 
                             Next Piece:
-                            <div style={{position:"absolute",top:"0em"}}>
-                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[0]}/>
-                            </div>
-                            <div style={{position:"absolute",top:"8em"}}>
-                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[1]}/>
-                            </div>
+                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[0])}</div>
+
+                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(this.state.gameState.pieceEngine.que.slice(0).reverse()[1])}</div>
                     </ div>
                     <div className={"heldBox "+(this.state.gameState.settings.canHold ? "enabled":"disabled")}>
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>
@@ -301,7 +346,13 @@ var GameBox = React.createClass({
                     <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="audio/mp3" />
                     Your browser does not support the video tag.
                 </audio>
-                <ChatBox piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[3]}/>
+                <div id="chat_Box">
+                    <div id="messages">
+                        <p></p>
+                    </div>
+                    <input id="messageBox"></input>
+                    <button id="sendMessage">Send Message</button>
+                </div>
             </div>
         )
     }
@@ -335,90 +386,6 @@ var TetrisPreview = React.createClass({
             }
 });
 */
-
-var TetrisPiece = React.createClass({
-    getInitialState: function(){
-        return {piece:this.props.piece};
-    },
-    render: function() {
-        var positionCell = function(cell){
-            return {
-                        top:(cell.y*2)+"em",
-                        left:(cell.x*2)+"em",
-                        backgroundColor: cell.color
-                    };
-
-        };
-        var cells = this.props.piece.cells();
-        var theCells = cells.map(function(cell){
-            return (
-                        <div className={"TetrisCell "+cell.getType()}
-                                    style={positionCell(cell)}>
-                        </div>
-                    )
-        });
-        var theCells = <div className="TetrisPiece">
-                        {theCells}
-                        </div>;
-        return theCells;
-    }
-});
-
-var ChatBox = React.createClass({
-    getInitialState: function(){
-        return {messages:["Hello","JAmes"]};
-    },
-     componentDidMount: function(){
-        // componentDidMount is called by react when the component
-        // has been rendered on the page. We can set the interval here:
-        var socket = io.connect();
-        this.socket = socket;
-        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
-        var sendMessageButton = document.getElementById("sendMessage");
-        this.state.name = prompt("What is your name?");
-        window.localStorage.name =  name;
-        sendMessageButton.onclick = this.sendMessage;
-        this.socket.on('new message', this.newMessage);
-        messageBox.onkeydown = function (evt) {
-            if (evt.keyCode === 17){
-                this.sendMessage();
-            }
-        };
-        this.socket.emit("login", {name: name});
-        this.setState({name:this.state.name,socket:socket});
-    },newMessage:function (data) {
-            this.state.messages.push(data.message);
-            this.socket.emit("recieved", data);
-            console.log(data);
-            this.setState({messages:this.state.messages});
-    },sendMessage: function(){
-        var messageBox = document.getElementById("messageBox");
-        if(messageBox.value !== ""){
-        messageBox.value.split(":")
-        this.socket.emit("send message", {
-                from: this.state.name,
-                message: messageBox.value,
-                to: ""
-            });
-        messageBox.value = "";
-        }
-    },
-    render: function() {
-        return
-                (
-                    <div className="ChatBox">
-                        {this.state.messages.map(function(message){
-                            return <p></p>
-                            })
-                        }
-                        <input id="messageBox"></input>
-                        <button id="sendMessage">Send Message</button>
-                    </div>
-                );
-    }
-
-});
-
 
 var TetrisSong = React.createClass({
     getInitialState: function(){
