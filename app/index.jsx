@@ -34,34 +34,6 @@ var GameBox = React.createClass({
         // has been rendered on the page. We can set the interval here:
         window.addEventListener('keydown', this.handleKeys);
         document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
-        var messages = document.getElementById("messages");
-        var messageBox = document.getElementById("messageBox");
-        var sendMessageButton = document.getElementById("sendMessage");
-        var socket = io.connect();
-        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
-        var name = prompt("What is your name?");
-        window.localStorage.name =  name;
-        var sendMessage  = function(){
-                    if(messageBox.value !== ""){
-                    socket.emit("send message", {
-                            name: name,
-                            message: messageBox.value
-                        });
-                    messageBox.value = "";
-                    }
-        };
-        sendMessageButton.onclick = sendMessage;
-        socket.on('new message', function (data) {
-            messages.innerHTML = "<p>" + data + "</p>" + messages.innerHTML;
-            console.log(data);
-        });
-        messageBox.onkeydown = function (evt) {
-            if (evt.keyCode === 17){
-                sendMessage();
-            }
-        };
-        socket.emit("login", {name: name});
-        this.socket = socket;
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
 
@@ -94,7 +66,6 @@ var GameBox = React.createClass({
             this.state.closeGameoverScreen = false;
             this.pause();
         }
-        this.socket.emit("game",this.state);
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
         var level = parseInt(prompt("Starting Level?"));
@@ -330,13 +301,7 @@ var GameBox = React.createClass({
                     <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="audio/mp3" />
                     Your browser does not support the video tag.
                 </audio>
-                <div id="chat_Box">
-                    <div id="messages">
-                        <p></p>
-                    </div>
-                    <input id="messageBox"></input>
-                    <button id="sendMessage">Send Message</button>
-                </div>
+                <ChatBox/>
             </div>
         )
     }
@@ -399,6 +364,74 @@ var TetrisPiece = React.createClass({
     }
 });
 
+var ChatBox = React.createClass({
+    getInitialState: function(){
+        return {messages:window.localStorage.messages!==undefined ? JSON.parse(window.localStorage.messages):[]};
+    },componentDidMount: function(){
+        // componentDidMount is called by react when the component
+        // has been rendered on the page. We can set the interval here:
+        var socket = io.connect();
+        this.socket = socket;
+        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
+        var sendMessageButton = document.getElementById("sendMessage");
+        this.state.name = prompt("What is your name?");
+        window.localStorage.name =  name;
+        sendMessageButton.onclick = this.sendMessage;
+        this.socket.on('new message', this.newMessage);
+        sendMessage = this.sendMessage;
+        messageBox.onkeydown = function (evt) {
+            if (evt.keyCode === 17){
+                sendMessage();
+            }
+        };
+        this.socket.emit("login", {name: name});
+        this.setState({name:this.state.name,socket:socket});
+    },newMessage:function (data) {
+            this.state.messages.push(data.message);
+            window.localStorage.messages = JSON.stringify(this.state.messages);
+            this.socket.emit("recieved", data);
+            this.setState({messages:this.state.messages});
+    },sendMessage: function(){
+        var messageBox = document.getElementById("messageBox");
+        if(messageBox.value !== ""){
+        this.socket.emit("send message", {
+                from: this.state.name,
+                message: messageBox.value,
+                to: ""
+            });
+        messageBox.value = "";
+        }
+    },whisperMessage: function(){
+        var messageBox = document.getElementById("messageBox");
+        if(messageBox.value !== ""){
+
+        this.socket.emit("send message", {
+                from: this.state.name,
+                message: messageBox.value,
+                to:
+            });
+        messageBox.value = "";
+        }
+    },
+    render: function() {
+        var theMessages = this.state.messages.map(function(message){
+            return (
+                        <p>
+                        {message}
+                        </p>
+                    )
+        });
+        var theChatBox = <div className="ChatBox">
+                            <div className="messages">
+                                {theMessages}
+                            </div>
+                            <input id="messageBox"></input>
+                            <button id="sendMessage">Send Message</button>
+                        </div>;
+        return theChatBox;
+    }
+
+});
 
 
 var TetrisSong = React.createClass({
