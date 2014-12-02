@@ -1,3 +1,9 @@
+.MessageBox {
+    position: absolute;
+    top: 21em;
+    width: 20em;
+    height: 20em;
+}
 .ChatBox {
     position: absolute;
     top: 21em;
