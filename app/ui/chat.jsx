@@ -93,7 +93,7 @@ var FriendGroup = React.createClass({
 
 var MessageBox = React.createClass({
        getInitialState: function(){
-        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket,scrolled:false,hidden:false};
+        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
     },componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
@@ -132,6 +132,10 @@ var MessageBox = React.createClass({
         }
     },toggleHidden: function(){
         this.setState({hidden:!this.state.hidden});
+    },close: function(evt){
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
     },render: function() {
         var theMessages = this.state.messages.map(function(data){
             return (
@@ -150,6 +154,7 @@ var MessageBox = React.createClass({
                             </div>
                             <div className="chatTab" onClick={this.toggleHidden}>
                             <p>{this.state.to}</p>
+                            <div className="chatExit" onClick={this.close}></div>
                             </div>
                         </div>;
         return theChatBox;

@@ -13,6 +13,16 @@
     font-size: 1em;
     background-color: #010f13;
 }
+.chatExit {
+    position: absolute;
+    top: 0em;
+    left: 9em;
+    width: 1.4em;
+    height: 1.4em;
+    font-size: 1em;
+    background-image: url("http://i.imgur.com/agviQBF.png");
+    background-size: 100% 100%;
+}
 .chatTab {
     position: absolute;
     height: 1em;
