@@ -15,8 +15,8 @@ io.sockets.on('connection', function (socket) {
         console.log("Logged IN! " + data.name);
     });
 
-    socket.on('send_message', function (data) {
-        data.timeStamp = " (" + new Date().toLocaleTimeString() + ") ";
+    socket.on('new_message', function (data) {
+        data.timeStamp = "[" + new Date().toLocaleTimeString().slice(0,5) + "] ";
         console.log("Send message " + data);
         io.emit('new_message', data);
     });
@@ -25,9 +25,8 @@ io.sockets.on('connection', function (socket) {
         socket.to(currentUsers["user_" + data.from]).emit('new message', data);
     });
 
-    socket.on('whisper', function (data) {
-        data.timeStamp = " (" + new Date().toLocaleTimeString() + ") ";
-        data.message = " Whispered " + data.message;
+    socket.on('message', function (data) {
+        data.timeStamp = "[" + new Date().toLocaleTimeString().slice(0,5) + "] ";
         socket.to(currentUsers["user_" + data.to]).emit('whispered_message', data);
         console.log(socket.id + " Said " + data.timeStamp + data.message + " To " + data.to + " AKA " + currentUsers["user_" + data.to]);
     });

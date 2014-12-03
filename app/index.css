@@ -1,8 +1,27 @@
 .MessageBox {
     position: absolute;
     top: 21em;
-    width: 20em;
-    height: 20em;
+    width: 30em;
+    height: 15em;
+    font-size: 0.8em;
+}
+.chat {
+    position: static;
+    top: 21em;
+    width: 30em;
+    height: 15.2em;
+    font-size: 1em;
+    background-color: #010f13;
+}
+.chatTab {
+    position: absolute;
+    height: 1em;
+    bottom: -1.8em;
+    padding: 0.3em;
+    width: 10em;
+    background-color: #001C26;
+    color: #FEFEFE;
+    text-align: left;
 }
 .ChatBox {
     position: absolute;
@@ -12,7 +31,19 @@
 }
 .messages {
     overflow-y: scroll;
-    height: 10em;
+    height: 13em;
+    width: 20em;
+    background-color: #001C26;
+    color: #00CCFF;
+}
+.users {
+    overflow-y: scroll;
+    width: 10em;
+    background-color: #001C26;
+    color: #00CCFF;
+}
+.chatInput {
+    width: 19em;
 }
 .piece,
 .TetrisPiece {
@@ -225,4 +256,7 @@ button,
 }
 div {
     border: 0em solid black;
+}
+.hidden {
+    display: none;
 }

@@ -93,48 +93,23 @@ var FriendGroup = React.createClass({
 
 var MessageBox = React.createClass({
        getInitialState: function(){
-        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket,scrolled:false};
+        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket,scrolled:false,hidden:false};
     },componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
         var socket = this.state.socket;
         this.socket = socket;
-        this.socket.on('new_message', this.newMessage);
-        this.socket.on('whispered_message', this.newWhisperedMessage);
+        this.socket.on('new_message', this.newWhisperedMessage);
         this.socket.emit("login", {name: this.state.from});
         this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
-    },newMessage:function (data) {
-            this.state.messages.push(data.from + data.timeStamp + data.message);
-            window.localStorage.messages = JSON.stringify(this.state.messages);
-            this.setState({messages:this.state.messages});
-            this.scrollHeight();
     },newWhisperedMessage:function (data) {
-            this.state.messages.push(data.from + data.timeStamp + data.message);
+            this.state.messages.push(data);
             window.localStorage.messages = JSON.stringify(this.state.messages);
-            this.socket.emit('recieved', data);
+            if(data.whisper){
+                this.socket.emit('recieved', data);
+            }
             this.setState({messages:this.state.messages});
             this.scrollHeight();
-    },sendMessage: function(){
-        var messageBox = document.getElementById("messageBox" + this.state.to);
-        if(messageBox.value !== ""){
-        this.socket.emit('send_message', {
-                from: this.state.from,
-                message: messageBox.value,
-                to: this.state.to
-            });
-        messageBox.value = "";
-        console.log(this.state.id);
-        }
-    },whisperMessage: function(){
-        var messageBox = document.getElementById("messageBox" + this.state.to);
-        if(messageBox.value !== ""){
-            this.socket.emit('whisper', {
-                    from: this.state.from,
-                    message: messageBox.value,
-                    to: this.state.to
-                });
-            messageBox.value = "";
-        }
     },scrolled:function(evt){
         var messages = evt.nativeEvent.target;
         this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
@@ -147,29 +122,35 @@ var MessageBox = React.createClass({
     },handleMessageBox:function (evt) {
         evt.stopPropagation();
         if (evt.keyCode === 13){
-           this.socket.emit('send_message', {
+           this.socket.emit('new_message', {
                     from: this.state.from,
                     message: evt.nativeEvent.target.value,
-                    to: this.state.to
+                    to: this.state.to,
+                    whisper:false
                 });
             evt.nativeEvent.target.value = "";
         }
+    },toggleHidden: function(){
+        this.setState({hidden:!this.state.hidden});
     },render: function() {
-        var theMessages = this.state.messages.map(function(message){
+        var theMessages = this.state.messages.map(function(data){
             return (
                         <p>
-                        {message}
+                        {data.timeStamp + data.from + ": " + data.message}
                         </p>
                     )
         });
 
         var theChatBox = <div className="MessageBox">
-                            <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
-                                {theMessages}
+                            <div className={"chat"+ (this.state.hidden ? " hidden":"")}>
+                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
+                                    {theMessages}
+                                </div>
+                                <input className="chatInput" onKeyDown={this.handleMessageBox}/>
                             </div>
-                            <input id={"messageBox" + this.state.to} onKeyDown={this.handleMessageBox}/>
-                            <button onClick={this.sendMessage}>Send Message</button>
-                            <button onClick={this.whisperMessage}>Whisper To {this.state.to}</button>
+                            <div className="chatTab" onClick={this.toggleHidden}>
+                            <p>{this.state.to}</p>
+                            </div>
                         </div>;
         return theChatBox;
         }
