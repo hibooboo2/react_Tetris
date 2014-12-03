@@ -1,0 +1,62 @@
+.MessageBox {
+    position: relative;
+    width: 10.7em;
+    height: 1em;
+}
+.MessageBoxGroup {
+    position: absolute;
+    display: inline-flex;
+    top: 20em;
+}
+.chat {
+    position: absolute;
+    bottom: 0.5em;
+    width: 30em;
+    height: 14.4em;
+    font-size: 1em;
+    background-color: #010f13;
+    border: 1px solid lightblue;
+}
+.chatExit {
+    position: absolute;
+    top: 0em;
+    left: 9em;
+    width: 1.4em;
+    height: 1.4em;
+    font-size: 1em;
+    background-image: url("http://i.imgur.com/agviQBF.png");
+    background-size: 100% 100%;
+}
+.chatTab {
+    position: absolute;
+    height: 1em;
+    bottom: -1em;
+    padding: 0.3em;
+    width: 10em;
+    background-color: #001C26;
+    color: #FEFEFE;
+    text-align: left;
+    border-radius: 0.4em;
+}
+.ChatBox {
+    position: absolute;
+    top: 21em;
+    width: 20em;
+    height: 15em;
+}
+.messages {
+    overflow-y: scroll;
+    height: 13em;
+    width: 20em;
+    background-color: #001C26;
+    color: #00CCFF;
+}
+.users {
+    overflow-y: scroll;
+    width: 10em;
+    background-color: #001C26;
+    color: #00CCFF;
+}
+.chatInput {
+    width: 23.7em;
+}

@@ -114,7 +114,6 @@ var MessageBox = React.createClass({
         var messages = evt.nativeEvent.target;
         this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
     },scrollHeight:function(){
-        console.log(this.state.scrolled);
         if(!this.state.scrolled){
             var messages = document.getElementById("messageList"+this.state.to);
             messages.scrollTop = messages.scrollHeight;
@@ -145,7 +144,7 @@ var MessageBox = React.createClass({
                     )
         });
 
-        var theChatBox = <div className="MessageBox">
+        var theMessageBox = <div className="MessageBox">
                             <div className={"chat"+ (this.state.hidden ? " hidden":"")}>
                                 <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
                                     {theMessages}
@@ -157,12 +156,33 @@ var MessageBox = React.createClass({
                             <div className="chatExit" onClick={this.close}></div>
                             </div>
                         </div>;
-        return theChatBox;
+        return theMessageBox;
         }
 
 });
 
+var MessageBoxGroup = React.createClass({
+    getInitialState:function(){
+        return {
+            currentChats:[{to:"James",from:"Han"},{to:"Han",from:"James"}],
+            socket:this.props.socket
+        };
+    },render: function() {
+        var theSocket = this.state.socket;
+        var messageBoxes = this.state.currentChats.map(function(chat){
+                                return <MessageBox messages={[]} from={chat.from} to={chat.to} socket={theSocket}/>
+
+                                });
+        var theMessageBoxGroup =    <div className="MessageBoxGroup">
+                                        {messageBoxes}
+                                    </div>
+
+        return theMessageBoxGroup;
+    }
+});
+
+
 React.render(
-  <MessageBox messages={[]} from={prompt("from??")} to={prompt("to??")} socket={io.connect()}/>,
+  <MessageBoxGroup socket={io.connect()}/>,
   document.getElementById('main_Container')
 );
