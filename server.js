@@ -18,17 +18,15 @@ io.sockets.on('connection', function (socket) {
     socket.on('new_message', function (data) {
         data.timeStamp = "[" + new Date().toLocaleTimeString().slice(0,5) + "] ";
         console.log("Send message " + data);
-        io.emit('new_message', data);
+        if (!data.whisper){
+            io.emit('new_message', data);
+        }else{
+            socket.to(currentUsers["user_" + data.to]).emit('new_message', data);
+        }
     });
 
     socket.on('recieved', function (data) {
         socket.to(currentUsers["user_" + data.from]).emit('new message', data);
-    });
-
-    socket.on('message', function (data) {
-        data.timeStamp = "[" + new Date().toLocaleTimeString().slice(0,5) + "] ";
-        socket.to(currentUsers["user_" + data.to]).emit('whispered_message', data);
-        console.log(socket.id + " Said " + data.timeStamp + data.message + " To " + data.to + " AKA " + currentUsers["user_" + data.to]);
     });
 
     socket.on('disconnect', function (data) {

@@ -132,8 +132,6 @@ var MessageBox = React.createClass({
     },toggleHidden: function(){
         this.setState({hidden:!this.state.hidden});
     },close: function(evt){
-        evt.preventDefault();
-        evt.stopPropagation();
         evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
     },render: function() {
         var theMessages = this.state.messages.map(function(data){
@@ -145,7 +143,7 @@ var MessageBox = React.createClass({
         });
 
         var theMessageBox = <div className="MessageBox">
-                            <div className={"chat"+ (this.state.hidden ? " hidden":"")}>
+                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
                                 <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
                                     {theMessages}
                                 </div>
@@ -158,19 +156,20 @@ var MessageBox = React.createClass({
                         </div>;
         return theMessageBox;
         }
-
 });
 
 var MessageBoxGroup = React.createClass({
     getInitialState:function(){
         return {
-            currentChats:[{to:"James",from:"Han"},{to:"Han",from:"James"}],
+            currentChats:[{to:"James",from:"Han", hidden:false},{to:"Han",from:"James", hidden:false}],
             socket:this.props.socket
         };
+    },switchChats:function(){
+        console.log("HIDDEN");
     },render: function() {
         var theSocket = this.state.socket;
         var messageBoxes = this.state.currentChats.map(function(chat){
-                                return <MessageBox messages={[]} from={chat.from} to={chat.to} socket={theSocket}/>
+                                return  <MessageBox messages={[]} hidden={chat.hidden} from={chat.from} to={chat.to} socket={theSocket}/>
 
                                 });
         var theMessageBoxGroup =    <div className="MessageBoxGroup">

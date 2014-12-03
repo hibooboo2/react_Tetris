@@ -1,7 +1,11 @@
 .MessageBox {
     position: relative;
     width: 10.7em;
-    height: 1em;
+     -webkit-user-select: none;
+    /* Chrome/Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
 }
 .MessageBoxGroup {
     position: absolute;
@@ -15,6 +19,7 @@
     height: 14.4em;
     font-size: 1em;
     background-color: #010f13;
+    border-radius: 0.4em;
     border: 1px solid lightblue;
 }
 .chatExit {
@@ -45,6 +50,7 @@
     height: 15em;
 }
 .messages {
+    border-radius: 0.4em;
     overflow-y: scroll;
     height: 13em;
     width: 20em;
