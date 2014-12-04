@@ -11,27 +11,27 @@ var currentUsers = {};
 io.sockets.on('connection', function (socket) {
 
     socket.on('login', function (data) {
-        currentUsers["user_" + data.name] = socket.id;
-        console.log("Logged IN! " + data.name);
+        currentUsers['user_' + data.name] = socket.id;
+        console.log('Logged IN! ' + data.name);
     });
 
     socket.on('new_message', function (data) {
-        data.timeStamp = "[" + new Date().toLocaleTimeString().slice(0,5) + "] ";
-        console.log("Send message " + data);
+        data.timeStamp = '[' + new Date().toLocaleTimeString().slice(0,5) + '] ';
+        console.log('Send message ' + data);
         if (!data.whisper){
             io.emit('new_message', data);
         }else{
-            socket.to(currentUsers["user_" + data.to]).emit('new_message', data);
+            socket.to(currentUsers['user_' + data.to]).emit('new_message', data);
         }
     });
 
     socket.on('recieved', function (data) {
-        socket.to(currentUsers["user_" + data.from]).emit('new message', data);
+        socket.to(currentUsers['user_' + data.from]).emit('new message', data);
     });
 
     socket.on('disconnect', function (data) {
-        console.log(socket.name + " Left");
-        currentUsers["user_" + socket.name] = undefined;
+        console.log(socket.name + ' Left');
+        currentUsers['user_' + socket.name] = undefined;
         console.log(data);
     });
 
