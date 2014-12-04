@@ -1,7 +1,7 @@
 //BoardEngine Depends on a pieceEngine.js and cellEngine.js
 
 // BoardEngine() will return a new Board.
-var boardEngine = function () {
+var BoardEngine = function () {  // jshint ignore:line
     "use strict";
 
     function Board() {
@@ -19,11 +19,11 @@ var boardEngine = function () {
         };
         this.gameOver = false;
         this.justHeld = false;
-        this.score = new Score();
+        this.score = new Score(); // jshint ignore:line
         this.fallingPiece = false;
         this.heldPiece = false;
         this.started = false;
-        this.pieceEngine = new PieceEngine();
+        this.pieceEngine = new PieceEngine();  // jshint ignore:line
     }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
@@ -52,7 +52,7 @@ var boardEngine = function () {
         if (this.cellOnBoard(cellGiven)) {
             cellToReturn = this.usedCells[cellGiven.y][cellGiven.x].copy();
         } else {
-            cellToReturn = new Cell(cellGiven.x, cellGiven.y);
+            cellToReturn = new Cell(cellGiven.x, cellGiven.y);  // jshint ignore:line
             cellToReturn.type = 4;
         }
         return cellToReturn;
@@ -106,7 +106,7 @@ var boardEngine = function () {
         var blankRow = function () {
             var row = [];
             for (var j = 0; j < 10; j++) {
-                row[j] = new Cell(0, j, "lightgrey", "empty", 3);
+                row[j] = new Cell(0, j, "lightgrey", "empty", 3);  // jshint ignore:line
             }
             return row;
         };
@@ -134,7 +134,7 @@ var boardEngine = function () {
                     cell.x = x;
                     cell.y = y;
                 });
-            });
+            });  // jshint ignore:line
         }
     };
     //Takes a piece and tells you if it can be added;
@@ -196,14 +196,14 @@ var boardEngine = function () {
         this.level = 0;
         this.fallingPiece = false;
         this.heldPiece = false;
-        this.score = new Score();
+        this.score = new Score();   // jshint ignore:line
         this.started = false;
     };
     Board.prototype.newBoard = function () {
         for (var i = 0; i < this.height; i++) {
             this.usedCells[i] = [];
             for (var j = 0; j < this.width; j++) {
-                this.usedCells[i][j] = new Cell(j, i, "lightgrey", "empty", 3);
+                this.usedCells[i][j] = new Cell(j, i, "lightgrey", "empty", 3);  // jshint ignore:line
             }
         }
     };
@@ -215,7 +215,7 @@ var boardEngine = function () {
         var rows = [this.usedCells[0], this.usedCells[1]];
         rows.map(function (row) {
             row.map(function (cell) {
-                if (cell.type == 2) {
+                if (cell.type === 2) {
                     isGameOver = true;
                 }
             });
@@ -231,7 +231,7 @@ var boardEngine = function () {
         this.width = previousBoardJSON.width;
         this.usedCells = previousBoardJSON.usedCells.map(function (row) {
             return row.map(function (cell) {
-                return new Cell().fromJson(cell);
+                return new Cell().fromJson(cell);  // jshint ignore:line
             });
         });
         this.settings = {
@@ -244,11 +244,11 @@ var boardEngine = function () {
         };
         this.gameOver = previousBoardJSON.gameOver;
         this.justHeld = previousBoardJSON.justHeld;
-        this.score = new Score().fromJson(previousBoardJSON.score);
+        this.score = new Score().fromJson(previousBoardJSON.score);  // jshint ignore:line
         this.fallingPiece = new this.pieceEngine.newPiece().fromJson(previousBoardJSON.fallingPiece);
         this.heldPiece = previousBoardJSON.heldPiece;
         this.started = previousBoardJSON.started;
         return this;
-    }
+    };
     return Board;
-}();
+};

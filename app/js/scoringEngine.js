@@ -87,4 +87,4 @@ Score.prototype.fromJson = function (previousScore) {
     this.comboCount = previousScore.comboCount;
     this.lastCleared = previousScore.lastCleared;
     return this;
-}
+};

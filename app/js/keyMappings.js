@@ -1,4 +1,4 @@
-var keyMappings = function () {
+var keyMappings = function () {  // jshint ignore:line
     "use strict";
     var codeToKey = {
         65: "a",
