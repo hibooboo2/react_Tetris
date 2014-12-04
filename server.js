@@ -1,7 +1,8 @@
 var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
-    io = require('socket.io').listen(server);
+    io = require('socket.io').listen(server),
+    data = require('./server/data.js');
 
 server.listen(process.env.PORT ? process.env.PORT : 3000);
 
@@ -16,11 +17,11 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('new_message', function (data) {
-        data.timeStamp = '[' + new Date().toLocaleTimeString().slice(0,5) + '] ';
+        data.timeStamp = '[' + new Date().toLocaleTimeString().slice(0, 5) + '] ';
         console.log('Send message ' + data);
-        if (!data.whisper){
+        if (!data.whisper) {
             io.emit('new_message', data);
-        }else{
+        } else {
             socket.to(currentUsers['user_' + data.to]).emit('new_message', data);
         }
     });
