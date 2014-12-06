@@ -7,21 +7,28 @@ var express = require('express'),
 server.listen(process.env.PORT ? process.env.PORT : 3000);
 
 app.use('/', express.static(__dirname + '/app'));
-var currentUsers = {};
+var currentUsers = {
+    usersConnected: [],
+    getUserID: function () {
 
+    }
+};
 io.sockets.on('connection', function (socket) {
-
+    socket.broadcast.emit('New User Connected');
     socket.on('login', function (data) {
         currentUsers['user_' + data.name] = socket.id;
         console.log('Logged IN! ' + data.name);
     });
-
     socket.on('new_message', function (data) {
-        data.timeStamp = '[' + new Date().toLocaleTimeString().slice(0, 5) + '] ';
-        console.log('Send message ' + data);
+        console.log(currentUsers);
+        data.fromId = socket.id;
+        data.timeStamp = new Date();
+        console.log('Send message ' + data.message);
         if (!data.whisper) {
-            io.emit('new_message', data);
+            io.sockets.emit('new_message', data);
         } else {
+            data.message = "Whispered: " + data.message;
+            console.log(currentUsers['user_' + data.to]);
             socket.to(currentUsers['user_' + data.to]).emit('new_message', data);
         }
     });

@@ -99,10 +99,10 @@ var MessageBox = React.createClass({
         // has been rendered on the page. We can set the interval here:
         var socket = this.state.socket;
         this.socket = socket;
-        this.socket.on('new_message', this.newWhisperedMessage);
+        this.socket.on('new_message', this.newMessage);
         this.socket.emit("login", {name: this.state.from});
         this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
-    },newWhisperedMessage:function (data) {
+    },newMessage:function (data) {
             this.state.messages.push(data);
             window.localStorage.messages = JSON.stringify(this.state.messages);
             if(data.whisper){
@@ -135,22 +135,23 @@ var MessageBox = React.createClass({
         evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
     },render: function() {
         var theMessages = this.state.messages.map(function(data){
-            return (
-                        <p>
-                        {data.timeStamp + data.from + ": " + data.message}
-                        </p>
-                    )
+            if(data.from!='Mouse'){
+                return (
+                           <Message data={data}/>
+                        )
+            }
         });
 
         var theMessageBox = <div className="MessageBox">
                             <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
                                 <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
+                                    <Message data={{from:'george',timeStamp:new Date().toISOString(),message:'hello'}}/>
                                     {theMessages}
                                 </div>
                                 <input className="chatInput" onKeyDown={this.handleMessageBox}/>
                             </div>
                             <div className="chatTab" onClick={this.toggleHidden}>
-                            <p>{this.state.to}</p>
+                            <p>{this.state.to} {this.state.messages.length}</p>
                             <div className="chatExit" onClick={this.close}></div>
                             </div>
                         </div>;
@@ -158,18 +159,40 @@ var MessageBox = React.createClass({
         }
 });
 
-var MessageBoxGroup = React.createClass({
+var Message = React.createClass({
     getInitialState:function(){
         return {
-            currentChats:[{to:"James",from:"Han", hidden:false},{to:"Han",from:"James", hidden:false}],
-            socket:this.props.socket
+            socket:this.props.socket,
+        };
+    },whisperTo:function(){
+        alert("Replied");
+    },render: function(){
+        var theMessage =    <div className="Message">
+                                [ {this.props.data.timeStamp.substring(11,19)} ] {this.props.data.from} : {this.props.data.message}
+                                <svg className="icon" viewBox="0 0 8 8" onClick={this.whisperTo}>
+                                  <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
+                                </svg>
+                            </div>
+
+        return theMessage;
+    }
+});
+
+var MessageBoxGroup = React.createClass({
+    getInitialState:function(){
+        var user = prompt("Who are you?");
+        return {
+            currentChats:["Bob"],
+            socket:this.props.socket,
+            user:user
         };
     },switchChats:function(){
         console.log("HIDDEN");
     },render: function() {
         var theSocket = this.state.socket;
+        var theUser = this.state.user;
         var messageBoxes = this.state.currentChats.map(function(chat){
-                                return  <MessageBox messages={[]} hidden={chat.hidden} from={chat.from} to={chat.to} socket={theSocket}/>
+                                return  <MessageBox messages={[]} from={theUser} to={chat} socket={theSocket}/>
 
                                 });
         var theMessageBoxGroup =    <div className="MessageBoxGroup">
@@ -180,8 +203,7 @@ var MessageBoxGroup = React.createClass({
     }
 });
 
-
 React.render(
-  <MessageBoxGroup socket={io.connect()}/>,
+  <MessageBoxGroup socket={io.connect("http://localhost:3000")}/>,
   document.getElementById('main_Container')
 );
