@@ -1,170 +1,5 @@
-
-var ChatBox = React.createClass({
-    getInitialState: function(){
-        return {messages:window.localStorage.messages!==undefined ? JSON.parse(window.localStorage.messages):[]};
-    },componentDidMount: function(){
-        // componentDidMount is called by react when the component
-        // has been rendered on the page. We can set the interval here:
-        var socket = io.connect();
-        this.socket = socket;
-        //var name = window.localStorage.name ? window.localStorage.name :    prompt("What is your name?");
-        var sendMessageButton = document.getElementById("sendMessage");
-        this.state.name = prompt("What is your name?");
-        window.localStorage.name =  name;
-        sendMessageButton.onclick = this.sendMessage;
-        this.socket.on('new message', this.newMessage);
-        sendMessage = this.sendMessage;
-        messageBox.onkeydown = function (evt) {
-            if (evt.keyCode === 13){
-                sendMessage();
-            }
-        };
-        this.socket.emit("login", {name: name});
-        this.setState({name:this.state.name,socket:socket});
-    },newMessage:function (data) {
-            this.state.messages.push(data.message);
-            window.localStorage.messages = JSON.stringify(this.state.messages);
-            this.socket.emit("recieved", data);
-            this.setState({messages:this.state.messages});
-    },sendMessage: function(){
-        var messageBox = document.getElementById("messageBox");
-        if(messageBox.value !== ""){
-        this.socket.emit("send message", {
-                from: this.state.name,
-                message: messageBox.value,
-                to: ""
-            });
-        messageBox.value = "";
-        }
-    },whisperMessage: function(){
-        var messageBox = document.getElementById("messageBox");
-        if(messageBox.value !== ""){
-        this.socket.emit("send message", {
-                from: this.state.name,
-                message: messageBox.value,
-                to: ""
-            });
-        messageBox.value = "";
-        }
-    },
-    render: function() {
-        var theMessages = this.state.messages.map(function(message){
-            return (
-                        <p>
-                        {message}
-                        </p>
-                    )
-        });
-        var theChatBox = <div className="ChatBox">
-                            <div className="messages">
-                                {theMessages}
-                            </div>
-                            <input id="messageBox"></input>
-                            <button id="sendMessage">Send Message</button>
-                        </div>;
-            return theChatBox;
-        }
-});
-
-
-var FriendsList = React.createClass({
-    render: function() {
-        return theFriendsList;
-    }
-});
-
-var Friend = React.createClass({
-    render: function() {
-        return theFriends;
-    }
-});
-
 var Message = React.createClass({
-    render: function() {
-        return theMessage;
-    }
-});
-
-var FriendGroup = React.createClass({
-    render: function() {
-        return theFriendGroup;
-    }
-});
-
-var MessageBox = React.createClass({
-       getInitialState: function(){
-        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
-    },componentDidMount: function(){
-        // componentDidMount is called by react when the component
-        // has been rendered on the page. We can set the interval here:
-        var socket = this.state.socket;
-        this.socket = socket;
-        this.socket.on('new_message', this.newMessage);
-        this.socket.emit("login", {name: this.state.from});
-        this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
-    },newMessage:function (data) {
-            this.state.messages.push(data);
-            window.localStorage.messages = JSON.stringify(this.state.messages);
-            if(data.whisper){
-                this.socket.emit('recieved', data);
-            }
-            this.setState({messages:this.state.messages});
-            this.scrollHeight();
-    },scrolled:function(evt){
-        var messages = evt.nativeEvent.target;
-        this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
-    },scrollHeight:function(){
-        if(!this.state.scrolled){
-            var messages = document.getElementById("messageList"+this.state.to);
-            messages.scrollTop = messages.scrollHeight;
-        }
-    },handleMessageBox:function (evt) {
-        evt.stopPropagation();
-        if (evt.keyCode === 13){
-           this.socket.emit('new_message', {
-                    from: this.state.from,
-                    message: evt.nativeEvent.target.value,
-                    to: this.state.to,
-                    whisper:false
-                });
-            evt.nativeEvent.target.value = "";
-        }
-    },toggleHidden: function(){
-        this.setState({hidden:!this.state.hidden});
-    },close: function(evt){
-        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
-    },render: function() {
-        var theMessages = this.state.messages.map(function(data){
-            if(data.from!='Mouse'){
-                return (
-                           <Message data={data}/>
-                        )
-            }
-        });
-
-        var theMessageBox = <div className="MessageBox">
-                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
-                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
-                                    <Message data={{from:'george',timeStamp:new Date().toISOString(),message:'hello'}}/>
-                                    {theMessages}
-                                </div>
-                                <input className="chatInput" onKeyDown={this.handleMessageBox}/>
-                            </div>
-                            <div className="chatTab" onClick={this.toggleHidden}>
-                            <p>{this.state.to} {this.state.messages.length}</p>
-                            <div className="chatExit" onClick={this.close}></div>
-                            </div>
-                        </div>;
-        return theMessageBox;
-        }
-});
-
-var Message = React.createClass({
-    getInitialState:function(){
-        return {
-            socket:this.props.socket,
-        };
-    },whisperTo:function(){
+    whisperTo:function(){
         alert("Replied");
     },render: function(){
         var theMessage =    <div className="Message">
@@ -178,23 +13,211 @@ var Message = React.createClass({
     }
 });
 
+
+var MessageBox = React.createClass({
+       getInitialState: function(){
+        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
+    },componentDidMount: function(){
+        // componentDidMount is called by react when the component
+        // has been rendered on the page. We can set the interval here:
+        var socket = this.state.socket;
+        this.socket = socket;
+        this.socket.on("new_message", this.newMessage);
+        this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
+    },newMessage:function (data) {
+            if(this.state.from === data.from){
+                this.state.messages.push(data);
+                if(data.whisper){
+                    this.socket.emit("recieved", data);
+                }
+                this.setState({messages:this.state.messages});
+                this.scrollHeight();
+            }
+    },sentMessage:function (data) {
+        this.state.messages.push(data);
+        this.setState({messages:this.state.messages});
+        this.scrollHeight();
+    },scrolled:function(evt){
+        var messages = evt.nativeEvent.target;
+        this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
+    },scrollHeight:function(){
+        if(!this.state.scrolled){
+            var messages = document.getElementById("messageList"+this.state.to);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    },handleMessageBox:function (evt) {
+        evt.stopPropagation();
+        var newMessage = this.newMessage;
+        if (evt.keyCode === 13){
+            this.socket.emit("new_message", {
+                    from: this.state.from,
+                    message: evt.nativeEvent.target.value,
+                    to: this.state.to,
+                    whisper:true
+                },this.sentMessage);
+            evt.nativeEvent.target.value = "";
+        }
+    },toggleHidden: function(){
+        this.setState({hidden:!this.state.hidden});
+    },close: function(evt){
+        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
+    },render: function() {
+        var theMessages = this.state.messages.map(function(data){
+            if(data.from!="Mouse"){
+                return (
+                           <Message data={data}/>
+                        )
+            }
+        });
+
+        var theMessageBox = <div className="MessageBox">
+                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
+                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
+                                    {theMessages}
+                                </div>
+                                <input className="chatInput" onKeyDown={this.handleMessageBox}/>
+                            </div>
+                            <div className="chatTab" onClick={this.toggleHidden}>
+                            <p>{this.state.to} {this.state.messages.length}</p>
+                            <div className="chatExit" onClick={this.close}></div>
+                            </div>
+                        </div>;
+        return theMessageBox;
+        }
+});
+
+var Friend = React.createClass({
+    render: function() {
+        var theFriend = <div className="Friend">
+                            <img style={{height:'2em',width:'2em'}}src={this.props.user.icon}/>
+                            <div>
+                                <p>{this.props.user.username}</p>
+                                <p> {this.props.user.status}</p>
+                            </div>
+                        </div>;
+        return theFriend;
+    }
+});
+
+var FriendGroup = React.createClass({
+    render: function() {
+        var friends = this.props.friends.map(function(friend){
+            console.log(friend);
+            return <Friend user={friend} />;
+            });
+        var theFriendGroup =    <div className="FriendGroup">
+                                    {friends}
+                                </div>
+        return theFriendGroup;
+    }
+});
+
+var FriendsList = React.createClass({
+    render: function() {
+        var friendgroups = this.props.friendLists.map(function(friendgroup){
+            return <FriendGroup friends={friendgroup} />;
+            });
+        var theFriendsList =    <div className="FriendsList">
+                                    {friendgroups}
+                                </div>
+        return theFriendsList;
+    }
+});
+
+
+var GroupChat = React.createClass({
+       getInitialState: function(){
+        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
+    },componentDidMount: function(){
+        // componentDidMount is called by react when the component
+        // has been rendered on the page. We can set the interval here:
+        var socket = this.state.socket;
+        this.socket = socket;
+        this.socket.on("new_message", this.newMessage);
+        this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
+    },newMessage:function (data) {
+            if(this.state.from === data.from){
+                this.state.messages.push(data);
+                if(data.whisper){
+                    this.socket.emit("recieved", data);
+                }
+                this.setState({messages:this.state.messages});
+                this.scrollHeight();
+            }
+    },sentMessage:function (data) {
+        this.state.messages.push(data);
+        this.setState({messages:this.state.messages});
+        this.scrollHeight();
+    },scrolled:function(evt){
+        var messages = evt.nativeEvent.target;
+        this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
+    },scrollHeight:function(){
+        if(!this.state.scrolled){
+            var messages = document.getElementById("messageList"+this.state.to);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    },handleGroupChat:function (evt) {
+        evt.stopPropagation();
+        var newMessage = this.newMessage;
+        if (evt.keyCode === 13){
+            this.socket.emit("new_message", {
+                    from: this.state.from,
+                    message: evt.nativeEvent.target.value,
+                    to: this.state.to,
+                    whisper:true
+                },this.sentMessage);
+            evt.nativeEvent.target.value = "";
+        }
+    },toggleHidden: function(){
+        this.setState({hidden:!this.state.hidden});
+    },close: function(evt){
+        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
+    },render: function() {
+        var theMessages = this.state.messages.map(function(data){
+            if(data.from!="Mouse"){
+                return (
+                           <Message data={data}/>
+                        )
+            }
+        });
+
+        var theGroupChat = <div className="GroupChat">
+                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
+                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
+                                    {theMessages}
+                                </div>
+                                <input className="chatInput" onKeyDown={this.handleGroupChat}/>
+                            </div>
+                            <div className="chatTab" onClick={this.toggleHidden}>
+                            <p>{this.state.to} {this.state.messages.length}</p>
+                            <div className="chatExit" onClick={this.close}></div>
+                            </div>
+                        </div>;
+        return theGroupChat;
+        }
+});
+
+
 var MessageBoxGroup = React.createClass({
     getInitialState:function(){
-        var user = prompt("Who are you?");
         return {
-            currentChats:["Bob"],
             socket:this.props.socket,
-            user:user
+            user:this.props.user
         };
     },switchChats:function(){
-        console.log("HIDDEN");
+        console.log("Hidden");
     },render: function() {
         var theSocket = this.state.socket;
         var theUser = this.state.user;
-        var messageBoxes = this.state.currentChats.map(function(chat){
+        var messageBoxes = this.props.currentChats.map(function(chat){
                                 return  <MessageBox messages={[]} from={theUser} to={chat} socket={theSocket}/>
 
                                 });
+        var user = {
+            username:this.state.user,
+            status:'Whats up all?',
+            icon: 'http://i.imgur.com/4fyudrX.png'
+        };
         var theMessageBoxGroup =    <div className="MessageBoxGroup">
                                         {messageBoxes}
                                     </div>
@@ -203,7 +226,23 @@ var MessageBoxGroup = React.createClass({
     }
 });
 
+var ChatSystem = React.createClass({
+    getInitialState:function(){
+        var user = prompt("Who are you?");
+        var pass = prompt("Password?");
+        return {socket:io.connect("http://localhost:3000"), currentChats:['james','Bob'], user:user,password:pass};
+    },componentDidMount:function(){
+        this.state.socket.emit("login", {username:this.state.user,password:this.state.password});
+    },render: function() {
+        var theChatSystem =    <div className="ChatSystem">
+                                        <FriendsList user={this.state.user} friendLists={[[{username:'Kreious',status:'Play anyone?',icon:'http://i.imgur.com/GKpgcNq.png'},{username:'SaucySeadweller',status:'In Que',icon:'http://i.imgur.com/GKpgcNq.png'}]]}/>
+                                        <MessageBoxGroup currentChats={this.state.currentChats} socket={this.state.socket}/>
+                                </div>
+        return theChatSystem;
+    }
+});
+
 React.render(
-  <MessageBoxGroup socket={io.connect("http://localhost:3000")}/>,
-  document.getElementById('main_Container')
+  <ChatSystem />,
+  document.getElementById("main_Container")
 );
