@@ -162,12 +162,21 @@ button,
 .ghost {
     opacity: 0.35;
     border-color: brown;
+    background-image: url("http://forums.na.leagueoflegends.com/board/attachment.php?attachmentid=894210&d=1392252905");
+    background-size: auto;
+    background-size: contain;
 }
 .moving {
     border-color: teal;
+    background-image: url("http://i.imgur.com/zYPmRYz.png");
+    background-size: auto;
+    background-size: contain;
 }
 .placed {
     border-color: black;
+    background-image: url("http://i.imgur.com/2ouaOiB.png");
+    background-size: auto;
+    background-size: contain;
 }
 .default {
     border-color: orange;
@@ -181,6 +190,9 @@ button,
 }
 .preview {
     border-color: pink;
+    background-image: url("http://fc00.deviantart.net/fs70/f/2013/323/c/c/twisted_poro_by_andie200-d6utjw2.png");
+    background-size: auto;
+    background-size: contain;
 }
 .leftAlign {
     text-align: left;
