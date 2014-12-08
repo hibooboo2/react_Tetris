@@ -2,7 +2,7 @@ var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
     io = require('socket.io').listen(server),
-    data = require('./server/data.js');
+    mongoose = require('./server/data.js');
 
 server.listen(process.env.PORT ? process.env.PORT : 3000);
 
@@ -12,17 +12,17 @@ var currentUsers = {
     getUserID: function () {
 
     },
-    login: function (username, password, socketId) {
+    login: function (username, password, socketId,afterLogin) {
         if (username && password && socketId) {
 
-            data.User.findOne({
+            mongoose.User.findOne({
                 userName: username
             }).exec(function (err, user) {
                 if (err) {
                     console.log(err);
                 }
                 if (!user) {
-                    user = new data.User({
+                    user = new mongoose.User({
                         userName: username,
                         password: password
                     });
@@ -39,28 +39,17 @@ var currentUsers = {
                     console.log(currentUsers.usersConnected[username]);
                 } else {
                     console.log('Invalid username password');
+                    user = undefined;
                 }
-                //currentUsers.usersConnected[user.userName]
+                afterLogin(user);
             });
         }
     }
 };
 io.sockets.on('connection', function (socket) {
     socket.broadcast.emit('New User Connected');
-    socket.on('login', function (data) {
-        currentUsers.login(data.username, data.password, socket.id);
-    });
-    socket.on('test',function(w,x,y,z){
-        w.timeStamp = new Date();
-        console.log('w');
-        console.log(w);
-        console.log('x');
-        console.log(x);
-        x(w);
-        console.log('y');
-        console.log(y);
-        console.log('z');
-        console.log(z);
+    socket.on('login', function (data,afterLogin) {
+        currentUsers.login(data.username, data.password, socket.id,afterLogin);
     });
     socket.on('new_message', function (data,fn) {
         data.fromId = socket.id;
@@ -82,6 +71,13 @@ io.sockets.on('connection', function (socket) {
                 console.log(data.to + ' isn\'t connected');
             }
         }
+        var addToChat = function(thread){
+            thread.addMessage(data);
+            thread.save();
+            console.log("Saved");
+            console.log(data);
+        }
+        //mongoose.getUserChats(data.from,addToChat);
     });
 
     socket.on('recieved', function (data) {

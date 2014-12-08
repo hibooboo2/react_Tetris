@@ -28,8 +28,32 @@ var data = function () {
         avatar: String,
         email: String,
         profile: {},
-        friends:[]
+        friends: []
     });
+
+    var ChatThreadSchema = new mongoose.Schema({
+        userName: [String],
+        messages: []
+    });
+
+    ChatThreadSchema.methods.addMessage = function (message, callback) {
+        if (message) {
+            this.messages.push(message);
+            this.save();
+        }
+    }
+    this.ChatThread = mongoose.model('ChatThread', ChatThreadSchema);
+
+    this.getUserChats = function (user, callback) {
+        this.ChatThread.findOne({
+            userName: user
+        }).exec(function (err, thread) {
+            if (thread && callback) {
+                callback(thread);
+            }
+        });
+    };
+
     return this;
 };
 

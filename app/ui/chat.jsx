@@ -25,7 +25,9 @@ var MessageBox = React.createClass({
         this.socket.on("new_message", this.newMessage);
         this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
     },newMessage:function (data) {
-            if(this.state.from === data.from){
+            console.log(data);
+            console.log(this.state.from + data.to + this.state.to + data.from);
+            if(this.state.from === data.to && this.state.to === data.from){
                 this.state.messages.push(data);
                 if(data.whisper){
                     this.socket.emit("recieved", data);
@@ -60,7 +62,7 @@ var MessageBox = React.createClass({
     },toggleHidden: function(){
         this.setState({hidden:!this.state.hidden});
     },close: function(evt){
-        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
+
     },render: function() {
         var theMessages = this.state.messages.map(function(data){
             if(data.from!="Mouse"){
@@ -87,8 +89,10 @@ var MessageBox = React.createClass({
 });
 
 var Friend = React.createClass({
-    render: function() {
-        var theFriend = <div className="Friend">
+    clicked:function(){
+        this.props.whenClicked(this.props.user);
+    },render: function() {
+        var theFriend = <div onClick={this.clicked} className="Friend">
                             <img style={{height:'2em',width:'2em'}}src={this.props.user.icon}/>
                             <div>
                                 <p>{this.props.user.username}</p>
@@ -99,23 +103,19 @@ var Friend = React.createClass({
     }
 });
 
-var FriendGroup = React.createClass({
-    render: function() {
-        var friends = this.props.friends.map(function(friend){
-            console.log(friend);
-            return <Friend user={friend} />;
-            });
-        var theFriendGroup =    <div className="FriendGroup">
-                                    {friends}
-                                </div>
-        return theFriendGroup;
-    }
-});
-
 var FriendsList = React.createClass({
     render: function() {
-        var friendgroups = this.props.friendLists.map(function(friendgroup){
-            return <FriendGroup friends={friendgroup} />;
+        var whenClicked = this.props.whenClicked;
+        var friendgroups = this.props.friends.map(function(friendgroup){
+            var friends = friendgroup.map(function(friend){
+                        return <Friend whenClicked={whenClicked} user={friend} />;
+                    });
+            var theFriendGroup =    <div className='FriendGroup'>
+                                        <p>All Friends</p>
+                                        {friends}
+                                    </div>
+
+            return theFriendGroup;
             });
         var theFriendsList =    <div className="FriendsList">
                                     {friendgroups}
@@ -205,7 +205,7 @@ var MessageBoxGroup = React.createClass({
             user:this.props.user
         };
     },switchChats:function(){
-        console.log("Hidden");
+
     },render: function() {
         var theSocket = this.state.socket;
         var theUser = this.state.user;
@@ -228,21 +228,57 @@ var MessageBoxGroup = React.createClass({
 
 var ChatSystem = React.createClass({
     getInitialState:function(){
-        var user = prompt("Who are you?");
-        var pass = prompt("Password?");
-        return {socket:io.connect("http://localhost:3000"), currentChats:['james','Bob'], user:user,password:pass};
-    },componentDidMount:function(){
-        this.state.socket.emit("login", {username:this.state.user,password:this.state.password});
+        return {
+                socket:this.props.socket,
+                currentChats:[],
+                user:this.props.userName,
+                friends:[[]]
+            }
+    },addFriend:function (evt) {
+        evt.stopPropagation();
+        var newMessage = this.newMessage;
+        if (evt.keyCode === 13){
+            this.state.socket.emit("new_message", {
+                    from: this.state.user,
+                    message: this.state.user + " would like to add you as a friend.",
+                    to: this.state.to,
+                    whisper:false
+                });
+            this.state.friends[0].push({username:evt.nativeEvent.target.value,status:'In que',icon:'http://i.imgur.com/GKpgcNq.png'});
+            this.setState({friends:this.state.friends});
+            evt.nativeEvent.target.value = "";
+        }
+    },handleFriendClick:function(user){
+        this.state.currentChats.push(user.username);
+        this.setState({currentChats:this.state.currentChats});
     },render: function() {
         var theChatSystem =    <div className="ChatSystem">
-                                        <FriendsList user={this.state.user} friendLists={[[{username:'Kreious',status:'Play anyone?',icon:'http://i.imgur.com/GKpgcNq.png'},{username:'SaucySeadweller',status:'In Que',icon:'http://i.imgur.com/GKpgcNq.png'}]]}/>
-                                        <MessageBoxGroup currentChats={this.state.currentChats} socket={this.state.socket}/>
+                                        <div className="LoggedinUser">
+                                        <Friend whenClicked={this.handleFriendClick} user={{username:this.state.user,status:'Not sure',icon:'http://i.imgur.com/GKpgcNq.png'}} />
+                                        </div>
+                                        <FriendsList user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
+                                        <div className="AddFriend">
+                                            <input type="text" placeholder="Add Friend" onKeyDown={this.addFriend}/>
+                                        </div>
+                                        <MessageBoxGroup user={this.state.user} currentChats={this.state.currentChats} socket={this.props.socket}/>
                                 </div>
         return theChatSystem;
     }
 });
 
-React.render(
-  <ChatSystem />,
-  document.getElementById("main_Container")
-);
+var user = prompt("Who are you?",'james');
+var pass = prompt("Password?",'password');
+var socket = io.connect();
+var afterLogin = function(user){
+    if(user){
+        React.render(
+            <ChatSystem socket={socket} userName={user.userName}/>,
+            document.getElementById("main_Container")
+        );
+    }else{
+        var user = prompt("Really who are you?");
+        var pass = prompt("Password?");
+        socket.emit("login", {username:user,password:pass},afterLogin);
+    }
+}
+socket.emit("login", {username:user,password:pass},afterLogin);
