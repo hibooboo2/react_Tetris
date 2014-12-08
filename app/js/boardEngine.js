@@ -250,5 +250,5 @@ var BoardEngine = function () {  // jshint ignore:line
         this.started = previousBoardJSON.started;
         return this;
     };
-    return Board;
+    return new Board();
 };

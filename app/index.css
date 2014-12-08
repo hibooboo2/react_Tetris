@@ -43,13 +43,13 @@
     left: 20em;
 }
 .GameBox {
-    position: fixed;
-    width: inherit;
+    position: absolute;
     font-size: 12px;
     width: 60em;
     height: 44em;
-    top: 1em;
-    margin: 0 auto;
+
+    margin: 10% 20%;
+    background-color: white;
 }
 .heldBox {
     position: absolute;
@@ -213,4 +213,12 @@ div {
 .hidden {
     display: none;
     z-index: -999999;
+}
+#main_Container {
+    height: 75%;
+    width: 80%;
+    position: absolute;
+    right:10%;
+    bottom:12.5%;
+    background-color: black;
 }
