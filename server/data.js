@@ -19,37 +19,44 @@ var data = function () {
     });
 
     this.User = mongoose.model('User', {
-        userName: String,
+        username: String,
         name: {
             first: String,
             last: String
         },
         password: String,
+        statusMessage: String,
         avatar: String,
         email: String,
         profile: {},
         friends: []
     });
 
-    var ChatThreadSchema = new mongoose.Schema({
-        userName: [String],
-        messages: []
+    this.ChatMessage = mongoose.model('ChatMessage', {
+        users: [String],
+        to: String,
+        from: String,
+        message: String,
+        timeStamp: Date
     });
 
-    ChatThreadSchema.methods.addMessage = function (message, callback) {
-        if (message) {
-            this.messages.push(message);
-            this.save();
-        }
-    }
-    this.ChatThread = mongoose.model('ChatThread', ChatThreadSchema);
+    this.FriendsList = mongoose.model('FriendsList', {
+        listOwner: String,
+        friends: [{
+            username: String,
+            note: String,
+
+
+        }]
+    });
 
     this.getUserChats = function (user, callback) {
-        this.ChatThread.findOne({
-            userName: user
-        }).exec(function (err, thread) {
-            if (thread && callback) {
-                callback(thread);
+        this.ChatMessage.find({
+            to: user
+        }).exec(function (err, messages) {
+            console.log(messages);
+            if (messages && callback) {
+                callback(messages);
             }
         });
     };

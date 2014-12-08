@@ -9,34 +9,37 @@ server.listen(process.env.PORT ? process.env.PORT : 3000);
 app.use('/', express.static(__dirname + '/app'));
 var currentUsers = {
     usersConnected: [],
+    allConnections:[],
+    usersBysocketId:[],
     getUserID: function () {
 
     },
-    login: function (username, password, socketId,afterLogin) {
-        if (username && password && socketId) {
+    login: function (username, password, socket,afterLogin) {
+        if (username && password && socket) {
 
             mongoose.User.findOne({
-                userName: username
+                username: username
             }).exec(function (err, user) {
                 if (err) {
                     console.log(err);
                 }
                 if (!user) {
                     user = new mongoose.User({
-                        userName: username,
+                        username: username,
                         password: password
                     });
                     user.save();
                 }
-                if (username === user.userName && password === user.password) {
+                if (username === user.username && password === user.password) {
                     if (currentUsers.usersConnected[username]) {
-                        currentUsers.usersConnected[username].push(socketId);
+                        currentUsers.usersConnected[username].push(socket.id);
                     } else {
-                        currentUsers.usersConnected[username] = [socketId];
+                        currentUsers.usersConnected[username] = [socket.id];
                     }
-                    currentUsers.usersConnected['user_id' + socketId] = username;
+                    currentUsers.usersBysocketId['user_id' + socket.id] = username;
                     console.log(username + ' logged in.');
                     console.log(currentUsers.usersConnected[username]);
+                    io.sockets.emit('user_connected',user.username);
                 } else {
                     console.log('Invalid username password');
                     user = undefined;
@@ -47,9 +50,11 @@ var currentUsers = {
     }
 };
 io.sockets.on('connection', function (socket) {
-    socket.broadcast.emit('New User Connected');
+    currentUsers.allConnections.push(socket.id);
+    console.log(currentUsers.allConnections);
     socket.on('login', function (data,afterLogin) {
-        currentUsers.login(data.username, data.password, socket.id,afterLogin);
+
+        currentUsers.login(data.username, data.password, socket,afterLogin);
     });
     socket.on('new_message', function (data,fn) {
         data.fromId = socket.id;
@@ -71,13 +76,8 @@ io.sockets.on('connection', function (socket) {
                 console.log(data.to + ' isn\'t connected');
             }
         }
-        var addToChat = function(thread){
-            thread.addMessage(data);
-            thread.save();
-            console.log("Saved");
-            console.log(data);
-        }
-        //mongoose.getUserChats(data.from,addToChat);
+        data.users = [data.to,data.from];
+        new mongoose.ChatMessage(data).save();
     });
 
     socket.on('recieved', function (data) {
@@ -85,24 +85,20 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
+        currentUsers.allConnections.splice(currentUsers.allConnections.indexOf(socket.id));
         console.log(socket.id + ' Left');
-        if (currentUsers.usersConnected['user_id' + socket.id]) {
-            var socketUsername = currentUsers.usersConnected['user_id' + socket.id];
-            var newSocketIds = currentUsers.usersConnected[socketUsername].map(function (socketId) {
-                if (socketId !== socket.id) {
-                    return socketId;
-                } else {
-
-                    return null;
-                }
-            });
-            currentUsers.usersConnected[socketUsername] = newSocketIds;
-            currentUsers.usersConnected['user_id' + socket.id] = undefined;
-            console.log(currentUsers.usersConnected['user_id' + socket.id] + ' left.');
+        if (currentUsers.usersBysocketId['user_id' + socket.id]) {
+            var socketusername = currentUsers.usersBysocketId['user_id' + socket.id];
+            console.log(currentUsers.usersBysocketId['user_id' + socket.id] + ' left.');
+            currentUsers.usersConnected.splice(currentUsers.usersConnected.indexOf('user_id' + socket.id),1);
+            currentUsers.usersConnected.splice(currentUsers.usersConnected[socketusername].indexOf(socket.id),1);
         }
     });
 
-    socket.on('game', function (data) {
-        console.log(data);
+    socket.on('allusers', function (data) {
+        console.log(currentUsers.allConnections.length);
+        if(currentUsers.usersConnected[data]){
+        console.log(data+ ' is connected '+currentUsers.usersConnected[data].length + 'times');
+        }
     });
 });

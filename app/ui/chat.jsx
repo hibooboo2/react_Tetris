@@ -231,9 +231,14 @@ var ChatSystem = React.createClass({
         return {
                 socket:this.props.socket,
                 currentChats:[],
-                user:this.props.userName,
+                user:this.props.username,
                 friends:[[]]
-            }
+            };
+    },componentDidMount:function(){
+        this.props.socket.on('user_connected',this.personLoggedIn);
+    },personLoggedIn:function(user){
+        this.state.friends[0].push({username:user});
+        this.setState({friends:this.state.friends});
     },addFriend:function (evt) {
         evt.stopPropagation();
         var newMessage = this.newMessage;
@@ -272,7 +277,7 @@ var socket = io.connect();
 var afterLogin = function(user){
     if(user){
         React.render(
-            <ChatSystem socket={socket} userName={user.userName}/>,
+            <ChatSystem socket={socket} username={user.username}/>,
             document.getElementById("main_Container")
         );
     }else{
