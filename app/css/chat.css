@@ -146,7 +146,8 @@
     flex-direction: column;
 }
 .LoggedinUser{
-    height: calc(1 / 7.5 * 100%);
+    height: calc(1.3 / 7.5 * 100%);
+    display: flex;
 }
 .FriendGroup {
 
@@ -167,4 +168,20 @@
 }
 .FriendButtons button:hover {
 
+}
+
+.statusInput :focus {
+    background-color:white;
+    color:black;
+}
+
+.statusInput {
+    width:100%;
+    background-color:transparent;
+    color: white;
+    border:none;
+}
+
+.statusInput::-webkit-input-placeholder {
+    color: inherit;
 }
