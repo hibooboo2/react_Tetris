@@ -92,25 +92,27 @@
     border: 1px solid lightblue;
 }
 .chatExit {
-    position: absolute;
-    top: 0em;
-    left: 9em;
     width: 1.4em;
     height: 1.4em;
-    font-size: 1em;
     background-image: url("http://i.imgur.com/agviQBF.png");
     background-size: 100% 100%;
 }
 .chatTab {
     position: absolute;
+    display: flex;
+    justify-content: space-between;
     height: 1em;
     bottom: -1em;
     padding: 0.3em;
     width: 10em;
     background-color: #001C26;
     color: #FEFEFE;
-    text-align: left;
     border-radius: 0.4em;
+}
+.flexBetween {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
 }
 .ChatBox {
     position: absolute;

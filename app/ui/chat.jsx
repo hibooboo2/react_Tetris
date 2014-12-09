@@ -2,8 +2,9 @@ var Message = React.createClass({
     whisperTo:function(){
         alert("Replied");
     },render: function(){
+
         var theMessage =    <div className="Message">
-                                [ {this.props.data.timeStamp.substring(11,19)} ] {this.props.data.from} : {this.props.data.message}
+                                [ {this.props.data.timeStamp?this.props.data.timeStamp.substring(11,19):''} ] {this.props.data.from} : {this.props.data.message}
                                 <svg className="icon" viewBox="0 0 8 8" onClick={this.whisperTo}>
                                   <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
                                 </svg>
@@ -20,24 +21,9 @@ var MessageBox = React.createClass({
     },componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
-        var socket = this.state.socket;
-        this.socket = socket;
-        this.socket.on("new_message", this.newMessage);
         this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
-    },newMessage:function (data) {
-            console.log(data);
-            console.log(this.state.from + data.to + this.state.to + data.from);
-            if( (this.state.from === data.to && this.state.to === data.from) || this.props.to ==="All" || data.from === "All"){
-                this.state.messages.push(data);
-                if(data.whisper){
-                    this.socket.emit("recieved", data);
-                }
-                this.setState({messages:this.state.messages});
-                this.scrollHeight();
-            }
     },sentMessage:function (data) {
-        this.state.messages.push(data);
-        this.setState({messages:this.state.messages});
+        this.props.newMessage(data);
         this.scrollHeight();
     },scrolled:function(evt){
         var messages = evt.nativeEvent.target;
@@ -47,14 +33,15 @@ var MessageBox = React.createClass({
             var messages = document.getElementById("messageList"+this.state.to);
             messages.scrollTop = messages.scrollHeight;
         }
-    },handleMessageBox:function (evt) {
+    },sendTheMessage:function (evt) {
         evt.stopPropagation();
-        var newMessage = this.newMessage;
         if (evt.keyCode === 13){
-            this.socket.emit("new_message", {
+            this.state.socket.emit("new_message", {
                     from: this.state.from,
                     message: evt.nativeEvent.target.value,
                     to: this.state.to,
+                    users:[this.state.to, this.state.from],
+                    chatThread:[this.state.to, this.state.from].sort().toString(),
                     whisper:true
                 },this.sentMessage);
             evt.nativeEvent.target.value = "";
@@ -64,24 +51,25 @@ var MessageBox = React.createClass({
     },close: function(evt){
 
     },render: function() {
-        var theMessages = this.state.messages.map(function(data){
-            if(data.from!="Mouse"){
+        var theMessages = this.props.messages.map(function(data){
                 return (
                            <Message data={data}/>
                         )
-            }
         });
 
         var theMessageBox = <div className="MessageBox">
-                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
+                            <div className={"chat"+ (this.props.closed ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
                                 <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
                                     {theMessages}
                                 </div>
-                                <input className="chatInput" onKeyDown={this.handleMessageBox}/>
+                                <input className="chatInput" onKeyDown={this.sendTheMessage}/>
                             </div>
                             <div className="chatTab" onClick={this.toggleHidden}>
-                            <p>{this.state.to} {this.state.messages.length}</p>
-                            <div className="chatExit" onClick={this.close}></div>
+                                <div className="flexBetween">
+                                    <div>{this.state.to}</div>
+                                    <div>{this.state.messages.length}</div>
+                                </div>
+                                <img src='http://i.imgur.com/agviQBF.png' className='chatExit' onClick={this.close}/>
                             </div>
                         </div>;
         return theMessageBox;
@@ -249,11 +237,22 @@ var MessageBoxGroup = React.createClass({
     },switchChats:function(){
 
     },render: function() {
-        var theSocket = this.state.socket;
+        var theSocket = this.props.socket;
+        var newMessage = this.props.newMessage;
         var theUser = this.state.user;
-        var messageBoxes = this.props.currentChats.map(function(chat){
-                                return  <MessageBox messages={[]} from={theUser} to={chat} socket={theSocket}/>
-
+        var chatThreadsNames = [];
+        var chatThreads = [];
+        this.props.messages.map(function(message){
+            if(chatThreadsNames.indexOf(message.chatThread) >-1){
+                chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.push(message);
+            }else{
+                chatThreadsNames.push(message.chatThread);
+                chatThreads.push({messages:[message],name:message.chatThread, to:((message.to === theUser) ? message.from : message.to),closed:false});
+            }
+        });
+        var messageBoxes = chatThreads.map(function(chatThread){
+                                console.log(theSocket);
+                                return  <MessageBox closed={chatThread.closed} newMessage={newMessage} messages={chatThread.messages} from={theUser} to={chatThread.to} socket={theSocket}/>
                                 });
         var user = {
             username:this.state.user,
@@ -272,27 +271,39 @@ var ChatSystem = React.createClass({
     getInitialState:function(){
         return {
                 socket:this.props.socket,
-                currentChats:[],
+                messages:[],
                 user:this.props.user,
                 profile:this.props.profile,
                 friends:this.props.user.friends
             };
     },componentDidMount:function(){
+        this.state.socket.on("new_message", this.newMessage);
         this.state.socket.on('user_connected',this.personLoggedIn);
         this.state.socket.on('friend_list',this.friendsUpdate);
         this.state.socket.emit('get_chathistory','all',this.updateChatHistory);
+    },newMessage:function (data) {
+        this.state.messages.push(data);
+        this.setState({messages:this.state.messages});
+        this.render();
     },addFriend:function (evt) {
         evt.stopPropagation();
-        var newMessage = this.newMessage;
-        if (evt.keyCode === 13){
+        if(evt.keyCode === 13 || !evt.keyCode){
             this.state.socket.emit('add_friend',{username:evt.nativeEvent.target.value},this.friendsUpdate);
             evt.nativeEvent.target.value = "";
         }
     },friendsUpdate:function(friends){
         this.setState({friends:friends});
     },handleFriendClick:function(user){
-        this.state.currentChats.push(user.username);
-        this.setState({currentChats:this.state.currentChats});
+        user = user.username;
+        var message={
+            to:user,
+            from:this.state.user.username,
+            chatThread:[user,this.state.user.username].sort().toString(),
+            message:this.state.user.username+' joined thread.',
+            users:[user,this.state.user.username]
+        };
+        this.state.messages.push(message);
+        this.setState({messages:this.state.messages});
     },updateFriend:function(profile){
         this.state.friends = this.state.friends.map(function(friend){
             if(friend.username===profile.username){
@@ -332,9 +343,9 @@ var ChatSystem = React.createClass({
                                         </div>
                                         <FriendsList showOffline={this.state.showOffline} socket={this.state.socket} user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
                                         <div className="AddFriend">
-                                            <input type="text" placeholder="Add Friend" onKeyDown={this.addFriend}/>
+                                            <input className="statusInput" type="text" placeholder="Add Friend" onBlur={this.addFriend} onKeyDown={this.addFriend}/>
                                         </div>
-                                        <MessageBoxGroup user={this.state.user.username} currentChats={this.state.currentChats} socket={this.props.socket}/>
+                                        <MessageBoxGroup newMessage={this.newMessage} user={this.state.user.username} messages={this.state.messages} socket={this.props.socket}/>
                                 </div>
         return theChatSystem;
     }
@@ -344,10 +355,6 @@ var user = prompt("Who are you?",'james');
 var pass = prompt("Password?",'password');
 var socket = io.connect();
 var afterLogin = function(user,profile,chathistory){
-    console.log(user);
-    console.log(profile);
-    console.log();
-    console.log();
     if(user){
         React.render(
             <ChatSystem socket={socket} user={user} profile={profile}/>,

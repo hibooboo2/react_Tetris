@@ -61,7 +61,8 @@ var data = function () {
         to: String,
         from: String,
         message: String,
-        timeStamp: Date
+        timeStamp: Date,
+        chatThread: String
     });
 
     data.Score = mongoose.model('Score', ScoreSchema);

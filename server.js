@@ -106,7 +106,6 @@ io.sockets.on('connection', function (socket) {
             if (!data.whisper) {
                 io.sockets.emit('new_message', data);
             } else {
-                data.message = 'Whispered: ' + data.message;
                 if (currentUsers.usersConnected[data.to]) {
                     currentUsers.usersConnected[data.to].map(function (userSocket) {
                         socket.to(userSocket).emit('new_message', data);
@@ -119,7 +118,6 @@ io.sockets.on('connection', function (socket) {
                     console.log(data.to + ' isn\'t connected');
                 }
             }
-            data.users = [data.to, data.from];
             new mongoose.ChatMessage(data).save();
         }
     });
