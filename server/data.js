@@ -105,9 +105,9 @@ var data = function () {
 
     data.User = mongoose.model('User', UserSchema);
 
-    data.getUserChats = function (user, callback) {
+    data.getUserChats = function (username, callback) {
         data.ChatMessage.find({
-            user: user
+            users: username
         }).exec(function (err, messages) {
             console.log(messages);
             if (messages && callback) {

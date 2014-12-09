@@ -147,6 +147,9 @@ io.sockets.on('connection', function (socket) {
             username: username
         }).exec(callback);
     });
+    socket.on('get_chathistory', function (howmany, callback) {
+        mongoose.getUserChats(currentUsers.usersBysocketId['user_id' + socket.id],callback);
+    });
     socket.on('disconnect', function () {
         currentUsers.allConnections.splice(currentUsers.allConnections.indexOf(socket.id));
         console.log(socket.id + ' Left');

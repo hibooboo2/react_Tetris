@@ -280,6 +280,7 @@ var ChatSystem = React.createClass({
     },componentDidMount:function(){
         this.state.socket.on('user_connected',this.personLoggedIn);
         this.state.socket.on('friend_list',this.friendsUpdate);
+        this.state.socket.emit('get_chathistory','all',this.updateChatHistory);
     },addFriend:function (evt) {
         evt.stopPropagation();
         var newMessage = this.newMessage;
@@ -304,14 +305,16 @@ var ChatSystem = React.createClass({
     },toggleShowOffline:function(evt){
         this.setState({showOffline:evt.nativeEvent.target.checked});
     },updateStatus:function(evt){
-        //console.log(evt.nativeEvent.target.value);
         if(evt.nativeEvent.target.value !== '' && evt.nativeEvent.target.value !== this.state.profile.statusMessage){
             this.state.socket.emit('update_status',{username:this.state.profile.username,statusMessage:evt.nativeEvent.target.value || 'Online',icon:this.state.profile.icon},this.gotStatus);
             evt.nativeEvent.target.value = '';
         }
     },gotStatus:function(profile){
         this.setState({profile:profile});
+    },updateChatHistory:function(chatHistory){
+        this.setState({messages:chatHistory});
     },render: function() {
+        console.log(this.state.messages);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
