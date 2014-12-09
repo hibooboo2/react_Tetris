@@ -4,8 +4,9 @@ var data = function () {
     var siteDB = 'mongodb://admin:tetris@ds053190.mongolab.com:53190/tetris';
     var testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test';
     mongoose.connect(process.env.PORT ? siteDB : testDB);
-    this.db = mongoose.connection;
-    this.db.on('error', console.error.bind(console, 'Connection Error: '));
+    var data = {};
+    data.db = mongoose.connection;
+    data.db.on('error', console.error.bind(console, 'Connection Error: '));
 
     var ScoreSchema = new mongoose.Schema({
         level: Number,
@@ -46,13 +47,13 @@ var data = function () {
         username: String,
         statusMessage: {
             type: String,
-            default: "New User"
+            default: "Online"
         },
         icon: {
             type: String,
             default: "http://i.imgur.com/APrRDck.png"
         },
-        presence:Number
+        presence: Number
     });
 
     var ChatMessageSchema = new mongoose.Schema({
@@ -63,13 +64,13 @@ var data = function () {
         timeStamp: Date
     });
 
-    this.Score = mongoose.model('Score', ScoreSchema);
+    data.Score = mongoose.model('Score', ScoreSchema);
 
 
-    this.Profile = mongoose.model('Profile', ProfileSchema);
-    var Profile = this.Profile;
+    data.Profile = mongoose.model('Profile', ProfileSchema);
+    var Profile = data.Profile;
 
-    this.ChatMessage = mongoose.model('ChatMessage', ChatMessageSchema);
+    data.ChatMessage = mongoose.model('ChatMessage', ChatMessageSchema);
 
     UserSchema.methods.addFriend = function (friend, sendUpdate) {
         var currentUser = this;
@@ -80,30 +81,32 @@ var data = function () {
                 username: username
             }).exec(function (err, profile) {
                 if (profile) {
-                    currentUser.friends.push({
-                        username: profile.username
-                    });
-
-                    var friends = currentUser.friends.map(function (friend) {
-                        friend.statusMessage = "A status";
-                        return friend;
-                    });
-                    currentUser.save(function (err) {
-                        if (!err) {
-                            sendUpdate(friends);
-                        }
-                    })
-                    console.log(friends);
+                    var hasFriend = currentUser.friends.filter(function (friend) {
+                        return friend.username === profile.username;
+                    }).length > 0;
+                    console.log(hasFriend);
+                    if (!hasFriend) {
+                        currentUser.friends.push({
+                            username: profile.username
+                        });
+                        var friends = currentUser.friends;
+                        currentUser.save(function (err) {
+                            if (!err) {
+                                sendUpdate(friends);
+                            }
+                        })
+                        console.log(friends);
+                    }
                 }
             });
         }
         getProfile(friend.username);
     };
 
-    this.User = mongoose.model('User', UserSchema);
+    data.User = mongoose.model('User', UserSchema);
 
-    this.getUserChats = function (user, callback) {
-        this.ChatMessage.find({
+    data.getUserChats = function (user, callback) {
+        data.ChatMessage.find({
             user: user
         }).exec(function (err, messages) {
             console.log(messages);
@@ -113,26 +116,39 @@ var data = function () {
         });
     };
 
-    this.updateProfile = function (profile, callback, socket) {
-        this.Profile.findOne({
+    data.updateProfile = function (profile, notifyCallback, callback) {
+        data.Profile.findOne({
             username: profile.username
         }).exec(function (err, profileFound) {
             if (profileFound) {
-                profileFound.status = profile.status;
+                profileFound.statusMessage = profile.statusMessage;
                 profileFound.icon = profile.icon;
                 profileFound.save(function (err) {
-                    if (callback) {
+                    if (notifyCallback) {
                         var username = profileFound.username
                         var event = 'current_status';
                         var data = profileFound;
-                        callback(username, event, data);
+                        console.log('Updating');
+                        notifyCallback(event, data);
+                        callback(profileFound);
                     }
                 });
             }
         });
     }
 
-    return this;
+    var genRandomUsers = function(err, users){
+        console.log(users.length);
+        if(users.length<100){
+            for (var i=0;i<100;i++){
+                new data.User({username:'user'+i,password:'password'}).save();
+                new data.Profile({username:'user'+i}).save();
+            }
+        }
+    }
+    data.User.find().exec(genRandomUsers);
+
+    return data;
 };
 
 module.exports = new data();

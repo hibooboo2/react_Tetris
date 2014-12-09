@@ -90,12 +90,12 @@ var MessageBox = React.createClass({
 
 var Friend = React.createClass({
     getInitialState:function(){
-        return {user:this.props.user,profile:this.props.user,online:0};
+        return {user:this.props.user,online:0};
     },componentDidMount:function(){
         console.log(this.props);
-        this.props.socket.emit('get_profile',this.state.user.username,this.updateProfile);
-        this.props.socket.on('user_connected',this.getProfile);
         this.props.socket.on('user_presence',this.getProfile);
+        this.props.socket.on('current_status',this.getProfile);
+        this.getProfile();
     },updateProfile:function(err, profile){
             if(!err){
                 this.setState({profile:profile});
@@ -106,19 +106,24 @@ var Friend = React.createClass({
     },clicked:function(){
         this.props.whenClicked(this.props.user);
     },render: function() {
-        var theFriend = <div onClick={this.clicked} className="Friend">
-                            <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
-                            <div>
-                                <div style={{display:'flex',justifyContent: 'space-between'}}>
-                                    <p>{this.state.profile.username} </p>
-                                    <svg fill={this.state.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
-                                      <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
-                                      />
-                                    </svg>
-                                </div>
-                                <p> {this.state.profile.statusMessage}</p>
-                            </div>
+        var theFriend = <div className="Friend">
                         </div>;
+        if(this.state.profile && (this.state.profile.presence > 0 || this.props.showOffline)){
+            theFriend =
+                <div onClick={this.clicked} className="Friend">
+                    <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
+                    <div>
+                        <div style={{display:'flex',justifyContent: 'space-between'}}>
+                            <p>{this.state.profile.username} </p>
+                            <svg className='status' fill={this.state.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                              <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
+                              />
+                            </svg>
+                        </div>
+                        <p> {this.state.profile.statusMessage}</p>
+                    </div>
+                </div>;
+        }
         return theFriend;
     }
 });
@@ -126,6 +131,7 @@ var Friend = React.createClass({
 var FriendsList = React.createClass({
     render: function() {
         var whenClicked = this.props.whenClicked;
+        var showOffline = this.props.showOffline;
         var socket = this.props.socket;
         var groupNames = [];
         var groups = [];
@@ -144,7 +150,7 @@ var FriendsList = React.createClass({
         });
         var friendgroups = groups.map(function(friendgroup){
             var friends = friendgroup.map(function(friend){
-                            return <Friend socket={socket}  whenClicked={whenClicked} user={friend} />;
+                            return <Friend showOffline={showOffline} socket={socket}  whenClicked={whenClicked} user={friend} />;
                     });
             var theFriendGroup =    <div className='FriendGroup'>
                                         <p>{friendgroup.name}</p>
@@ -273,7 +279,6 @@ var ChatSystem = React.createClass({
             };
     },componentDidMount:function(){
         this.state.socket.on('user_connected',this.personLoggedIn);
-        this.state.socket.on('current_status',this.updateFriend);
         this.state.socket.on('friend_list',this.friendsUpdate);
     },addFriend:function (evt) {
         evt.stopPropagation();
@@ -290,20 +295,39 @@ var ChatSystem = React.createClass({
     },updateFriend:function(profile){
         this.state.friends = this.state.friends.map(function(friend){
             if(friend.username===profile.username){
-                friend.status = profile.status;
+                friend.statusMessage = profile.statusMessage;
                 friend.icon = profile.icon;
             }
             return friend;
         });
         this.setState({friends:this.state.friends});
-    },handleLoggedInClick:function(user){
-        this.state.socket.emit('update_status',{username:this.state.profile.username,status:'Clicked On my icon',icon:'http://i.imgur.com/b0Lb4V0.png'});
+    },toggleShowOffline:function(evt){
+        this.setState({showOffline:evt.nativeEvent.target.checked});
+    },updateStatus:function(evt){
+        //console.log(evt.nativeEvent.target.value);
+        if(evt.nativeEvent.target.value !== '' && evt.nativeEvent.target.value !== this.state.profile.statusMessage){
+            this.state.socket.emit('update_status',{username:this.state.profile.username,statusMessage:evt.nativeEvent.target.value || 'Online',icon:this.state.profile.icon},this.gotStatus);
+            evt.nativeEvent.target.value = '';
+        }
+    },gotStatus:function(profile){
+        this.setState({profile:profile});
     },render: function() {
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
-                                        <Friend socket={this.state.socket} whenClicked={this.handleLoggedInClick} user={this.state.profile} />
+                                            <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
+                                            <div>
+                                                <div style={{display:'flex',justifyContent: 'space-between'}}>
+                                                    <p>{this.state.profile.username}</p>
+                                                    <svg fill={this.state.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                                                      <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
+                                                      />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" className="statusInput" placeholder={this.state.profile.statusMessage} onBlur={this.updateStatus}/>
+                                            </div>
+                                            <input type="checkbox" onChange={this.toggleShowOffline}/>
                                         </div>
-                                        <FriendsList socket={this.state.socket} user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
+                                        <FriendsList showOffline={this.state.showOffline} socket={this.state.socket} user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
                                         <div className="AddFriend">
                                             <input type="text" placeholder="Add Friend" onKeyDown={this.addFriend}/>
                                         </div>

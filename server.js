@@ -72,12 +72,14 @@ var currentUsers = {
 };
 
 io.sockets.on('connection', function (socket) {
-    var notifyFriends = function (username, event, data) {
+    var notifyFriends = function (event, data) {
         mongoose.User.findOne({
-            username: username
-        }).exec(function (foundUser) {
+            username: currentUsers.usersBysocketId['user_id' + socket.id]
+        }).exec(function (err, foundUser) {
             if (foundUser) {
+                console.log('in found user');
                 foundUser.friends.map(function (friend) {
+                    console.log(friend);
                     if (currentUsers.usersConnected[friend.username]) {
                         currentUsers.usersConnected[friend.username].map(function (socketId) {
                             socket.to(socketId).emit(event, data);
@@ -86,12 +88,12 @@ io.sockets.on('connection', function (socket) {
                 });
             }
         });
-    }
+    };
     var getUser = function (callback) {
         mongoose.User.findOne({
             username: currentUsers.usersBysocketId['user_id' + socket.id]
         }).exec(callback);
-    }
+    };
     currentUsers.allConnections.push(socket.id);
     socket.on('login', function (data, afterLogin) {
         currentUsers.login(data.username, data.password, socket, afterLogin);
@@ -121,17 +123,22 @@ io.sockets.on('connection', function (socket) {
             new mongoose.ChatMessage(data).save();
         }
     });
-    socket.on('update_status', function (profile) {
+    socket.on('update_status', function (profile, callback) {
+        console.log('BLurred');
         var username = currentUsers.usersBysocketId['user_id' + socket.id];
-        if (username == profile.username) {
-            mongoose.updateProfile(profile, notifyFriends);
+        if (username === profile.username) {
+            mongoose.updateProfile(profile, notifyFriends, callback);
         }
     });
     socket.on('add_friend', function (friend, sendUpdate) {
         getUser(function (err, user) {
-            user.addFriend(friend, sendUpdate);
+            if (user) {
+                if (user.username !== friend.username) {
+                    user.addFriend(friend, sendUpdate);
+                }
+            }
         });
-    })
+    });
     socket.on('recieved', function (data) {
         socket.to(currentUsers['user_' + data.from]).emit('new message', data);
     });
@@ -151,12 +158,14 @@ io.sockets.on('connection', function (socket) {
             mongoose.Profile.findOne({
                 username: socketusername
             }).exec(function (err, profile) {
-                profile.presence = 0;
-                profile.save(function (err) {
-                    if (!err) {
-                        io.sockets.emit('user_presence', 'disconnect');
-                    }
-                });
+                if (profile) {
+                    profile.presence = 0;
+                    profile.save(function (err) {
+                        if (!err) {
+                            io.sockets.emit('user_presence', 'disconnect');
+                        }
+                    });
+                }
             });
         }
     });
