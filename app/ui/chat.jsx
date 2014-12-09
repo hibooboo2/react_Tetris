@@ -27,7 +27,7 @@ var MessageBox = React.createClass({
     },newMessage:function (data) {
             console.log(data);
             console.log(this.state.from + data.to + this.state.to + data.from);
-            if(this.state.from === data.to && this.state.to === data.from){
+            if( (this.state.from === data.to && this.state.to === data.from) || this.props.to ==="All" || data.from === "All"){
                 this.state.messages.push(data);
                 if(data.whisper){
                     this.socket.emit("recieved", data);
@@ -89,14 +89,34 @@ var MessageBox = React.createClass({
 });
 
 var Friend = React.createClass({
-    clicked:function(){
+    getInitialState:function(){
+        return {user:this.props.user,profile:this.props.user,online:0};
+    },componentDidMount:function(){
+        console.log(this.props);
+        this.props.socket.emit('get_profile',this.state.user.username,this.updateProfile);
+        this.props.socket.on('user_connected',this.getProfile);
+        this.props.socket.on('user_presence',this.getProfile);
+    },updateProfile:function(err, profile){
+            if(!err){
+                this.setState({profile:profile});
+            }
+    },getProfile:function(){
+        console.log("Get " +this.state.user.username);
+        this.props.socket.emit('get_profile',this.state.user.username,this.updateProfile);
+    },clicked:function(){
         this.props.whenClicked(this.props.user);
     },render: function() {
         var theFriend = <div onClick={this.clicked} className="Friend">
-                            <img style={{height:'2em',width:'2em'}}src={this.props.user.icon}/>
+                            <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
                             <div>
-                                <p>{this.props.user.username}</p>
-                                <p> {this.props.user.status}</p>
+                                <div style={{display:'flex',justifyContent: 'space-between'}}>
+                                    <p>{this.state.profile.username} </p>
+                                    <svg fill={this.state.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                                      <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
+                                      />
+                                    </svg>
+                                </div>
+                                <p> {this.state.profile.statusMessage}</p>
                             </div>
                         </div>;
         return theFriend;
@@ -106,12 +126,28 @@ var Friend = React.createClass({
 var FriendsList = React.createClass({
     render: function() {
         var whenClicked = this.props.whenClicked;
-        var friendgroups = this.props.friends.map(function(friendgroup){
+        var socket = this.props.socket;
+        var groupNames = [];
+        var groups = [];
+        this.props.friends.map(function(friend){
+            if( -1 === groupNames.indexOf(friend.group)){
+                groupNames.push(friend.group);
+            }
+        });
+        this.props.friends.map(function(friend){
+            if(!groups[groupNames.indexOf(friend.group)]){
+            groups[groupNames.indexOf(friend.group)] = [friend];
+            groups[groupNames.indexOf(friend.group)]['name'] = friend.group;
+            }else{
+                groups[groupNames.indexOf(friend.group)].push(friend)
+            }
+        });
+        var friendgroups = groups.map(function(friendgroup){
             var friends = friendgroup.map(function(friend){
-                        return <Friend whenClicked={whenClicked} user={friend} />;
+                            return <Friend socket={socket}  whenClicked={whenClicked} user={friend} />;
                     });
             var theFriendGroup =    <div className='FriendGroup'>
-                                        <p>All Friends</p>
+                                        <p>{friendgroup.name}</p>
                                         {friends}
                                     </div>
 
@@ -231,41 +267,47 @@ var ChatSystem = React.createClass({
         return {
                 socket:this.props.socket,
                 currentChats:[],
-                user:this.props.username,
-                friends:[[]]
+                user:this.props.user,
+                profile:this.props.profile,
+                friends:this.props.user.friends
             };
     },componentDidMount:function(){
-        this.props.socket.on('user_connected',this.personLoggedIn);
-    },personLoggedIn:function(user){
-        this.state.friends[0].push({username:user});
-        this.setState({friends:this.state.friends});
+        this.state.socket.on('user_connected',this.personLoggedIn);
+        this.state.socket.on('current_status',this.updateFriend);
+        this.state.socket.on('friend_list',this.friendsUpdate);
     },addFriend:function (evt) {
         evt.stopPropagation();
         var newMessage = this.newMessage;
         if (evt.keyCode === 13){
-            this.state.socket.emit("new_message", {
-                    from: this.state.user,
-                    message: this.state.user + " would like to add you as a friend.",
-                    to: this.state.to,
-                    whisper:false
-                });
-            this.state.friends[0].push({username:evt.nativeEvent.target.value,status:'In que',icon:'http://i.imgur.com/GKpgcNq.png'});
-            this.setState({friends:this.state.friends});
+            this.state.socket.emit('add_friend',{username:evt.nativeEvent.target.value},this.friendsUpdate);
             evt.nativeEvent.target.value = "";
         }
+    },friendsUpdate:function(friends){
+        this.setState({friends:friends});
     },handleFriendClick:function(user){
         this.state.currentChats.push(user.username);
         this.setState({currentChats:this.state.currentChats});
+    },updateFriend:function(profile){
+        this.state.friends = this.state.friends.map(function(friend){
+            if(friend.username===profile.username){
+                friend.status = profile.status;
+                friend.icon = profile.icon;
+            }
+            return friend;
+        });
+        this.setState({friends:this.state.friends});
+    },handleLoggedInClick:function(user){
+        this.state.socket.emit('update_status',{username:this.state.profile.username,status:'Clicked On my icon',icon:'http://i.imgur.com/b0Lb4V0.png'});
     },render: function() {
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
-                                        <Friend whenClicked={this.handleFriendClick} user={{username:this.state.user,status:'Not sure',icon:'http://i.imgur.com/GKpgcNq.png'}} />
+                                        <Friend socket={this.state.socket} whenClicked={this.handleLoggedInClick} user={this.state.profile} />
                                         </div>
-                                        <FriendsList user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
+                                        <FriendsList socket={this.state.socket} user={this.state.user} friends={this.state.friends} currentChats={this.state.currentChats} whenClicked={this.handleFriendClick}/>
                                         <div className="AddFriend">
                                             <input type="text" placeholder="Add Friend" onKeyDown={this.addFriend}/>
                                         </div>
-                                        <MessageBoxGroup user={this.state.user} currentChats={this.state.currentChats} socket={this.props.socket}/>
+                                        <MessageBoxGroup user={this.state.user.username} currentChats={this.state.currentChats} socket={this.props.socket}/>
                                 </div>
         return theChatSystem;
     }
@@ -274,10 +316,14 @@ var ChatSystem = React.createClass({
 var user = prompt("Who are you?",'james');
 var pass = prompt("Password?",'password');
 var socket = io.connect();
-var afterLogin = function(user){
+var afterLogin = function(user,profile,chathistory){
+    console.log(user);
+    console.log(profile);
+    console.log();
+    console.log();
     if(user){
         React.render(
-            <ChatSystem socket={socket} username={user.username}/>,
+            <ChatSystem socket={socket} user={user} profile={profile}/>,
             document.getElementById("main_Container")
         );
     }else{

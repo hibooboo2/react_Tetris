@@ -6,7 +6,8 @@ var data = function () {
     mongoose.connect(process.env.PORT ? siteDB : testDB);
     this.db = mongoose.connection;
     this.db.on('error', console.error.bind(console, 'Connection Error: '));
-    this.Score = mongoose.model('Score', {
+
+    var ScoreSchema = new mongoose.Schema({
         level: Number,
         score: Number,
         linesCleared: Number,
@@ -18,21 +19,43 @@ var data = function () {
         lastCleared: Number
     });
 
-    this.User = mongoose.model('User', {
+    var UserSchema = new mongoose.Schema({
         username: String,
         name: {
             first: String,
             last: String
         },
         password: String,
-        statusMessage: String,
         avatar: String,
         email: String,
-        profile: {},
-        friends: []
+        friends: [{
+            username: String,
+            note: {
+                type: String,
+                default: " "
+            },
+            group: {
+                type: String,
+                default: "General"
+            }
+        }]
     });
 
-    this.ChatMessage = mongoose.model('ChatMessage', {
+
+    var ProfileSchema = new mongoose.Schema({
+        username: String,
+        statusMessage: {
+            type: String,
+            default: "New User"
+        },
+        icon: {
+            type: String,
+            default: "http://i.imgur.com/APrRDck.png"
+        },
+        presence:Number
+    });
+
+    var ChatMessageSchema = new mongoose.Schema({
         users: [String],
         to: String,
         from: String,
@@ -40,19 +63,48 @@ var data = function () {
         timeStamp: Date
     });
 
-    this.FriendsList = mongoose.model('FriendsList', {
-        listOwner: String,
-        friends: [{
-            username: String,
-            note: String,
+    this.Score = mongoose.model('Score', ScoreSchema);
 
 
-        }]
-    });
+    this.Profile = mongoose.model('Profile', ProfileSchema);
+    var Profile = this.Profile;
+
+    this.ChatMessage = mongoose.model('ChatMessage', ChatMessageSchema);
+
+    UserSchema.methods.addFriend = function (friend, sendUpdate) {
+        var currentUser = this;
+        console.log('in add');
+        console.log('');
+        var getProfile = function (username) {
+            Profile.findOne({
+                username: username
+            }).exec(function (err, profile) {
+                if (profile) {
+                    currentUser.friends.push({
+                        username: profile.username
+                    });
+
+                    var friends = currentUser.friends.map(function (friend) {
+                        friend.statusMessage = "A status";
+                        return friend;
+                    });
+                    currentUser.save(function (err) {
+                        if (!err) {
+                            sendUpdate(friends);
+                        }
+                    })
+                    console.log(friends);
+                }
+            });
+        }
+        getProfile(friend.username);
+    };
+
+    this.User = mongoose.model('User', UserSchema);
 
     this.getUserChats = function (user, callback) {
         this.ChatMessage.find({
-            to: user
+            user: user
         }).exec(function (err, messages) {
             console.log(messages);
             if (messages && callback) {
@@ -60,6 +112,25 @@ var data = function () {
             }
         });
     };
+
+    this.updateProfile = function (profile, callback, socket) {
+        this.Profile.findOne({
+            username: profile.username
+        }).exec(function (err, profileFound) {
+            if (profileFound) {
+                profileFound.status = profile.status;
+                profileFound.icon = profile.icon;
+                profileFound.save(function (err) {
+                    if (callback) {
+                        var username = profileFound.username
+                        var event = 'current_status';
+                        var data = profileFound;
+                        callback(username, event, data);
+                    }
+                });
+            }
+        });
+    }
 
     return this;
 };
