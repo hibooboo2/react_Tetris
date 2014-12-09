@@ -38,13 +38,12 @@ var currentUsers = {
                     }
                     currentUsers.usersBysocketId['user_id' + socket.id] = username;
                     console.log(username + ' logged in.');
-                    io.sockets.emit('user_connected', user.username);
                 } else {
                     console.log('Invalid username password');
                     user = undefined;
                 }
                 mongoose.Profile.findOne({
-                    username: user.username
+                    username: username
                 }).exec(function (err, profile) {
                     if (profile) {
                         profile.presence = 1;
