@@ -21,7 +21,7 @@ var currentUsers = {
                 username: username
             }).exec(function (err, user) {
                 if (err) {
-                    console.log(err);
+                    console.err(err);
                 }
                 if (!user) {
                     user = new mongoose.User({
@@ -102,7 +102,6 @@ io.sockets.on('connection', function (socket) {
         if (chatMessage.users && chatMessage.message) {
             chatMessage.fromId = socket.id;
             chatMessage.timeStamp = new Date();
-            console.log('Send message ' + chatMessage.message);
             if (!chatMessage.whisper) {
                 io.sockets.emit('new_message', chatMessage);
             } else {
@@ -119,11 +118,7 @@ io.sockets.on('connection', function (socket) {
             }
             mongoose.User.find({}).where('username').in(chatMessage.users).exec(function (err, users) {
                 if (users.length === chatMessage.users.length) {
-                    new mongoose.ChatMessage(chatMessage).save(function (err) {
-                        if (!err) {
-                            console.log("Saved:" + chatMessage.message);
-                        }
-                    });
+                    new mongoose.ChatMessage(chatMessage).save();
                 }
             });
         }
@@ -157,10 +152,8 @@ io.sockets.on('connection', function (socket) {
     });
     socket.on('disconnect', function () {
         currentUsers.allConnections.splice(currentUsers.allConnections.indexOf(socket.id));
-        console.log(socket.id + ' Left');
         if (currentUsers.usersBysocketId['user_id' + socket.id]) {
             var socketusername = currentUsers.usersBysocketId['user_id' + socket.id];
-            console.log(currentUsers.usersBysocketId['user_id' + socket.id] + ' left.');
             currentUsers.usersConnected.splice(currentUsers.usersConnected.indexOf('user_id' + socket.id), 1);
             currentUsers.usersConnected.splice(currentUsers.usersConnected[socketusername].indexOf(socket.id), 1);
             mongoose.Profile.findOne({
@@ -175,13 +168,6 @@ io.sockets.on('connection', function (socket) {
                     });
                 }
             });
-        }
-    });
-
-    socket.on('allusers', function (data) {
-        console.log(currentUsers.allConnections.length);
-        if (currentUsers.usersConnected[data]) {
-            console.log(data + ' is connected ' + currentUsers.usersConnected[data].length + 'times');
         }
     });
 });

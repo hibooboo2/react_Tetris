@@ -64,6 +64,14 @@ var data = function () {
         timeStamp: Date,
         chatThread: String
     });
+    var ChatThread = new mongoose.Schema({
+        users: [String],
+        messages: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'ChatMessage'
+        }],
+        name: String
+    });
 
     data.Score = mongoose.model('Score', ScoreSchema);
 
@@ -75,8 +83,6 @@ var data = function () {
 
     UserSchema.methods.addFriend = function (friend, sendUpdate) {
         var currentUser = this;
-        console.log('in add');
-        console.log('');
         var getProfile = function (username) {
             Profile.findOne({
                 username: username
@@ -85,7 +91,6 @@ var data = function () {
                     var hasFriend = currentUser.friends.filter(function (friend) {
                         return friend.username === profile.username;
                     }).length > 0;
-                    console.log(hasFriend);
                     if (!hasFriend) {
                         currentUser.friends.push({
                             username: profile.username
@@ -96,7 +101,6 @@ var data = function () {
                                 sendUpdate(friends);
                             }
                         })
-                        console.log(friends);
                     }
                 }
             });
@@ -110,7 +114,6 @@ var data = function () {
         data.ChatMessage.find({
             users: username
         }).exec(function (err, messages) {
-            console.log(messages);
             if (messages && callback) {
                 callback(messages);
             }
@@ -129,7 +132,6 @@ var data = function () {
                         var username = profileFound.username
                         var event = 'current_status';
                         var data = profileFound;
-                        console.log('Updating');
                         notifyCallback(event, data);
                         callback(profileFound);
                     }
@@ -138,16 +140,45 @@ var data = function () {
         });
     }
 
-    var genRandomUsers = function(err, users){
-        console.log(users.length);
-        if(users.length<100){
-            for (var i=0;i<100;i++){
-                new data.User({username:'user'+i,password:'password'}).save();
-                new data.Profile({username:'user'+i}).save();
+    var genRandomUsers = function (err, users) {
+        if (users.length < 100) {
+            for (var i = 0; i < 100; i++) {
+                new data.User({
+                    username: 'user' + i,
+                    password: 'password'
+                }).save();
+                new data.Profile({
+                    username: 'user' + i
+                }).save();
             }
         }
     }
     data.User.find().exec(genRandomUsers);
+    var rand = function (max) {
+        return Math.floor((Math.random() * max));
+    }
+
+    var users = ['Sir Fxwright', 'Sir Yogi Bear', 'Sir Varayne', 'Sir Pretzel', 'Sir Slagnificent', 'SaucySeadweller'];
+    var randMessages = ['Hello there.', 'How are you?', 'I am fine', 'Nice to see you.', 'League is amazing', 'Fantastical sauce.']
+    var newMessage = Math.random().toString(36).substring(7);
+    var genMessages = function (err, messages) {
+        if (messages.length<50000) {
+            for (var i = 0; i < 50000-messages.length; i++) {
+                var to =  users[rand(users.length)];
+                var from =  users[rand(users.length)];
+                var chatUsers =[to,from];
+                new data.ChatMessage({
+                    users: chatUsers,
+                    to: to,
+                    from: from,
+                    message: randMessages[rand(randMessages.length)],
+                    timeStamp: new Date(),
+                    chatThread: chatUsers.sort().toString()
+                }).save();
+            }
+        }
+    }
+    data.ChatMessage.find().exec(genMessages);
 
     return data;
 };

@@ -15,12 +15,10 @@ var Message = React.createClass({
 
 
 var MessageBox = React.createClass({
-       getInitialState: function(){
-        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
-    },componentDidMount: function(){
+    componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
-        this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
+        this.setState({scrollTotal:document.getElementById("messageList"+this.props.to).scrollHeight})
     },sentMessage:function (data) {
         this.props.newMessage(data);
         this.scrollHeight();
@@ -29,18 +27,18 @@ var MessageBox = React.createClass({
         this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
     },scrollHeight:function(){
         if(!this.state.scrolled){
-            var messages = document.getElementById("messageList"+this.state.to);
+            var messages = document.getElementById("messageList"+this.props.to);
             messages.scrollTop = messages.scrollHeight;
         }
     },sendTheMessage:function (evt) {
         evt.stopPropagation();
         if (evt.keyCode === 13){
-            this.state.socket.emit("new_message", {
-                    from: this.state.from,
+            this.props.socket.emit("new_message", {
+                    from: this.props.from,
                     message: evt.nativeEvent.target.value,
-                    to: this.state.to,
-                    users:[this.state.to, this.state.from],
-                    chatThread:[this.state.to, this.state.from].sort().toString(),
+                    to: this.props.to,
+                    users:[this.props.to, this.props.from],
+                    chatThread:[this.props.to, this.props.from].sort().toString(),
                     whisper:true
                 },this.sentMessage);
             evt.nativeEvent.target.value = "";
@@ -58,16 +56,16 @@ var MessageBox = React.createClass({
         });
 
         var theMessageBox = <div className="MessageBox">
-                            <div className={"chat"+ (this.props.closed ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
-                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
+                            <div className={"chat"+ (this.props.closed ? " hidden":"") + (this.props.hidden ? " hidden":"")}>
+                                <div className="messages" id={"messageList"+this.props.to} onScroll={this.scrolled}>
                                     {theMessages}
                                 </div>
                                 <input className="chatInput" onKeyDown={this.sendTheMessage}/>
                             </div>
                             <div className="chatTab" onClick={this.toggleHidden}>
                                 <div className="flexBetween">
-                                    <div>{this.state.to}</div>
-                                    <div>{this.state.messages.length}</div>
+                                    <div>{this.props.to}</div>
+                                    <div>{this.props.messages.length}</div>
                                 </div>
                                 <img src='http://i.imgur.com/agviQBF.png' className='chatExit' onClick={this.close}/>
                             </div>
@@ -242,7 +240,13 @@ var MessageBoxGroup = React.createClass({
         var chatThreads = [];
         this.props.messages.map(function(message){
             if(chatThreadsNames.indexOf(message.chatThread) >-1){
-                chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.push(message);
+                if(chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.length < 40){
+                    chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.push(message);
+                }else{
+                    chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.shift();
+                    chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.push(message);
+
+                }
             }else{
                 chatThreadsNames.push(message.chatThread);
                 chatThreads.push({messages:[message],name:message.chatThread, to:((message.to === theUser) ? message.from : message.to),closed:false});
