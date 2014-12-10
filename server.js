@@ -98,27 +98,34 @@ io.sockets.on('connection', function (socket) {
     socket.on('login', function (data, afterLogin) {
         currentUsers.login(data.username, data.password, socket, afterLogin);
     });
-    socket.on('new_message', function (data, fn) {
-        if (data.from && data.to && data.message) {
-            data.fromId = socket.id;
-            data.timeStamp = new Date();
-            console.log('Send message ' + data.message);
-            if (!data.whisper) {
-                io.sockets.emit('new_message', data);
+    socket.on('new_message', function (chatMessage, fn) {
+        if (chatMessage.users && chatMessage.message) {
+            chatMessage.fromId = socket.id;
+            chatMessage.timeStamp = new Date();
+            console.log('Send message ' + chatMessage.message);
+            if (!chatMessage.whisper) {
+                io.sockets.emit('new_message', chatMessage);
             } else {
-                if (currentUsers.usersConnected[data.to]) {
-                    currentUsers.usersConnected[data.to].map(function (userSocket) {
-                        socket.to(userSocket).emit('new_message', data);
-                    });
-                    if (fn) {
-                        fn(data);
+                chatMessage.users.map(function (user) {
+                    if (currentUsers.usersConnected[user]) {
+                        currentUsers.usersConnected[user].map(function (userSocket) {
+                            socket.to(userSocket).emit('new_message', chatMessage);
+                        });
                     }
-                } else {
-
-                    console.log(data.to + ' isn\'t connected');
+                });
+                if (fn) {
+                    fn(chatMessage);
                 }
             }
-            new mongoose.ChatMessage(data).save();
+            mongoose.User.find({}).where('username').in(chatMessage.users).exec(function (err, users) {
+                if (users.length === chatMessage.users.length) {
+                    new mongoose.ChatMessage(chatMessage).save(function (err) {
+                        if (!err) {
+                            console.log("Saved:" + chatMessage.message);
+                        }
+                    });
+                }
+            });
         }
     });
     socket.on('update_status', function (profile, callback) {
@@ -146,7 +153,7 @@ io.sockets.on('connection', function (socket) {
         }).exec(callback);
     });
     socket.on('get_chathistory', function (howmany, callback) {
-        mongoose.getUserChats(currentUsers.usersBysocketId['user_id' + socket.id],callback);
+        mongoose.getUserChats(currentUsers.usersBysocketId['user_id' + socket.id], callback);
     });
     socket.on('disconnect', function () {
         currentUsers.allConnections.splice(currentUsers.allConnections.indexOf(socket.id));
