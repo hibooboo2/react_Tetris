@@ -2,9 +2,8 @@ var Message = React.createClass({
     whisperTo:function(){
         alert("Replied");
     },render: function(){
-
-        var theMessage =    <div className="Message">
-                                [ {this.props.data.timeStamp?this.props.data.timeStamp.substring(11,19):''} ] {this.props.data.from} : {this.props.data.message}
+        var theMessage =    <div className={"Message " + ((this.props.data.to === this.props.username) ? "toMe ":"fromMe ") }>
+                                [{this.props.data.timeStamp?this.props.data.timeStamp.substring(11,19):''}] {this.props.data.from} : {this.props.data.message}
                                 <svg className="icon" viewBox="0 0 8 8" onClick={this.whisperTo}>
                                   <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
                                 </svg>
@@ -51,9 +50,10 @@ var MessageBox = React.createClass({
     },close: function(evt){
 
     },render: function() {
+        var currentUser = this.props.from;
         var theMessages = this.props.messages.map(function(data){
                 return (
-                           <Message data={data}/>
+                           <Message username={currentUser} data={data}/>
                         )
         });
 
@@ -80,7 +80,6 @@ var Friend = React.createClass({
     getInitialState:function(){
         return {user:this.props.user,online:0};
     },componentDidMount:function(){
-        console.log(this.props);
         this.props.socket.on('user_presence',this.getProfile);
         this.props.socket.on('current_status',this.getProfile);
         this.getProfile();
@@ -89,7 +88,6 @@ var Friend = React.createClass({
                 this.setState({profile:profile});
             }
     },getProfile:function(){
-        console.log("Get " +this.state.user.username);
         this.props.socket.emit('get_profile',this.state.user.username,this.updateProfile);
     },clicked:function(){
         this.props.whenClicked(this.props.user);
@@ -251,7 +249,6 @@ var MessageBoxGroup = React.createClass({
             }
         });
         var messageBoxes = chatThreads.map(function(chatThread){
-                                console.log(theSocket);
                                 return  <MessageBox closed={chatThread.closed} newMessage={newMessage} messages={chatThread.messages} from={theUser} to={chatThread.to} socket={theSocket}/>
                                 });
         var user = {
@@ -325,7 +322,6 @@ var ChatSystem = React.createClass({
     },updateChatHistory:function(chatHistory){
         this.setState({messages:chatHistory});
     },render: function() {
-        console.log(this.state.messages);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
@@ -358,7 +354,7 @@ var afterLogin = function(user,profile,chathistory){
     if(user){
         React.render(
             <ChatSystem socket={socket} user={user} profile={profile}/>,
-            document.getElementById("main_Container")
+            document.getElementById("chat_Container")
         );
     }else{
         var user = prompt("Really who are you?");
