@@ -240,7 +240,7 @@ var MessageBoxGroup = React.createClass({
         var chatThreads = [];
         this.props.messages.map(function(message){
             if(chatThreadsNames.indexOf(message.chatThread) >-1){
-                if(chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.length < 40){
+                if(chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.length < 500  ){
                     chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.push(message);
                 }else{
                     chatThreads[chatThreadsNames.indexOf(message.chatThread)].messages.shift();
