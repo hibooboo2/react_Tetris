@@ -130,7 +130,7 @@ io.sockets.on('connection', function (socket) {
     var getUser = function (callback) {
         mongoose.User.findOne({
             username: currentUsers.usersBysocketId['user_id' + socket.id]
-        }).populate('friends.profile').exec(callback);
+        }).populate('profile friends.profile').exec(callback);
     };
     currentUsers.allConnections.push(socket.id);
     socket.on('login', function (data, afterLogin) {
@@ -142,8 +142,7 @@ io.sockets.on('connection', function (socket) {
             if (!chatMessage.whisper) {
                 io.sockets.emit('new_message', chatMessage);
             } else {
-                console.log(chatMessage.to.split(','));
-                chatMessage.to.split(',').map(function (userProfile) {
+                chatMessage.to.map(function (userProfile) {
                     mongoose.Profile.findOne({
                         _id: userProfile
                     }).exec(function (err, userProfile) {
@@ -157,24 +156,31 @@ io.sockets.on('connection', function (socket) {
                     });
                 });
             }
-            mongoose.ChatThread.findOne({name:chatMessage.to}).exec(function (err, ChatThread) {
-                if (!err && ChatThread) {
-                    console.log(ChatThread);
+            var addMessageToThread = function(chatThread,chatMessage){
+                    console.log(chatThread);
                     var theMessage = new mongoose.ChatMessage(chatMessage);
                     theMessage.save(function (err) {
                         if (!err) {
-                            ChatThread.messages.push(theMessage);
-                            ChatThread.save(function (err) {
+                            chatThread.messages.push(theMessage);
+                            chatThread.save(function (err) {
                                 if (!err) {
                                     if (fn) {
-                                        fn(ChatThread);
+                                        fn(chatThread);
                                     }
                                 }
                             });
                         }
                     });
-                } else {
+            }
+            mongoose.ChatThread.findOne({name:chatMessage.to}).exec(function (err, chatThread) {
+                if (!err && !chatThread) {
                     console.log('Failed at threads');
+                    console.log(chatMessage);
+                    mongoose.Profile.find({_id:mongoose.ObjectId(chatMessage.to[0])}).exec(function(err,profiles){
+                        console.log(profiles);
+                    })
+                } else {
+                    addMessageToThread(chatThread,chatMessage)
                     // Find user profiles. make message. push message to thread. save thread. call fn.
                 }
             });
@@ -190,6 +196,7 @@ io.sockets.on('connection', function (socket) {
         getUser(function (err, user) {
             if (user) {
                 if (user.username !== friend.username) {
+
                     user.addFriend(friend, sendUpdate);
                 }
             }

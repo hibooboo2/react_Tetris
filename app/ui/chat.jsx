@@ -273,10 +273,12 @@ var ChatSystem = React.createClass({
             evt.nativeEvent.target.value = "";
         }
     },friendsUpdate:function(friends){
-        this.setState({friends:friends});
+        this.state.user.friends = friends;
+        this.setState({user:this.state.user});
+        this.render();
     },openThread:function(friend){
         console.log('Clicked');
-        var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
+        var threadName = [this.state.profile._id,friend.profile._id];
         this.state.chatThreads.activeChatThread = threadName;
         var threadExists = this.state.chatThreads.threads.filter(function(thread){
             return thread.name===threadName;

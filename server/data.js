@@ -71,7 +71,10 @@ var data = function () { // jshint ignore:line
     });
 
     var ChatMessageSchema = new mongoose.Schema({
-        to: String,
+        to: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Profile'
+        }],
         from: String,
         message: String,
         timeStamp: Date
@@ -120,11 +123,9 @@ var data = function () { // jshint ignore:line
             }).exec(function (err, profile) {
                 if (profile) {
                     var hasFriend = currentUser.friends.filter(function (friend) {
-                        console.log(friend.profile.username === profile.username);
                         return friend.profile.username === profile.username;
                     }).length > 0;
                     if (!hasFriend) {
-                        console.log(currentUser);
                         currentUser.friends.push({
                             profile: profile
                         });
@@ -193,6 +194,7 @@ var data = function () { // jshint ignore:line
     var rand = function (max) {
         return Math.floor((Math.random() * max));
     };
+    data.ObjectId = mongoose.Types.ObjectId;
 
     var users = ['Sir Fxwright', 'Sir Yogi Bear', 'Sir Varayne', 'Sir Pretzel', 'Sir Slagnificent', 'SaucySeadweller'];
     var randMessages = ['Hello there.', 'How are you?', 'I am fine', 'Nice to see you.', 'League is amazing', 'Fantastical sauce.'];
