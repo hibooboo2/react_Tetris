@@ -15,6 +15,9 @@ var Message = React.createClass({
 
 
 var MessageBox = React.createClass({
+    getInitialState:function(){
+        return {};
+    },
     componentDidMount: function(){
         // componentDidMount is called by react when the component
         // has been rendered on the page. We can set the interval here:
@@ -27,7 +30,7 @@ var MessageBox = React.createClass({
         this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
     },scrollHeight:function(){
         if(!this.state.scrolled){
-            var messages = document.getElementById("messageList"+this.props.to);
+            var messages = document.getElementById("messageList"+this.props.chatThread.name);
             messages.scrollTop = messages.scrollHeight;
         }
     },sendTheMessage:function (evt) {
@@ -36,7 +39,7 @@ var MessageBox = React.createClass({
             this.props.socket.emit("new_message", {
                     from: this.props.from.username,
                     message: evt.nativeEvent.target.value,
-                    to: chatThread.name,
+                    to: this.props.chatThread.users.map(function(user){return user._id;}),
                     whisper:true
                 },this.sentMessage);
             evt.nativeEvent.target.value = "";
@@ -46,10 +49,10 @@ var MessageBox = React.createClass({
     },close: function(evt){
 
     },render: function() {
-        var currentUser = this.props.from.username;
+        var currentUser = this.props.from;
         var theMessages = this.props.chatThread.messages.map(function(message){
                 return (
-                           <Message username={currentUser} data={message}/>
+                           <Message username={currentUser.username} data={message}/>
                         )
         });
 
@@ -62,7 +65,7 @@ var MessageBox = React.createClass({
                             </div>
                             <div className="chatTab" onClick={this.toggleHidden}>
                                 <div className="flexBetween">
-                                    <div>{this.props.chatThread.name}</div>
+                                    <div>{this.props.chatThread.users.filter(function(user){return user._id!==currentUser._id }).map(function(user){return user.username;})}</div>
                                     <div>{this.props.chatThread.messages.length}</div>
                                 </div>
                                 <img src='http://i.imgur.com/agviQBF.png' className='chatExit' onClick={this.close}/>
@@ -77,7 +80,6 @@ var MessageBoxGroup = React.createClass({
         var theSocket = this.props.socket;
         var newMessage = this.props.newMessage;
         var theUser = this.props.profile;
-        console.log(this.props.chatThreads);
         var messageBoxes = this.props.chatThreads.threads.map(function(chatThread){
                                 return  <MessageBox newMessage={newMessage} from={theUser} chatThread={chatThread} socket={theSocket}/>
                                 });
@@ -250,22 +252,24 @@ var ChatSystem = React.createClass({
                 profile:this.props.profile
             };
     },componentDidMount:function(){
-        console.log(this.state.user);
         this.state.socket.on("new_message", this.newMessage);
         this.state.socket.on('user_connected',this.personLoggedIn);
         this.state.socket.on('friend_list',this.friendsUpdate);
-        this.state.socket.emit('get_chathistory',this.state.user.profile._id,this.updateChatHistory);
-    },newMessage:function (chatThread) {
-        console.log(chatThread);
+        var theSocket = this.props.socket;
+        var id = this.state.profile._id;
+        var fn = this.updateChatHistory;
+        setTimeout(function(){theSocket.emit('get_chathistory',id,fn);},1000);
+    },newMessage:function (chatMessage) {
+        console.log(chatMessage);
         var updatedThreads = this.state.chatThreads.threads.map(function(thread){
-            if(thread.name==chatThread.name){
-                return chatThread;
-            }else{
-                return thread;
+            if(thread.name==chatMessage.to.sort().toString()){
+                thread.messages.push(chatMessage);
             }
+            return thread;
         });
         this.state.chatThreads.threads = updatedThreads;
         this.setState({chatThreads:this.state.chatThreads});
+        this.render();
     },addFriend:function (evt) {
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
@@ -277,8 +281,7 @@ var ChatSystem = React.createClass({
         this.setState({user:this.state.user});
         this.render();
     },openThread:function(friend){
-        console.log('Clicked');
-        var threadName = [this.state.profile._id,friend.profile._id];
+        var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
         this.state.chatThreads.activeChatThread = threadName;
         var threadExists = this.state.chatThreads.threads.filter(function(thread){
             return thread.name===threadName;
@@ -287,7 +290,7 @@ var ChatSystem = React.createClass({
             this.state.socket.emit("new_message", {
                     from: this.state.profile.username,
                     message: this.state.profile.username + " created chat.",
-                    to: threadName,
+                    to:  [this.state.profile._id,friend.profile._id],
                     whisper:true
                 },this.newMessage);
         }
@@ -310,11 +313,9 @@ var ChatSystem = React.createClass({
     },gotProfile:function(profile){
         this.setState({profile:profile});
     },updateChatHistory:function(chatHistory){
-        console.log(chatHistory);
         this.state.chatThreads.threads = chatHistory;
         this.setState({chatThreads:this.state.chatThreads});
     },render: function() {
-        console.log('ActiveThread: '+ this.state.chatThreads.activeChatThread);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>

@@ -8,6 +8,8 @@ var data = function () { // jshint ignore:line
     data.db = mongoose.connection;
     data.db.on('error', console.error.bind(console, 'Connection Error: '));
 
+    data.ObjectId = mongoose.Types.ObjectId;
+
     var ScoreSchema = new mongoose.Schema({
         level: Number,
         score: Number,
@@ -145,14 +147,13 @@ var data = function () { // jshint ignore:line
     data.User = mongoose.model('User', UserSchema);
     data.getUserChatThreads = function (profileId, callback) {
         data.Profile.findOne({
-            _id: profileId
+            _id: data.ObjectId(profileId)
         }).exec(function (err, userProfile) {
             if (!err && userProfile) {
                 data.ChatThread.find({
                     users: userProfile._id
                 }).populate('messages users').exec(function (err, chatThreads) {
                     if (!err && chatThreads && callback) {
-                        console.log(chatThreads);
                         callback(chatThreads);
                     }
                 });
@@ -194,7 +195,6 @@ var data = function () { // jshint ignore:line
     var rand = function (max) {
         return Math.floor((Math.random() * max));
     };
-    data.ObjectId = mongoose.Types.ObjectId;
 
     var users = ['Sir Fxwright', 'Sir Yogi Bear', 'Sir Varayne', 'Sir Pretzel', 'Sir Slagnificent', 'SaucySeadweller'];
     var randMessages = ['Hello there.', 'How are you?', 'I am fine', 'Nice to see you.', 'League is amazing', 'Fantastical sauce.'];
