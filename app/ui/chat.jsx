@@ -102,10 +102,10 @@ var Friend = React.createClass({
         if(profile._id=== this.state.profile._id){
             this.setState({profile:profile});
         }
+    },gotProfile:function(err,profile){
+        this.setState({profile:profile});
     },getProfile:function(){
-        this.props.socket.emit('get_profile',this.props.friend.profile.username,function(err,profile){
-            this.setState({profile:profile});
-        });
+        this.props.socket.emit('get_profile',this.props.friend.profile.username,this.gotProfile);
     },clicked:function(){
         this.props.whenClicked(this.props.friend);
     },render: function() {

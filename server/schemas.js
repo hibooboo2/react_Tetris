@@ -60,7 +60,10 @@ module.exports.ProfileSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    connections: [String]
+    connections: [{
+        type: String,
+        default: []
+    }]
 });
 
 module.exports.ChatMessageSchema = new mongoose.Schema({
@@ -86,28 +89,21 @@ module.exports.ChatThreadSchema = new mongoose.Schema({
 });
 
 
-module.exports.UserSchema.methods.addFriend = function (friend, sendUpdate) {
-    var currentUser = this;
-    module.exports.Profile.findOne({
-        username: friend.username
-    }).exec(function (err, profile) {
-        if (!err && profile) {
-            var hasFriend = currentUser.friends.filter(function (friend) {
-                return friend.profile.username === profile.username;
-            }).length > 0;
-            if (!hasFriend) {
-                currentUser.friends.push({
-                    profile: profile
-                });
-                var friends = currentUser.friends;
-                currentUser.save(function (err) {
-                    if (!err) {
-                        sendUpdate(friends);
-                    }
-                });
+module.exports.UserSchema.methods.addFriend = function (friend,profile, sendUpdate) {
+    var hasFriend = this.friends.filter(function (friend) {
+        return friend.profile.username === profile.username;
+    }).length > 0;
+    if (!hasFriend) {
+        this.friends.push({
+            profile: profile
+        });
+        var friends = this.friends;
+        this.save(function (err) {
+            if (!err) {
+                sendUpdate(friends);
             }
-        }
-    });
+        });
+    }
 
 };
 
@@ -121,18 +117,18 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
 };
 
 
-module.exports.UserSchema.methods.login = function (socket, callback) {
+module.exports.UserSchema.methods.login = function (socket, profile, callback) {
     var user = this;
-    user.profile.presence = 1;
-    user.profile.connections.push(socket.id);
-    user.profile.save(function (err) {
+    profile.presence = 1;
+    profile.connections.push(socket.id);
+    profile.save(function (err) {
         if (!err) {
-            user.friends.map(function(friend){
-                friend.profile.connections.map(function(connection){
+            user.friends.map(function (friend) {
+                friend.profile.connections.map(function (connection) {
                     socket.to(connection).emit('user_connected', user.profile);
                 });
             });
-            callback(user,user.profile);
+            callback(user, profile);
         }
     });
 };

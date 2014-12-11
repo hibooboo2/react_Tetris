@@ -66,9 +66,7 @@ var data = function () { // jshint ignore:line
             _id: data.ObjectId(profileId)
         }).exec(function (err, userProfile) {
             if (!err && userProfile) {
-                console.log('Sending message to: ' + userProfile.username);
                 userProfile.connections.map(function (userSocket) {
-                    console.log(userProfile.username + ' is connected.');
                     socket.to(userSocket).emit('new_message', chatMessage);
                 });
             }
@@ -76,16 +74,76 @@ var data = function () { // jshint ignore:line
     };
 
     data.getCurrentUser = function (socketId, callback) {
-        mongoose.Profile.findOne({
+        data.Profile.findOne({
             connections: socketId
         }).exec(function (err, profile) {
             if (!err && profile) {
-                mongoose.User.findOne({
+                data.User.findOne({
                     profile: profile
                 }).exec(callback);
             }
         });
     };
+
+    data.login = function (userToLogin, afterLogin, socket) {
+        data.User.findOne(userToLogin).populate('friends.profile profile').exec(function (err, user) {
+            if (err) {
+                console.err(err);
+            }
+            if (!user) {
+                var newProfile = new data.Profile({
+                    username: userToLogin.username
+                });
+                newProfile.save(function (err) {
+                    if (!err) {
+                        user = new data.User({
+                            username: userToLogin.username,
+                            password: userToLogin.password,
+                            profile: newProfile
+                        });
+                        user.save(function (err) {
+                            if (!err) {
+                                user.login(socket, newProfile, afterLogin);
+                            }
+                        });
+                    }
+                });
+
+            } else {
+                user.login(socket, user.profile, afterLogin);
+            }
+        });
+    };
+
+    data.disconnect = function (socket) {
+        data.Profile.findOne({
+            connections: socket.id
+        }).exec(function (err, profile) {
+            if (!err && profile) {
+                var connIndex = profile.connections.indexOf(socket.id)
+                if (connIndex !== -1) {
+                    profile.connections.splice(connIndex, 1);
+                    profile.presence = profile.connections.length > 0 ? 1 : 0;
+                    profile.save(function (err) {
+                        if (!err) {
+                            data.User.findOne({
+                                username: profile.username
+                            }).populate('friends.profile').exec(function (err, user) {
+                                if (!err && user) {
+                                    user.friends.map(function (friend) {
+                                        friend.connections.map(function (connection) {
+                                            socket.to(connection).emit('current_status', profile);
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
 
     return data;
 };

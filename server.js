@@ -10,33 +10,7 @@ app.use('/', express.static(__dirname + '/app'));
 
 io.sockets.on('connection', function (socket) {
     socket.on('login', function (user, afterLogin) {
-        mongoose.User.findOne(user).populate('friends.profile profile').exec(function (err, user) {
-            if (err) {
-                console.err(err);
-            }
-            if (!user) {
-                var newProfile = new mongoose.Profile({
-                    username: username
-                });
-                newProfile.save(function (err) {
-                    if (!err) {
-                        user = new mongoose.User({
-                            username: username,
-                            password: pass,
-                            profile: newProfile
-                        });
-                        user.save(function (err) {
-                            if (!err) {
-                                user.login(socket,afterLogin);
-                            }
-                        });
-                    }
-                });
-
-            } else {
-                user.login(socket,afterLogin);
-            }
-        });
+        mongoose.login(user, afterLogin, socket);
     });
     socket.on('get_thread', function (threadName, addThread) {
         mongoose.ChatThread.findOne({
@@ -101,7 +75,13 @@ io.sockets.on('connection', function (socket) {
         mongoose.getCurrentUser(socket.id, function (err, user) {
             if (user) {
                 if (user.username !== friend.username) {
-                    user.addFriend(friend, sendUpdate);
+                    mongoose.Profile.findOne({
+                        username: friend.username
+                    }).exec(function (err, profile) {
+                        if (!err && profile) {
+                            user.addFriend(friend, profile, sendUpdate);
+                        }
+                    });
                 }
             }
         });
@@ -115,6 +95,6 @@ io.sockets.on('connection', function (socket) {
         mongoose.getUserChatThreads(profileId, callback);
     });
     socket.on('disconnect', function () {
-        //todo:redo disconnect logic.
+        mongoose.disconnect(socket);
     });
 });
