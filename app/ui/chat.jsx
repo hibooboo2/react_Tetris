@@ -166,79 +166,6 @@ var FriendsList = React.createClass({
     }
 });
 
-
-var GroupChat = React.createClass({
-       getInitialState: function(){
-        return {messages:this.props.messages,from:this.props.from,to:this.props.to,socket:this.props.socket};
-    },componentDidMount: function(){
-        // componentDidMount is called by react when the component
-        // has been rendered on the page. We can set the interval here:
-        var socket = this.state.socket;
-        this.socket = socket;
-        this.socket.on("new_message", this.newMessage);
-        this.setState({scrollTotal:document.getElementById("messageList"+this.state.to).scrollHeight})
-    },newMessage:function (data) {
-            if(this.state.from === data.from){
-                this.state.messages.push(data);
-                if(data.whisper){
-                    this.socket.emit("recieved", data);
-                }
-                this.setState({messages:this.state.messages});
-                this.scrollHeight();
-            }
-    },sentMessage:function (data) {
-        this.state.messages.push(data);
-        this.setState({messages:this.state.messages});
-        this.scrollHeight();
-    },scrolled:function(evt){
-        var messages = evt.nativeEvent.target;
-        this.setState({scrolled:messages.scrollHeight - messages.scrollTop - this.state.scrollTotal > 1});
-    },scrollHeight:function(){
-        if(!this.state.scrolled){
-            var messages = document.getElementById("messageList"+this.state.to);
-            messages.scrollTop = messages.scrollHeight;
-        }
-    },handleGroupChat:function (evt) {
-        evt.stopPropagation();
-        var newMessage = this.newMessage;
-        if (evt.keyCode === 13){
-            this.socket.emit("new_message", {
-                    from: this.state.from,
-                    message: evt.nativeEvent.target.value,
-                    to: this.state.to,
-                    whisper:true
-                },this.sentMessage);
-            evt.nativeEvent.target.value = "";
-        }
-    },toggleHidden: function(){
-        this.setState({hidden:!this.state.hidden});
-    },close: function(evt){
-        evt.currentTarget.parentNode.parentNode.parentNode.removeChild(evt.currentTarget.parentNode.parentNode)
-    },render: function() {
-        var theMessages = this.state.messages.map(function(data){
-            if(data.from!="Mouse"){
-                return (
-                           <Message data={data}/>
-                        )
-            }
-        });
-
-        var theGroupChat = <div className="GroupChat">
-                            <div className={"chat"+ (this.props.hidden ? " hidden":"") + (this.state.hidden ? " hidden":"")}>
-                                <div className="messages" id={"messageList"+this.state.to} onScroll={this.scrolled}>
-                                    {theMessages}
-                                </div>
-                                <input className="chatInput" onKeyDown={this.handleGroupChat}/>
-                            </div>
-                            <div className="chatTab" onClick={this.toggleHidden}>
-                            <p>{this.state.to} {this.state.messages.length}</p>
-                            <div className="chatExit" onClick={this.close}></div>
-                            </div>
-                        </div>;
-        return theGroupChat;
-        }
-});
-
 var ChatSystem = React.createClass({
     getInitialState:function(){
         return {
@@ -258,23 +185,37 @@ var ChatSystem = React.createClass({
         var theSocket = this.props.socket;
         var id = this.state.profile._id;
         var fn = this.updateChatHistory;
-        setTimeout(function(){theSocket.emit('get_chathistory',id,fn);},1000);
+        setTimeout(function(){theSocket.emit('get_chathistory',id,fn);},100);
     },newMessage:function (chatMessage) {
         console.log(chatMessage);
+        var threadExists = false;
+        var threadName = chatMessage.to.sort().toString();
         var updatedThreads = this.state.chatThreads.threads.map(function(thread){
-            if(thread.name==chatMessage.to.sort().toString()){
+            if(thread.name==threadName){
                 thread.messages.push(chatMessage);
+                threadExists = true;
             }
             return thread;
         });
+        console.log(updatedThreads);
+        if(!threadExists){
+            console.log('getting thread');
+            this.props.socket.emit('get_thread',threadName,this.addThread);
+        }
         this.state.chatThreads.threads = updatedThreads;
         this.setState({chatThreads:this.state.chatThreads});
         this.render();
+    },addThread:function(thread){
+        this.state.chatThreads.threads.push(thread);
+        this.setState({chatThreads:this.state.chatThreads});
+        console.log('got thread');
     },addFriend:function (evt) {
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
-            this.state.socket.emit('add_friend',{username:evt.nativeEvent.target.value},this.friendsUpdate);
-            evt.nativeEvent.target.value = "";
+            if(evt.nativeEvent.target.value !== ""){
+                this.state.socket.emit('add_friend',{username:evt.nativeEvent.target.value},this.friendsUpdate);
+                evt.nativeEvent.target.value = "";
+            }
         }
     },friendsUpdate:function(friends){
         this.state.user.friends = friends;
@@ -345,7 +286,7 @@ var user = prompt("Who are you?",'james');
 var pass = prompt("Password?",'password');
 var socket = io.connect();
 var afterLogin = function(user,profile){
-    if(user){
+    if(user && profile){
         React.render(
             <ChatSystem socket={socket} profile={profile} user={user}/>,
             document.getElementById("chat_Container")
