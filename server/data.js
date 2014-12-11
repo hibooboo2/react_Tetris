@@ -131,7 +131,7 @@ var data = function () { // jshint ignore:line
                             }).populate('friends.profile').exec(function (err, user) {
                                 if (!err && user) {
                                     user.friends.map(function (friend) {
-                                        friend.connections.map(function (connection) {
+                                        friend.profile.connections.map(function (connection) {
                                             socket.to(connection).emit('current_status', profile);
                                         });
                                     });
