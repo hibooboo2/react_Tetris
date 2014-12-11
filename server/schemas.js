@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var deepPopulate = require('mongoose-deep-populate');
 
 module.exports.ScoreSchema = new mongoose.Schema({
     level: Number,
@@ -64,6 +65,7 @@ module.exports.UserSchema = new mongoose.Schema({
     }
 
 });
+module.exports.UserSchema.plugin(deepPopulate/* more on options below */);
 
 
 module.exports.ProfileSchema = new mongoose.Schema({

@@ -12,34 +12,44 @@ var data = function () { // jshint ignore:line
 
     data.ObjectId = mongoose.Types.ObjectId;
 
-    data.addFriend = function (socket, username, sendUpdate) {
+    data.getUseraddFriend = function (socket, username, sendUpdate) {
         data.getCurrentUser(socket.id, function (err, user) {
-            var canAddFriend = true;
-            // get profile and wrap this.
-            data.Profile.findOne({
-                username: username
-            }).exec(function (err, userToAdd) {
-                if (!err && userToAdd) {
-                    data.FriendList.findOne({
-                        _id: data.ObjectId(user.friendsList)
-                    }).populate('friendGroups').exec(function (err, friendList) {
-                        friendList.friendGroups.map(function (friendGroup) {
-                            console.log('Friend Group: ' + friendGroup.name);
+            if (!err && user) {
+                data.addFriend(user, username, sendUpdate);
+            }
+        });
+    };
+
+    data.addFriend = function (user, username, sendUpdate) {
+        if (!sendUpdate) {
+            sendUpdate = function (data) {
+                console.log(data);
+            };
+        }
+        var canAddFriend = true;
+        data.Profile.findOne({
+            username: username
+        }).exec(function (err, userToAdd) {
+            if (!err && userToAdd) {
+                user.deepPopulate('friendsList.friendGroups.friends.profile', function (err) {
+                    if (!err) {
+                        user.friendsList.friendGroups.map(function (friendGroup) {
                             friendGroup.friends.map(function (friend) {
-                                console.log(friend.profile);
-                                if (friend.profile === userToAdd._id) {
-                                    console.log('Has Friend');
+                                var areEqual = friend.profile._id.toString() === userToAdd._id.toString();
+                                if (areEqual) {
                                     canAddFriend = false;
                                 }
                             });
                         });
                         if (canAddFriend) {
-                            friendList.friendGroups.map(function (friendGroup) {
+                            user.friendsList.friendGroups.map(function (friendGroup) {
                                 if (friendGroup.name === 'General') {
-                                    friendGroup.friends.push(userToAdd._id);
+                                    friendGroup.friends.push({
+                                        profile: userToAdd
+                                    });
                                     friendGroup.save(function (err) {
                                         if (!err) {
-                                            sendUpdate(true);
+                                            sendUpdate(userToAdd);
                                         }
                                     });
                                 }
@@ -47,11 +57,12 @@ var data = function () { // jshint ignore:line
                         } else {
                             sendUpdate(false);
                         }
-                    });
-                } else {
-                    sendUpdate(false);
-                }
-            });
+                    }
+                });
+
+            } else {
+                sendUpdate(false);
+            }
         });
     };
 
@@ -169,7 +180,9 @@ var data = function () { // jshint ignore:line
     };
 
     data.login = function (userToLogin, socket, sendToClient) {
-        data.User.findOne({username:userToLogin.username}).populate('friends.profile profile').exec(function (err, user) {
+        data.User.findOne({
+            username: userToLogin.username
+        }).populate('friends.profile profile').exec(function (err, user) {
             if (err) {
                 console.err(err);
             }
@@ -178,9 +191,9 @@ var data = function () { // jshint ignore:line
                     user.login(socket, newProfile, data.notifyFriends, sendToClient);
                 });
             } else {
-                if(user.password ===userToLogin.password){
+                if (user.password === userToLogin.password) {
                     user.login(socket, user.profile, data.notifyFriends, sendToClient);
-                }else{
+                } else {
                     sendToClient();
                 }
             }
@@ -190,12 +203,17 @@ var data = function () { // jshint ignore:line
     data.notifyFriends = function (user, socket) {
         console.log(user);
         socket.emit('user_connected', user.profile);
-        //get all user friends profiles and send them a message.
-        //        user.friends.map(function (friend) {
-        //            friend.profile.connections.map(function (connection) {
-        //                socket.to(connection).emit('user_connected', user.profile);
-        //            });
-        //        });
+        user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+            if (!err) {
+                user.friendsList.friendGroups.map(function (friendGroup) {
+                    friendGroup.friends.map(function (friend) {
+                        friend.profile.connections.map(function (connection) {
+                            socket.to(connection).emit('user_connected', user.profile);
+                        });
+                    });
+                });
+            }
+        });
     };
     data.disconnect = function (socket) {
         data.Profile.findOne({
