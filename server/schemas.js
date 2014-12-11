@@ -119,3 +119,20 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
         }
     });
 };
+
+
+module.exports.UserSchema.methods.login = function (socket, callback) {
+    var user = this;
+    user.profile.presence = 1;
+    user.profile.connections.push(socket.id);
+    user.profile.save(function (err) {
+        if (!err) {
+            user.friends.map(function(friend){
+                friend.profile.connections.map(function(connection){
+                    socket.to(connection).emit('user_connected', user.profile);
+                });
+            });
+            callback(user,user.profile);
+        }
+    });
+};

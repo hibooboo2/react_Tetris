@@ -48,8 +48,10 @@ var data = function () { // jshint ignore:line
                         username: profile.username
                     }).populate('friends.profile').exec(function (err, user) {
                         if (!err && user) {
-                            user.friends.connections.map(function (connection) {
-                                socket.to(connection).emit('current_status', profile);
+                            user.friends.map(function (friend) {
+                                friend.connections.map(function (connection) {
+                                    socket.to(connection).emit('current_status', profile);
+                                });
                             });
                         }
                     });
@@ -73,10 +75,14 @@ var data = function () { // jshint ignore:line
         });
     };
 
-    data.getCurrentUser = function (socketId,callback){
-        mongoose.Profile.findOne({connections:socketId}).exec(function(err,profile){
-            if(!err && profile){
-                mongoose.User.findOne({profile:profile}).exec(callback);
+    data.getCurrentUser = function (socketId, callback) {
+        mongoose.Profile.findOne({
+            connections: socketId
+        }).exec(function (err, profile) {
+            if (!err && profile) {
+                mongoose.User.findOne({
+                    profile: profile
+                }).exec(callback);
             }
         });
     };

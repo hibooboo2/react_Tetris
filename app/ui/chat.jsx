@@ -96,6 +96,7 @@ var Friend = React.createClass({
     componentDidMount:function(){
         this.props.socket.on('user_presence',this.getProfile);
         this.props.socket.on('current_status',this.updateProfile);
+        this.props.socket.on('user_connected',this.updateProfile);
         this.getProfile();
     },updateProfile:function(profile){
         if(profile._id=== this.state.profile._id){

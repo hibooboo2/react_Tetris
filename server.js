@@ -9,13 +9,8 @@ server.listen(process.env.PORT ? process.env.PORT : 3000);
 app.use('/', express.static(__dirname + '/app'));
 
 io.sockets.on('connection', function (socket) {
-    socket.on('login', function (username, pass) {
-        //todo: redo login stuff
-
-        mongoose.User.findOne({
-            username: username,
-            password: pass
-        }).populate('friends.profile profile').exec(function (err, user) {
+    socket.on('login', function (user, afterLogin) {
+        mongoose.User.findOne(user).populate('friends.profile profile').exec(function (err, user) {
             if (err) {
                 console.err(err);
             }
@@ -30,13 +25,16 @@ io.sockets.on('connection', function (socket) {
                             password: pass,
                             profile: newProfile
                         });
-                        user.save();
+                        user.save(function (err) {
+                            if (!err) {
+                                user.login(socket,afterLogin);
+                            }
+                        });
                     }
                 });
 
             } else {
-                console.log('User exists.');
-                //change presence and add to socketid conns.
+                user.login(socket,afterLogin);
             }
         });
     });
