@@ -6,14 +6,22 @@ var data = function () { // jshint ignore:line
     var testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test';
     mongoose.connect(process.env.PORT ? siteDB : testDB);
     var data = {};
+
     data.db = mongoose.connection;
     data.db.on('error', console.error.bind(console, 'Connection Error: '));
+
     data.ObjectId = mongoose.Types.ObjectId;
+
     data.Score = mongoose.model('Score', schemas.ScoreSchema);
+
     data.Profile = mongoose.model('Profile', schemas.ProfileSchema);
+
     data.ChatMessage = mongoose.model('ChatMessage', schemas.ChatMessageSchema);
+
     data.ChatThread = mongoose.model('ChatThread', schemas.ChatThreadSchema);
+
     data.User = mongoose.model('User', schemas.UserSchema);
+
     data.getUserChatThreads = function (profileId, callback) {
         data.Profile.findOne({
             _id: data.ObjectId(profileId)
@@ -30,18 +38,22 @@ var data = function () { // jshint ignore:line
         });
     };
 
-    data.updateStatus = function (status, notifyCallback, callback) {
+    data.updateStatus = function (status, socket, callback) {
         data.Profile.findOne({
-            username: status.username
-        }).exec(function (err, profileFound) {
-            if (profileFound) {
-                profileFound.statusMessage = status.statusMessage;
-                profileFound.save(function (err) {
-                    if (!err && notifyCallback) {
-                        var event = 'current_status';
-                        notifyCallback(event, profileFound);
-                        callback(profileFound);
-                    }
+            connections: socket.id
+        }).exec(function (err, profile) {
+            if (profile.username === status.username) {
+                profile.updateStatus(status.statusMessage, function (profile) {
+                    data.User.findOne({
+                        username: profile.username
+                    }).populate('friends.profile').exec(function (err, user) {
+                        if (!err && user) {
+                            user.friends.connections.map(function (connection) {
+                                socket.to(connection).emit('current_status', profile);
+                            });
+                        }
+                    });
+                    callback(profile);
                 });
             }
         });
@@ -60,6 +72,15 @@ var data = function () { // jshint ignore:line
             }
         });
     };
+
+    data.getCurrentUser = function (socketId,callback){
+        mongoose.Profile.findOne({connections:socketId}).exec(function(err,profile){
+            if(!err && profile){
+                mongoose.User.findOne({profile:profile}).exec(callback);
+            }
+        });
+    };
+
     return data;
 };
 

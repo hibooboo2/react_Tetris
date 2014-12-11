@@ -95,14 +95,16 @@ var MessageBoxGroup = React.createClass({
 var Friend = React.createClass({
     componentDidMount:function(){
         this.props.socket.on('user_presence',this.getProfile);
-        this.props.socket.on('current_status',this.getProfile);
+        this.props.socket.on('current_status',this.updateProfile);
         this.getProfile();
-    },updateProfile:function(err, profile){
-            if(!err){
-                this.setState({profile:profile});
-            }
+    },updateProfile:function(profile){
+        if(profile._id=== this.state.profile._id){
+            this.setState({profile:profile});
+        }
     },getProfile:function(){
-        this.props.socket.emit('get_profile',this.props.friend.profile.username,this.updateProfile);
+        this.props.socket.emit('get_profile',this.props.friend.profile.username,function(err,profile){
+            this.setState({profile:profile});
+        });
     },clicked:function(){
         this.props.whenClicked(this.props.friend);
     },render: function() {

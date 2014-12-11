@@ -111,4 +111,11 @@ module.exports.UserSchema.methods.addFriend = function (friend, sendUpdate) {
 
 };
 
-
+module.exports.ProfileSchema.methods.updateStatus = function (status, callback) {
+    this.statusMessage = status;
+    this.save(function (err) {
+        if (!err && callback) {
+            callback(this);
+        }
+    });
+};
