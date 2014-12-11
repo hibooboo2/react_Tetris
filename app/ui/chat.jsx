@@ -105,7 +105,8 @@ var Friend = React.createClass({
     },gotProfile:function(err,profile){
         this.setState({profile:profile});
     },getProfile:function(){
-        this.props.socket.emit('get_profile',this.props.friend.profile.username,this.gotProfile);
+        console.log(this.props.friend);
+        this.props.socket.emit('get_profile',this.props.friend.profile,this.gotProfile);
     },clicked:function(){
         this.props.whenClicked(this.props.friend);
     },render: function() {
@@ -153,6 +154,7 @@ var FriendsList = React.createClass({
         });
         var friendgroups = groups.map(function(friendgroup){
             var friends = friendgroup.map(function(friend){
+                            console.log(friend);
                             return <Friend showOffline={showOffline} socket={socket}  whenClicked={whenClicked} friend={friend} />;
                     });
             var theFriendGroup =    <div className='FriendGroup'>
@@ -216,7 +218,7 @@ var ChatSystem = React.createClass({
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
             if(evt.nativeEvent.target.value !== ""){
-                this.state.socket.emit('add_friend',{username:evt.nativeEvent.target.value},this.friendsUpdate);
+                this.state.socket.emit('add_friend',evt.nativeEvent.target.value,this.friendsUpdate);
                 evt.nativeEvent.target.value = "";
             }
         }
@@ -260,6 +262,7 @@ var ChatSystem = React.createClass({
         this.state.chatThreads.threads = chatHistory;
         this.setState({chatThreads:this.state.chatThreads});
     },render: function() {
+        console.log(this.state.profile);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>

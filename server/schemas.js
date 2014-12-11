@@ -16,6 +16,35 @@ module.exports.ScoreSchema = new mongoose.Schema({
     }
 });
 
+module.exports.FriendGroupSchema = new mongoose.Schema({
+    friends: [{
+        profile: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Profile'
+        },
+        note: {
+            type: String,
+            default: 'No note'
+        }
+    }],
+    name: {
+        type: String,
+        default: 'General'
+    }
+});
+
+module.exports.FriendListSchema = new mongoose.Schema({
+    friendGroups: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FriendGroup'
+    }],
+    name: {
+        type: String,
+        default: 'All'
+    }
+});
+
+
 module.exports.UserSchema = new mongoose.Schema({
     username: String,
     profile: {
@@ -29,20 +58,11 @@ module.exports.UserSchema = new mongoose.Schema({
     password: String,
     avatar: String,
     email: String,
-    friends: [{
-        profile: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Profile'
-        },
-        note: {
-            type: String,
-            default: ' '
-        },
-        group: {
-            type: String,
-            default: 'General'
-        }
-        }]
+    friendsList: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FriendList'
+    }
+
 });
 
 
@@ -88,25 +108,6 @@ module.exports.ChatThreadSchema = new mongoose.Schema({
     name: String
 });
 
-
-module.exports.UserSchema.methods.addFriend = function (friend,profile, sendUpdate) {
-    var hasFriend = this.friends.filter(function (friend) {
-        return friend.profile.username === profile.username;
-    }).length > 0;
-    if (!hasFriend) {
-        this.friends.push({
-            profile: profile
-        });
-        var friends = this.friends;
-        this.save(function (err) {
-            if (!err) {
-                sendUpdate(friends);
-            }
-        });
-    }
-
-};
-
 module.exports.ProfileSchema.methods.updateStatus = function (status, callback) {
     this.statusMessage = status;
     this.save(function (err) {
@@ -117,18 +118,14 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
 };
 
 
-module.exports.UserSchema.methods.login = function (socket, profile, callback) {
+module.exports.UserSchema.methods.login = function (socket, profile, notifyFriends, sendToClient) {
     var user = this;
     profile.presence = 1;
     profile.connections.push(socket.id);
     profile.save(function (err) {
         if (!err) {
-            user.friends.map(function (friend) {
-                friend.profile.connections.map(function (connection) {
-                    socket.to(connection).emit('user_connected', user.profile);
-                });
-            });
-            callback(user, profile);
+            notifyFriends(user, socket);
+            sendToClient(user, profile);
         }
     });
 };

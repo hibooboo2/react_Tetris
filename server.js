@@ -9,8 +9,8 @@ server.listen(process.env.PORT ? process.env.PORT : 3000);
 app.use('/', express.static(__dirname + '/app'));
 
 io.sockets.on('connection', function (socket) {
-    socket.on('login', function (user, afterLogin) {
-        mongoose.login(user, afterLogin, socket);
+    socket.on('login', function (user, sendToClient) {
+        mongoose.login(user, socket, sendToClient);
     });
     socket.on('get_thread', function (threadName, addThread) {
         mongoose.ChatThread.findOne({
@@ -71,24 +71,12 @@ io.sockets.on('connection', function (socket) {
     socket.on('update_status', function (status, callback) {
         mongoose.updateStatus(status, socket, callback);
     });
-    socket.on('add_friend', function (friend, sendUpdate) {
-        mongoose.getCurrentUser(socket.id, function (err, user) {
-            if (user) {
-                if (user.username !== friend.username) {
-                    mongoose.Profile.findOne({
-                        username: friend.username
-                    }).exec(function (err, profile) {
-                        if (!err && profile) {
-                            user.addFriend(friend, profile, sendUpdate);
-                        }
-                    });
-                }
-            }
-        });
+    socket.on('add_friend', function (username, sendUpdate) {
+        mongoose.addFriend(socket,username,sendUpdate);
     });
-    socket.on('get_profile', function (username, callback) {
+    socket.on('get_profile', function (profileId, callback) {
         mongoose.Profile.findOne({
-            username: username
+            _id: mongoose.ObjectId(profileId._id ? profileId._id : profileId)
         }).exec(callback);
     });
     socket.on('get_chathistory', function (profileId, callback) {
