@@ -182,6 +182,9 @@ var ChatSystem = React.createClass({
             };
     },componentDidMount:function(){
         this.state.socket.on("new_message", this.newMessage);
+        this.state.socket.on("still_connected", function(data,cb){
+            cb(data);
+        });
         this.state.socket.on('user_connected',this.personLoggedIn);
         this.state.socket.on('friend_list',this.friendsUpdate);
         var theSocket = this.props.socket;

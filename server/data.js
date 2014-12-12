@@ -229,7 +229,7 @@ var data = function () { // jshint ignore:line
                 var connIndex = profile.connections.indexOf(socket.id);
                 if (connIndex !== -1) {
                     profile.connections.splice(connIndex, 1);
-                    profile.presence = 0;
+                    profile.presence = profile.connections.length === 0 ? 0 : 1 ;
                     profile.save(function (err) {
                         if (!err) {
                             data.User.findOne({

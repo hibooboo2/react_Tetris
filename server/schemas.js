@@ -123,7 +123,7 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
 };
 
 
-module.exports.UserSchema.methods.login = function (socket,  notifyFriends, sendToClient) {
+module.exports.UserSchema.methods.login = function (socket, notifyFriends, sendToClient) {
     var user = this;
     user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
         if (!err) {
