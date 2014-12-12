@@ -21,8 +21,6 @@ var data = function () { // jshint ignore:line
     };
 
     data.addFriend = function (dataFromClient, sendUpdate) {
-        console.log(dataFromClient);
-        console.log(sendUpdate);
         if (!sendUpdate) {
             sendUpdate = function (dataFromClient) {
                 console.log(dataFromClient);
@@ -33,9 +31,7 @@ var data = function () { // jshint ignore:line
             username: dataFromClient.friend
         }).exec(function (err, userToAdd) {
             if (!err && userToAdd) {
-                console.log(dataFromClient);
                 data.User.findOne(dataFromClient.user).exec(function (err, user) {
-                    console.log(user.username);
                     if (!err && user) {
                         user.deepPopulate('friendsList.friendGroups.friends.profile', function (err) {
                             if (!err) {

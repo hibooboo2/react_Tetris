@@ -28,7 +28,6 @@ io.sockets.on('connection', function (socket) {
         if (chatMessage && chatMessage.message) {
             chatMessage.timeStamp = new Date();
             chatMessage.to.map(function (profileId) {
-                console.log(profileId);
                 mongoose.messageProfile(profileId, chatMessage, socket);
             });
         }
