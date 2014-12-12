@@ -84,7 +84,6 @@ var MessageBoxGroup = React.createClass({
         makeActive = this.props.makeActive;
         activeChatThread = this.props.chatThreads.activeChatThread;
         openThreads = this.props.chatThreads.openThreads;
-        console.log(this.props.chatThreads);
         var messageBoxes = this.props.chatThreads.threads.map(function(chatThread){
                                 return  <MessageBox active={activeChatThread === chatThread.name} open={openThreads[chatThread.name]} makeActive={makeActive} closeThread={closeThread} newMessage={newMessage} from={theUser} chatThread={chatThread} socket={theSocket}/>
                                 });
@@ -110,7 +109,6 @@ var Friend = React.createClass({
     },gotProfile:function(err,profile){
         this.setState({profile:profile});
     },getProfile:function(){
-        console.log(this.props.friend);
         this.props.socket.emit('get_profile',this.props.friend.profile,this.gotProfile);
     },clicked:function(){
         this.props.whenClicked(this.props.friend);
@@ -183,7 +181,6 @@ var ChatSystem = React.createClass({
         var fn = this.updateChatHistory;
         setTimeout(function(){theSocket.emit('get_chathistory',id,fn);},100);
     },newMessage:function (chatMessage) {
-        console.log(chatMessage);
         var threadExists = false;
         var threadName = chatMessage.to.sort().toString();
         var updatedThreads = this.state.chatThreads.threads.map(function(thread){
@@ -193,9 +190,7 @@ var ChatSystem = React.createClass({
             }
             return thread;
         });
-        console.log(updatedThreads);
         if(!threadExists){
-            console.log('getting thread');
             this.props.socket.emit('get_thread',threadName,this.addThread);
         }
         this.state.chatThreads.threads = updatedThreads;
@@ -204,7 +199,6 @@ var ChatSystem = React.createClass({
     },addThread:function(thread){
         this.state.chatThreads.threads.push(thread);
         this.setState({chatThreads:this.state.chatThreads});
-        console.log('got thread');
     },addFriend:function (evt) {
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
