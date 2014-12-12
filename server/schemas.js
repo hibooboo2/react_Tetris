@@ -31,10 +31,7 @@ module.exports.ProfileSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    connections: [{
-        type: String,
-        default: []
-    }]
+    connection: String
 });
 
 module.exports.FriendGroupSchema = new mongoose.Schema({
@@ -128,7 +125,7 @@ module.exports.UserSchema.methods.login = function (socket, notifyFriends, sendT
     user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
         if (!err) {
             user.profile.presence = 1;
-            user.profile.connections.push(socket.id);
+            user.profile.connection = socket.id;
             user.profile.save(function (err) {
                 if (!err) {
                     notifyFriends(user, socket);

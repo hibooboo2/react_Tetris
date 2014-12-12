@@ -102,7 +102,7 @@ var data = function () { // jshint ignore:line
 
     data.updateStatus = function (status, socket, callback) {
         data.Profile.findOne({
-            connections: socket.id
+            connection: socket.id
         }).exec(function (err, profile) {
             if (!err && profile) {
                 if (profile.username === status.username) {
@@ -128,9 +128,7 @@ var data = function () { // jshint ignore:line
             _id: data.ObjectId(profileId)
         }).exec(function (err, userProfile) {
             if (!err && userProfile) {
-                userProfile.connections.map(function (userSocket) {
-                    socket.to(userSocket).emit(event, dataFromClient);
-                });
+                socket.to(userProfile.connection).emit(event, dataFromClient);
             }
         });
     };
@@ -140,7 +138,7 @@ var data = function () { // jshint ignore:line
 
     data.getCurrentUser = function (socketId, callback) {
         data.Profile.findOne({
-            connections: socketId
+            connection: socketId
         }).exec(function (err, profile) {
             if (!err && profile) {
                 data.User.findOne({
@@ -213,9 +211,7 @@ var data = function () { // jshint ignore:line
             if (!err) {
                 user.friendsList.friendGroups.map(function (friendGroup) {
                     friendGroup.friends.map(function (friend) {
-                        friend.profile.connections.map(function (connection) {
-                            socket.to(connection).emit('user_connected', user.profile);
-                        });
+                        socket.to(friend.profile.connection).emit('user_connected', user.profile);
                     });
                 });
             }
@@ -223,35 +219,30 @@ var data = function () { // jshint ignore:line
     };
     data.disconnect = function (socket) {
         data.Profile.findOne({
-            connections: socket.id
+            connection: socket.id
         }).exec(function (err, profile) {
             if (!err && profile) {
-                var connIndex = profile.connections.indexOf(socket.id);
-                if (connIndex !== -1) {
-                    profile.connections.splice(connIndex, 1);
-                    profile.presence = profile.connections.length === 0 ? 0 : 1 ;
-                    profile.save(function (err) {
-                        if (!err) {
-                            data.User.findOne({
-                                username: profile.username
-                            }).exec(function (err, user) {
-                                if (!err && user) {
-                                    user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
-                                        if (!err) {
-                                            user.friendsList.friendGroups.map(function (friendGroup) {
-                                                friendGroup.friends.map(function (friend) {
-                                                    friend.profile.connections.map(function (connection) {
-                                                        socket.to(connection).emit('current_status', profile);
-                                                    });
-                                                });
+                profile.connection = '';
+                profile.presence = 0;
+                profile.save(function (err) {
+                    if (!err) {
+                        data.User.findOne({
+                            username: profile.username
+                        }).exec(function (err, user) {
+                            if (!err && user) {
+                                user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+                                    if (!err) {
+                                        user.friendsList.friendGroups.map(function (friendGroup) {
+                                            friendGroup.friends.map(function (friend) {
+                                                socket.to(friend.profile.connection).emit('current_status', profile);
                                             });
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
     };

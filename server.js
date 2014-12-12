@@ -74,6 +74,9 @@ io.sockets.on('connection', function (socket) {
     socket.on('update_status', function (status, callback) {
         mongoose.updateStatus(status, socket, callback);
     });
+    socket.on('all_online', function (data, callback) {
+        mongoose.Profile.find({presence:1}).exec(callback);
+    });
     socket.on('add_friend', function (data, sendUpdate) {
         mongoose.addFriend(data, sendUpdate);
     });
