@@ -203,6 +203,10 @@ var ChatSystem = React.createClass({
         });
         if(!threadExists){
             this.props.socket.emit('get_thread',threadName,this.addThread);
+        }else{
+            if(!this.state.chatThreads.openThreads[threadName]){
+                this.makeActive(threadName);
+            }
         }
         this.state.chatThreads.threads = updatedThreads;
         this.setState({chatThreads:this.state.chatThreads});
