@@ -114,6 +114,7 @@ module.exports.ChatThreadSchema = new mongoose.Schema({
 module.exports.ProfileSchema.methods.updateStatus = function (status, callback) {
     profile = this;
     profile.statusMessage = status;
+    profile.presence = profile.presence === 0 ? 1 : profile.presence;
     profile.save(function (err) {
         if (!err && callback) {
             callback(profile);
