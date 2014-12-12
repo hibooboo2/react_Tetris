@@ -13,7 +13,6 @@ var Message = React.createClass({
     }
 });
 
-
 var MessageBox = React.createClass({
     getInitialState:function(){
         return {};
@@ -44,10 +43,11 @@ var MessageBox = React.createClass({
                 },this.sentMessage);
             evt.nativeEvent.target.value = "";
         }
-    },toggleHidden: function(){
-        this.setState({hidden:!this.state.hidden});
     },close: function(evt){
-
+        evt.stopPropagation();
+        this.props.closeThread(this.props.chatThread.name);
+    },makeActive: function(){
+        this.props.makeActive(this.props.chatThread.name);
     },render: function() {
         var currentUser = this.props.from;
         var theMessages = this.props.chatThread.messages.map(function(message){
@@ -56,14 +56,14 @@ var MessageBox = React.createClass({
                         )
         });
 
-        var theMessageBox = <div className="MessageBox">
-                            <div className={"chat"+ (this.props.closed ? " hidden":"") + (this.props.hidden ? " hidden":"")}>
+        var theMessageBox = <div className={"MessageBox" + (this.props.open ? "":" hidden")}>
+                            <div className={"chat" + (this.props.active ? "":" hidden")}>
                                 <div className="messages" id={"messageList"+this.props.chatThread.name} onScroll={this.scrolled}>
                                     {theMessages}
                                 </div>
                                 <input className="chatInput" onKeyDown={this.sendTheMessage}/>
                             </div>
-                            <div className="chatTab" onClick={this.toggleHidden}>
+                            <div className="chatTab" onClick={this.makeActive}>
                                 <div className="flexBetween">
                                     <div>{this.props.chatThread.users.filter(function(user){return user._id!==currentUser._id }).map(function(user){return user.username;})}</div>
                                     <div>{this.props.chatThread.messages.length}</div>
@@ -80,8 +80,13 @@ var MessageBoxGroup = React.createClass({
         var theSocket = this.props.socket;
         var newMessage = this.props.newMessage;
         var theUser = this.props.profile;
+        closeThread = this.props.closeThread;
+        makeActive = this.props.makeActive;
+        activeChatThread = this.props.chatThreads.activeChatThread;
+        openThreads = this.props.chatThreads.openThreads;
+        console.log(this.props.chatThreads);
         var messageBoxes = this.props.chatThreads.threads.map(function(chatThread){
-                                return  <MessageBox newMessage={newMessage} from={theUser} chatThread={chatThread} socket={theSocket}/>
+                                return  <MessageBox active={activeChatThread === chatThread.name} open={openThreads[chatThread.name]} makeActive={makeActive} closeThread={closeThread} newMessage={newMessage} from={theUser} chatThread={chatThread} socket={theSocket}/>
                                 });
         var theMessageBoxGroup =    <div className="MessageBoxGroup">
                                         {messageBoxes}
@@ -163,7 +168,7 @@ var ChatSystem = React.createClass({
                 socket:this.props.socket,
                 chatThreads:{
                     activeChatThread: '',
-                    open:[],
+                    openThreads:{},
                     threads:[]
                 },
                 user:this.props.user,
@@ -221,6 +226,7 @@ var ChatSystem = React.createClass({
     },openThread:function(friend){
         var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
         this.state.chatThreads.activeChatThread = threadName;
+        this.state.chatThreads.openThreads[threadName] = true;
         var threadExists = this.state.chatThreads.threads.filter(function(thread){
             return thread.name===threadName;
         }).length > 0;
@@ -250,11 +256,17 @@ var ChatSystem = React.createClass({
         }
     },gotProfile:function(profile){
         this.setState({profile:profile});
+    },makeActive:function(threadName){
+        this.state.chatThreads.openThreads[threadName] = true;
+        this.state.chatThreads.activeChatThread = threadName !== this.state.chatThreads.activeChatThread ? threadName: '' ;
+        this.setState({chatThreads:this.state.chatThreads});
+    },closeThread:function(threadName){
+        this.state.chatThreads.openThreads[threadName] = false;
+        this.setState({chatThreads:this.state.chatThreads});
     },updateChatHistory:function(chatHistory){
         this.state.chatThreads.threads = chatHistory;
         this.setState({chatThreads:this.state.chatThreads});
     },render: function() {
-        console.log(this.state.user);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
@@ -274,7 +286,7 @@ var ChatSystem = React.createClass({
                                         <div className="AddFriend">
                                             <input className="statusInput" type="text" placeholder="Add Friend" onBlur={this.addFriend} onKeyDown={this.addFriend}/>
                                         </div>
-                                        <MessageBoxGroup newMessage={this.newMessage} profile={this.state.profile} chatThreads={this.state.chatThreads} socket={this.props.socket}/>
+                                        <MessageBoxGroup newMessage={this.newMessage} makeActive={this.makeActive} closeThread={this.closeThread} profile={this.state.profile} chatThreads={this.state.chatThreads} socket={this.props.socket}/>
                                 </div>
         return theChatSystem;
     }
