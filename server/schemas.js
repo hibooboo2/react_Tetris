@@ -112,10 +112,11 @@ module.exports.ChatThreadSchema = new mongoose.Schema({
 });
 
 module.exports.ProfileSchema.methods.updateStatus = function (status, callback) {
-    this.statusMessage = status;
-    this.save(function (err) {
+    profile = this;
+    profile.statusMessage = status;
+    profile.save(function (err) {
         if (!err && callback) {
-            callback(this);
+            callback(profile);
         }
     });
 };

@@ -51,7 +51,7 @@ var data = function () { // jshint ignore:line
                                             });
                                             friendGroup.save(function (err) {
                                                 if (!err) {
-                                                    sendUpdate(userToAdd);
+                                                    sendUpdate(user.friendsList);
                                                 }
                                             });
                                         }
@@ -104,21 +104,21 @@ var data = function () { // jshint ignore:line
         data.Profile.findOne({
             connections: socket.id
         }).exec(function (err, profile) {
-            if (profile.username === status.username) {
-                profile.updateStatus(status.statusMessage, function (profile) {
-                    data.User.findOne({
-                        username: profile.username
-                    }).populate('friends.profile').exec(function (err, user) {
-                        if (!err && user) {
-                            user.friends.map(function (friend) {
-                                friend.connections.map(function (connection) {
-                                    socket.to(connection).emit('current_status', profile);
-                                });
-                            });
-                        }
+            if (!err && profile) {
+                if (profile.username === status.username) {
+                    profile.updateStatus(status.statusMessage, function (profile) {
+                        console.log(profile);
+
+                        data.User.findOne({
+                            username: profile.username
+                        }).exec(function (err, user) {
+                            if (!err && user) {
+                                data.notifyFriends(user, socket);
+                                callback(profile);
+                            }
+                        });
                     });
-                    callback(profile);
-                });
+                }
             }
         });
     };
@@ -193,7 +193,6 @@ var data = function () { // jshint ignore:line
             if (err) {
                 console.err(err);
             }
-            console.log(user);
             if (!user) {
                 data.makeNewUser(userToLogin, function (user) {
                     user.login(socket, data.notifyFriends, sendToClient);
@@ -230,7 +229,7 @@ var data = function () { // jshint ignore:line
                 var connIndex = profile.connections.indexOf(socket.id);
                 if (connIndex !== -1) {
                     profile.connections.splice(connIndex, 1);
-                    profile.presence = profile.connections.length > 0 ? 1 : 0;
+                    profile.presence = 0;
                     profile.save(function (err) {
                         if (!err) {
                             data.User.findOne({

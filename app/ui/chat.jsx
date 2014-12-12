@@ -97,17 +97,25 @@ var MessageBoxGroup = React.createClass({
 
 
 var Friend = React.createClass({
-    componentDidMount:function(){
+    getInitialState:function(){
+        return {friend:this.props.friend};
+    },componentDidMount:function(){
         this.props.socket.on('user_presence',this.getProfile);
         this.props.socket.on('current_status',this.updateProfile);
         this.props.socket.on('user_connected',this.updateProfile);
         this.getProfile();
     },updateProfile:function(profile){
-        if(profile._id=== this.state.profile._id){
-            this.setState({profile:profile});
+        console.log(this.state.friend);
+        if(profile.username=== this.state.friend.profile.username){
+            this.state.friend.profile = profile;
+            this.setState({friend:this.state.friend});
         }
     },gotProfile:function(err,profile){
-        this.setState({profile:profile});
+        console.log('profile');
+        console.log(profile);
+        this.state.friend.profile = profile;
+        this.setState({friend:this.state.friend});
+        console.log(this.state.friend);
     },getProfile:function(){
         this.props.socket.emit('get_profile',this.props.friend.profile,this.gotProfile);
     },clicked:function(){
@@ -118,16 +126,16 @@ var Friend = React.createClass({
         if(this.props.friend && (this.props.friend.profile.presence > 0 || this.props.showOffline)){
             theFriend =
                 <div onClick={this.clicked} className="Friend">
-                    <img style={{height:'2em',width:'2em'}}src={this.props.friend.profile.icon}/>
+                    <img style={{height:'2em',width:'2em'}}src={this.state.friend.profile.icon}/>
                     <div>
                         <div style={{display:'flex',justifyContent: 'space-between'}}>
-                            <p>{this.props.friend.profile.username} </p>
-                            <svg className='status' fill={this.props.friend.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                            <p>{this.state.friend.profile.username} </p>
+                            <svg className='status' fill={this.state.friend.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
                               <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
                               />
                             </svg>
                         </div>
-                        <p> {this.props.friend.profile.statusMessage}</p>
+                        <p> {this.state.friend.profile.statusMessage}</p>
                     </div>
                 </div>;
         }
@@ -213,10 +221,13 @@ var ChatSystem = React.createClass({
                 evt.nativeEvent.target.value = "";
             }
         }
-    },friendsUpdate:function(friends){
-        this.state.user.friends = friends;
-        this.setState({user:this.state.user});
-        this.render();
+    },friendsUpdate:function(friendsList){
+        console.log(friendsList);
+        if(friendsList){
+            this.state.user.friendsList = friendsList;
+            this.setState({user:this.state.user});
+            this.render();
+        }
     },openThread:function(friend){
         var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
         this.state.chatThreads.activeChatThread = threadName;
