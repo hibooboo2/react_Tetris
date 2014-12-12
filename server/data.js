@@ -20,43 +20,53 @@ var data = function () { // jshint ignore:line
         });
     };
 
-    data.addFriend = function (user, username, sendUpdate) {
+    data.addFriend = function (dataFromClient, sendUpdate) {
+        console.log(dataFromClient);
+        console.log(sendUpdate);
         if (!sendUpdate) {
-            sendUpdate = function (data) {
-                console.log(data);
+            sendUpdate = function (dataFromClient) {
+                console.log(dataFromClient);
             };
         }
         var canAddFriend = true;
         data.Profile.findOne({
-            username: username
+            username: dataFromClient.friend
         }).exec(function (err, userToAdd) {
             if (!err && userToAdd) {
-                user.deepPopulate('friendsList.friendGroups.friends.profile', function (err) {
-                    if (!err) {
-                        user.friendsList.friendGroups.map(function (friendGroup) {
-                            friendGroup.friends.map(function (friend) {
-                                var areEqual = friend.profile._id.toString() === userToAdd._id.toString();
-                                if (areEqual) {
-                                    canAddFriend = false;
-                                }
-                            });
-                        });
-                        if (canAddFriend) {
-                            user.friendsList.friendGroups.map(function (friendGroup) {
-                                if (friendGroup.name === 'General') {
-                                    friendGroup.friends.push({
-                                        profile: userToAdd
-                                    });
-                                    friendGroup.save(function (err) {
-                                        if (!err) {
-                                            sendUpdate(userToAdd);
+                console.log(dataFromClient);
+                data.User.findOne(dataFromClient.user).exec(function (err, user) {
+                    console.log(user.username);
+                    if (!err && user) {
+                        user.deepPopulate('friendsList.friendGroups.friends.profile', function (err) {
+                            if (!err) {
+                                user.friendsList.friendGroups.map(function (friendGroup) {
+                                    friendGroup.friends.map(function (friend) {
+                                        var areEqual = friend.profile._id.toString() === userToAdd._id.toString();
+                                        if (areEqual) {
+                                            canAddFriend = false;
                                         }
                                     });
+                                });
+                                if (canAddFriend) {
+                                    user.friendsList.friendGroups.map(function (friendGroup) {
+                                        if (friendGroup.name === 'General') {
+                                            friendGroup.friends.push({
+                                                profile: userToAdd
+                                            });
+                                            friendGroup.save(function (err) {
+                                                if (!err) {
+                                                    sendUpdate(userToAdd);
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    sendUpdate(false);
                                 }
-                            });
-                        } else {
-                            sendUpdate(false);
-                        }
+                            }
+                        });
+                    } else {
+                        sendUpdate(false);
                     }
                 });
 
@@ -117,13 +127,13 @@ var data = function () { // jshint ignore:line
         });
     };
 
-    data.sendEventToProfile = function (profileId, event, data, socket) {
+    data.sendEventToProfile = function (profileId, event, dataFromClient, socket) {
         data.Profile.findOne({
             _id: data.ObjectId(profileId)
         }).exec(function (err, userProfile) {
             if (!err && userProfile) {
                 userProfile.connections.map(function (userSocket) {
-                    socket.to(userSocket).emit(event, data);
+                    socket.to(userSocket).emit(event, dataFromClient);
                 });
             }
         });
@@ -167,7 +177,8 @@ var data = function () { // jshint ignore:line
                                 user.save(function (err) {
                                     if (!err) {
                                         if (callback) {
-                                            callback(user, newProfile);
+
+                                            callback(user);
                                         }
                                     }
                                 });
@@ -182,17 +193,18 @@ var data = function () { // jshint ignore:line
     data.login = function (userToLogin, socket, sendToClient) {
         data.User.findOne({
             username: userToLogin.username
-        }).populate('friends.profile profile').exec(function (err, user) {
+        }).exec(function (err, user) {
             if (err) {
                 console.err(err);
             }
+            console.log(user);
             if (!user) {
-                data.makeNewUser(userToLogin, function (user, newProfile) {
-                    user.login(socket, newProfile, data.notifyFriends, sendToClient);
+                data.makeNewUser(userToLogin, function (user) {
+                    user.login(socket, data.notifyFriends, sendToClient);
                 });
             } else {
                 if (user.password === userToLogin.password) {
-                    user.login(socket, user.profile, data.notifyFriends, sendToClient);
+                    user.login(socket, data.notifyFriends, sendToClient);
                 } else {
                     sendToClient();
                 }
@@ -201,7 +213,6 @@ var data = function () { // jshint ignore:line
     };
 
     data.notifyFriends = function (user, socket) {
-        console.log(user);
         socket.emit('user_connected', user.profile);
         user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
             if (!err) {
@@ -217,7 +228,7 @@ var data = function () { // jshint ignore:line
     };
     data.disconnect = function (socket) {
         data.Profile.findOne({
-            connections: 'fuck'
+            connections: socket.id
         }).exec(function (err, profile) {
             if (!err && profile) {
                 var connIndex = profile.connections.indexOf(socket.id);
@@ -228,12 +239,18 @@ var data = function () { // jshint ignore:line
                         if (!err) {
                             data.User.findOne({
                                 username: profile.username
-                            }).populate('friends.profile').exec(function (err, user) {
+                            }).exec(function (err, user) {
                                 if (!err && user) {
-                                    user.friends.map(function (friend) {
-                                        friend.profile.connections.map(function (connection) {
-                                            socket.to(connection).emit('current_status', profile);
-                                        });
+                                    user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+                                        if (!err) {
+                                            user.friendsList.friendGroups.map(function (friendGroup) {
+                                                friendGroup.friends.map(function (friend) {
+                                                    friend.profile.connections.map(function (connection) {
+                                                        socket.to(connection).emit('current_status', profile);
+                                                    });
+                                                });
+                                            });
+                                        }
                                     });
                                 }
                             });

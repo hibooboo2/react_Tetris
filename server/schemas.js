@@ -17,6 +17,26 @@ module.exports.ScoreSchema = new mongoose.Schema({
     }
 });
 
+module.exports.ProfileSchema = new mongoose.Schema({
+    username: String,
+    statusMessage: {
+        type: String,
+        default: 'Online'
+    },
+    icon: {
+        type: String,
+        default: 'http://i.imgur.com/APrRDck.png'
+    },
+    presence: {
+        type: Number,
+        default: 0
+    },
+    connections: [{
+        type: String,
+        default: []
+    }]
+});
+
 module.exports.FriendGroupSchema = new mongoose.Schema({
     friends: [{
         profile: {
@@ -65,28 +85,9 @@ module.exports.UserSchema = new mongoose.Schema({
     }
 
 });
-module.exports.UserSchema.plugin(deepPopulate/* more on options below */);
+module.exports.UserSchema.plugin(deepPopulate /* more on options below */ );
 
 
-module.exports.ProfileSchema = new mongoose.Schema({
-    username: String,
-    statusMessage: {
-        type: String,
-        default: 'Online'
-    },
-    icon: {
-        type: String,
-        default: 'http://i.imgur.com/APrRDck.png'
-    },
-    presence: {
-        type: Number,
-        default: 0
-    },
-    connections: [{
-        type: String,
-        default: []
-    }]
-});
 
 module.exports.ChatMessageSchema = new mongoose.Schema({
     to: [{
@@ -120,14 +121,18 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
 };
 
 
-module.exports.UserSchema.methods.login = function (socket, profile, notifyFriends, sendToClient) {
+module.exports.UserSchema.methods.login = function (socket,  notifyFriends, sendToClient) {
     var user = this;
-    profile.presence = 1;
-    profile.connections.push(socket.id);
-    profile.save(function (err) {
+    user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
         if (!err) {
-            notifyFriends(user, socket);
-            sendToClient(user, profile);
+            user.profile.presence = 1;
+            user.profile.connections.push(socket.id);
+            user.profile.save(function (err) {
+                if (!err) {
+                    notifyFriends(user, socket);
+                    sendToClient(user);
+                }
+            });
         }
     });
 };

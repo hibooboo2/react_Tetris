@@ -10,7 +10,10 @@ app.use('/', express.static(__dirname + '/app'));
 
 io.sockets.on('connection', function (socket) {
     socket.on('login', function (user, sendToClient) {
-        mongoose.login(user, socket, sendToClient);
+        if (user && sendToClient) {
+            mongoose.login(user, socket, sendToClient);
+            // putAllOther socket.ons in here. This makes u have to logon.
+        }
     });
     socket.on('get_thread', function (threadName, addThread) {
         mongoose.ChatThread.findOne({
@@ -25,6 +28,7 @@ io.sockets.on('connection', function (socket) {
         if (chatMessage && chatMessage.message) {
             chatMessage.timeStamp = new Date();
             chatMessage.to.map(function (profileId) {
+                console.log(profileId);
                 mongoose.messageProfile(profileId, chatMessage, socket);
             });
         }
@@ -71,8 +75,8 @@ io.sockets.on('connection', function (socket) {
     socket.on('update_status', function (status, callback) {
         mongoose.updateStatus(status, socket, callback);
     });
-    socket.on('add_friend', function (username, sendUpdate) {
-        mongoose.addFriend(socket,username,sendUpdate);
+    socket.on('add_friend', function (data, sendUpdate) {
+        mongoose.addFriend(data, sendUpdate);
     });
     socket.on('get_profile', function (profileId, callback) {
         mongoose.Profile.findOne({

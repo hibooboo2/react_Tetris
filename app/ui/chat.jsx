@@ -134,27 +134,13 @@ var Friend = React.createClass({
 
 var FriendsList = React.createClass({
     render: function() {
+
+    //Make this take the new freindslist frome schemas js. Then make the list off of that.
         var whenClicked = this.props.whenClicked;
         var showOffline = this.props.showOffline;
         var socket = this.props.socket;
-        var groupNames = [];
-        var groups = [];
-        this.props.user.friends.map(function(friend){
-            if( -1 === groupNames.indexOf(friend.group)){
-                groupNames.push(friend.group);
-            }
-        });
-        this.props.user.friends.map(function(friend){
-            if(!groups[groupNames.indexOf(friend.group)]){
-            groups[groupNames.indexOf(friend.group)] = [friend];
-            groups[groupNames.indexOf(friend.group)]['name'] = friend.group;
-            }else{
-                groups[groupNames.indexOf(friend.group)].push(friend)
-            }
-        });
-        var friendgroups = groups.map(function(friendgroup){
-            var friends = friendgroup.map(function(friend){
-                            console.log(friend);
+        var friendgroups = this.props.friendsList.friendGroups.map(function(friendgroup){
+            var friends = friendgroup.friends.map(function(friend){
                             return <Friend showOffline={showOffline} socket={socket}  whenClicked={whenClicked} friend={friend} />;
                     });
             var theFriendGroup =    <div className='FriendGroup'>
@@ -218,7 +204,13 @@ var ChatSystem = React.createClass({
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
             if(evt.nativeEvent.target.value !== ""){
-                this.state.socket.emit('add_friend',evt.nativeEvent.target.value,this.friendsUpdate);
+                this.state.socket.emit('add_friend',{
+                    user:{
+                            username:this.state.user.username,
+                            password:this.state.user.password
+                        },
+                        friend:evt.nativeEvent.target.value
+                    },this.friendsUpdate);
                 evt.nativeEvent.target.value = "";
             }
         }
@@ -262,7 +254,7 @@ var ChatSystem = React.createClass({
         this.state.chatThreads.threads = chatHistory;
         this.setState({chatThreads:this.state.chatThreads});
     },render: function() {
-        console.log(this.state.profile);
+        console.log(this.state.user);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
@@ -278,7 +270,7 @@ var ChatSystem = React.createClass({
                                             </div>
                                             <input type="checkbox" onChange={this.toggleShowOffline}/>
                                         </div>
-                                        <FriendsList showOffline={this.state.showOffline} socket={this.state.socket} user={this.state.user} currentChats={this.state.currentChats} whenClicked={this.openThread}/>
+                                        <FriendsList showOffline={this.state.showOffline} socket={this.state.socket} user={this.state.user} friendsList={this.state.user.friendsList} whenClicked={this.openThread}/>
                                         <div className="AddFriend">
                                             <input className="statusInput" type="text" placeholder="Add Friend" onBlur={this.addFriend} onKeyDown={this.addFriend}/>
                                         </div>
@@ -291,10 +283,10 @@ var ChatSystem = React.createClass({
 var user = prompt("Who are you?",'james');
 var pass = prompt("Password?",'password');
 var socket = io.connect();
-var afterLogin = function(user,profile){
-    if(user && profile){
+var afterLogin = function(user){
+    if(user){
         React.render(
-            <ChatSystem socket={socket} profile={profile} user={user}/>,
+            <ChatSystem socket={socket} profile={user.profile} user={user}/>,
             document.getElementById("chat_Container")
         );
     }else{
