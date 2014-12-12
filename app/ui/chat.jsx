@@ -304,8 +304,6 @@ var ChatSystem = React.createClass({
     }
 });
 
-var user = prompt("Who are you?",'james');
-var pass = prompt("Password?",'password');
 var socket = io.connect();
 var afterLogin = function(user){
     if(user){
@@ -319,4 +317,16 @@ var afterLogin = function(user){
         socket.emit("login", {username:user,password:pass},afterLogin);
     }
 }
-socket.emit("login", {username:user,password:pass},afterLogin);
+var whoIsOnline = function(){
+    socket.emit("all_online",'Hello',function(err,profiles){profiles.map(function(profile){console.log(profile.username);});});
+}
+var login = function(){
+    var user = prompt("Who are you?",'james');
+    var pass = prompt("Password?",'password');
+    if(user && pass){
+        socket.emit("login", {username:user,password:pass},afterLogin);
+    }else{
+        login();
+    }
+}
+login();
