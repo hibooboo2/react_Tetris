@@ -205,17 +205,17 @@ button,
 .inline {
     display: inline;
 }
-div {
-    border: 0em solid black;
+div:hover {
+    border: 0em solid red;
 }
 .hidden {
     display: none;
     z-index: -999999;
 }
-#main_Container {
+#main_Container2 {
     height: 75%;
     width: 80%;
     position: absolute;
-    right:10%;
-    bottom:12.5%;
+    right: 10%;
+    bottom: 12.5%;
 }
