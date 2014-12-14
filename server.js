@@ -18,26 +18,33 @@ io.sockets.on('connection', function (socket) {
     socket.on('get_thread', function (threadName, addThread) {
         mongoose.ChatThread.findOne({
             name: threadName
-        }).populate('users messages').exec(function (err, thread) {
-            if (!err && thread) {
-                addThread(thread);
-                console.log(thread);
+        }).populate('users messages').exec(function (err, foundThread) {
+            if (!err && foundThread) {
+                addThread(foundThread);
+                console.log(foundThread);
             }
         });
     });
     socket.on('new_chatThread', function (thread, addThread) {
-        thread.users = thread.users.map(function (id) {
-            console.log(mongoose.ObjectId(id));
-            return mongoose.ObjectId(id);
-        });
-        var newThread = new mongoose.ChatThread(thread);
-        newThread.save(function (err) {
-            if (!err) {
-                newThread.deepPopulate('users', function (err) {
+        mongoose.ChatThread.findOne({
+            name: thread.name
+        }).populate('users messages').exec(function (err, foundThread) {
+            if (!err && !foundThread) {
+
+                thread.users = thread.users.map(function (id) {
+                    console.log(mongoose.ObjectId(id));
+                    return mongoose.ObjectId(id);
+                });
+                var newThread = new mongoose.ChatThread(thread);
+                newThread.save(function (err) {
                     if (!err) {
-                        mongoose.sendEventToFriends('new_thread', newThread, socket);
-                        addThread(newThread);
-                        console.log(newThread);
+                        newThread.deepPopulate('users', function (err) {
+                            if (!err) {
+                                mongoose.sendEventToFriends('new_thread', newThread, socket);
+                                addThread(newThread);
+                                console.log(newThread);
+                            }
+                        });
                     }
                 });
             }
