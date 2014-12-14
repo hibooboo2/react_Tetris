@@ -129,12 +129,27 @@ var data = function () { // jshint ignore:line
         }).exec(function (err, userProfile) {
             if (!err && userProfile) {
                 socket.to(userProfile.connection).emit(event, dataFromClient);
+                console.log(dataFromClient);
             }
         });
     };
     data.messageProfile = function (profileId, chatMessage, socket) {
         data.sendEventToProfile(profileId, 'new_message', chatMessage, socket);
     };
+
+    data.sendEventToFriends = function (event, dataToSent, socket) {
+        data.getCurrentUser(socket.id, function (err, user) {
+            user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+                if (!err) {
+                    user.friendsList.friendGroups.map(function (friendGroup) {
+                        friendGroup.friends.map(function (friend) {
+                            socket.to(friend.profile.connection).emit(event, dataToSent);
+                        });
+                    });
+                }
+            });
+        });
+    }
 
     data.getCurrentUser = function (socketId, callback) {
         data.Profile.findOne({
@@ -206,7 +221,6 @@ var data = function () { // jshint ignore:line
     };
 
     data.notifyFriends = function (user, socket) {
-        socket.emit('user_connected', user.profile);
         user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
             if (!err) {
                 user.friendsList.friendGroups.map(function (friendGroup) {

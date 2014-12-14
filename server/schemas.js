@@ -107,6 +107,7 @@ module.exports.ChatThreadSchema = new mongoose.Schema({
         }],
     name: String
 });
+module.exports.ChatThreadSchema.plugin(deepPopulate /* more on options below */ );
 
 module.exports.ProfileSchema.methods.updateStatus = function (status, callback) {
     profile = this;

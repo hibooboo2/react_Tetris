@@ -21,8 +21,28 @@ io.sockets.on('connection', function (socket) {
         }).populate('users messages').exec(function (err, thread) {
             if (!err && thread) {
                 addThread(thread);
+                console.log(thread);
             }
         });
+    });
+    socket.on('new_chatThread', function (thread, addThread) {
+        thread.users = thread.users.map(function (id) {
+            console.log(mongoose.ObjectId(id));
+            return mongoose.ObjectId(id);
+        });
+        var newThread = new mongoose.ChatThread(thread);
+        newThread.save(function (err) {
+            if (!err) {
+                newThread.deepPopulate('users', function (err) {
+                    if (!err) {
+                        mongoose.sendEventToFriends('new_thread', newThread, socket);
+                        addThread(newThread);
+                        console.log(newThread);
+                    }
+                });
+            }
+        });
+
     });
     socket.on('new_message', function (chatMessage, fn) {
         if (chatMessage && chatMessage.message) {
@@ -75,7 +95,9 @@ io.sockets.on('connection', function (socket) {
         mongoose.updateStatus(status, socket, callback);
     });
     socket.on('all_online', function (data, callback) {
-        mongoose.Profile.find({presence:1}).exec(callback);
+        mongoose.Profile.find({
+            presence: 1
+        }).exec(callback);
     });
     socket.on('add_friend', function (data, sendUpdate) {
         mongoose.addFriend(data, sendUpdate);

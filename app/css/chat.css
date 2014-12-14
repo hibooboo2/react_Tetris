@@ -12,8 +12,8 @@
     display: flex;
     bottom: 1em;
     left: 0em;
-    height: 15em;
-    width: 50%;
+    height: 0em;
+    width: calc(100% - 10em);
 }
 .fromMe {
 
@@ -71,7 +71,7 @@
 }
 .chat {
     position: absolute;
-    bottom: 0.5em;
+    bottom: 0.8em;
     width: 20.4em;
     height: 14.4em;
     font-size: 1em;
@@ -102,6 +102,11 @@
     justify-content: space-between;
     flex: 1;
 }
+.between {
+    justify-content: space-between;
+
+}
+
 .ChatBox {
     position: absolute;
     top: 21em;
@@ -183,4 +188,49 @@
 }
 .statusInput::-webkit-input-placeholder {
     color: inherit;
+}
+
+.LoginPrompt{
+    position: fixed;
+    top: 0em;
+    left: 0em;
+    height: 100%;
+    width: 100%;
+}
+
+.center {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+.trueCenter {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+}
+.prompt {
+    display: flex;
+    flex-direction: column;
+    height: 4em;
+    width: 16em;
+}
+.flex {
+    display: flex;
+}
+
+.flex1{
+    flex:1
+}
+.flex2{
+    flex:2
 }
