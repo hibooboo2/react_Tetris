@@ -320,8 +320,8 @@ var ChatSystem = React.createClass({
     },render: function() {
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
-                                            <img style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
-                                            <div>
+                                            <img lassName="flex1" style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
+                                            <div className="flex2">
                                                 <div className="flex between">
                                                     <p>{this.state.profile.username}</p>
                                                     <svg fill={this.state.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
