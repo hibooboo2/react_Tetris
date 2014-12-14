@@ -4,9 +4,11 @@ var Message = React.createClass({
     },render: function(){
         var theMessage =    <div className={"Message " + ((this.props.data.from !== this.props.username) ? "toMe ":"fromMe ") }>
                                 [{this.props.data.timeStamp?this.props.data.timeStamp.substring(11,19):''}] {this.props.data.from} : {this.props.data.message}
-                                <svg className="icon" viewBox="0 0 8 8" onClick={this.whisperTo}>
-                                  <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
-                                </svg>
+                                <div>
+                                    <svg className="icon" viewBox="0 0 8 8" onClick={this.whisperTo}>
+                                      <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
+                                    </svg>
+                                </div>
                             </div>
 
         return theMessage;
@@ -35,7 +37,7 @@ var LoginPrompt = React.createClass({
     },render: function(){
         var theMessage =    <div className="LoginPrompt trueCenter">
                                     <div className="prompt">
-                                        <input type="text" placeholder="Who are you?"/>
+                                        <input type="text" placeholder="Who are you?" autoFocus/>
                                         <input type="password" placeholder="Password?"/>
                                         <div className="flex">
                                             <div className="flex1"></div>
