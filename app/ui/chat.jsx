@@ -14,6 +14,7 @@ var Message = React.createClass({
         return theMessage;
     }
 });
+
 var LoginPrompt = React.createClass({
     clicked:function(evt){
         var username = evt.currentTarget.parentNode.parentElement.children[0].value;
@@ -32,7 +33,7 @@ var LoginPrompt = React.createClass({
                 <ChatSystem socket={this.props.socket} profile={user.profile} user={user}/>,
                 document.getElementById("chat_Container")
             );
-            React.unmountComponentAtNode(document.getElementById("prompt"));
+            React.unmountComponentAtNode(this.getDOMNode().parentNode);
         }
     },render: function(){
         var theMessage =    <div className="LoginPrompt trueCenter">
@@ -136,44 +137,32 @@ var MessageBoxGroup = React.createClass({
 
 
 var Friend = React.createClass({
-    getInitialState:function(){
-        return {friend:this.props.friend};
-    },componentDidMount:function(){
-        this.props.socket.on('user_presence',this.getProfile);
-        this.props.socket.on('current_status',this.updateProfile);
-        this.props.socket.on('user_connected',this.updateProfile);
-        this.getProfile();
-    },updateProfile:function(profile){
-        if(profile.username=== this.state.friend.profile.username){
-            this.state.friend.profile = profile;
-            this.setState({friend:this.state.friend});
+    clicked:function(){
+        if(this.props.whenClicked){
+            this.props.whenClicked(this.props.friend);
         }
-    },gotProfile:function(err,profile){
-        this.state.friend.profile = profile;
-        this.setState({friend:this.state.friend});
-    },getProfile:function(){
-        this.props.socket.emit('get_profile',this.props.friend.profile,this.gotProfile);
-    },clicked:function(){
-        this.props.whenClicked(this.props.friend);
     },render: function() {
-        var theFriend = <div className="Friend">
+        console.log(this.props.friend);
+
+        var theFriend = <div className="Friend hidden">
                         </div>;
         if(this.props.friend && (this.props.friend.profile.presence > 0 || this.props.showOffline)){
+            var friend = this.props.friend;
             theFriend =
                 <div onClick={this.clicked} className="Friend">
-                    <img style={{height:'2em',width:'2em'}}src={this.state.friend.profile.icon}/>
+                    <img style={{height:'2em',width:'2em'}}src={friend.profile.icon}/>
                     <div className='flex2'>
                         <div className="flex between">
-                            <div className="flex1">{this.state.friend.profile.username}</div>
+                            <div className="flex1">{friend.profile.username}</div>
                             <div className="flex flex1" style={{justifyContent:'center'}}>
-                                <svg className='status' fill={this.state.friend.profile.presence ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                                <svg className='status' fill={friend.profile.presence > 0 && friend.friendStatus === 2 ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
                                   <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
                                   />
                                 </svg>
                             </div>
                         </div>
                         <div className="flex">
-                        <p> {this.state.friend.profile.statusMessage}</p>
+                        <p> {friend.friendStatus === 2 ? friend.profile.statusMessage: ''}</p>
                         </div>
                     </div>
                 </div>;
@@ -225,8 +214,9 @@ var ChatSystem = React.createClass({
         this.state.socket.on("still_connected", function(data,cb){
             cb(data);
         });
-        this.state.socket.on('user_connected',this.personLoggedIn);
+        this.state.socket.on('user_status_update',this.profileChanged);
         this.state.socket.on('friend_list',this.friendsUpdate);
+        this.state.socket.on('friend_request',function(data){console.log(data)});
         var theSocket = this.props.socket;
         var id = this.state.profile._id;
         var fn = this.updateChatHistory;
@@ -256,26 +246,41 @@ var ChatSystem = React.createClass({
         this.state.chatThreads.threads.push(thread);
         this.setState({chatThreads:this.state.chatThreads});
         this.makeActive(thread.name);
-    },addFriend:function (evt) {
+    },sendFriendRequest:function (evt) {
         evt.stopPropagation();
         if(evt.keyCode === 13 || !evt.keyCode){
             if(evt.nativeEvent.target.value !== ""){
-                this.state.socket.emit('add_friend',{
-                    user:{
-                            username:this.state.user.username,
-                            password:this.state.user.password
+                this.state.socket.emit('send_FriendRequest',{
+                    user:{ _id:this.state.user._id
                         },
                         friend:evt.nativeEvent.target.value
                     },this.friendsUpdate);
                 evt.nativeEvent.target.value = "";
             }
         }
-    },friendsUpdate:function(friendsList){
-        if(friendsList){
+    },friendsUpdate:function(data){
+        console.log('friendsList');
+        console.log(data);
+        if(data.success){
             this.state.user.friendsList = friendsList;
             this.setState({user:this.state.user});
             this.render();
         }
+    },profileChanged:function(profile){
+        var start = new Date().getTime();
+        this.state.user.friendsList.friendGroups = this.state.user.friendsList.friendGroups.map(function(friendGroup){
+            friendGroup.friends =  friendGroup.friends.map(function(friend){
+                if(profile._id===friend.profile._id){
+                    friend.profile = profile;
+                }
+                return friend;
+            });
+            return friendGroup;
+        });
+        this.setState({user:this.state.user});
+        this.render();
+        var end = new Date().getTime();
+        console.log(end - start + " milliseconds to update friend Status.");
     },openThread:function(friend){
         var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
         this.state.chatThreads.activeChatThread = threadName;
@@ -307,6 +312,7 @@ var ChatSystem = React.createClass({
         }
     },gotProfile:function(profile){
         this.setState({profile:profile});
+
     },makeActive:function(threadName){
         this.state.chatThreads.openThreads[threadName] = true;
         this.state.chatThreads.activeChatThread = threadName !== this.state.chatThreads.activeChatThread ? threadName: '' ;
@@ -330,14 +336,14 @@ var ChatSystem = React.createClass({
                                                     </svg>
                                                 </div>
                                                 <div className="flex">
-                                                    <input type="text" className="statusInput" placeholder={this.state.profile.statusMessage} onBlur={this.updateStatus}/>
+                                                    <input type="text" className="statusInput" placeholder={this.state.profile.statusMessage} onBlur={this.updateStatus} onKeyDown={this.updateStatus}/>
                                                     <input type="checkbox" onChange={this.toggleShowOffline}/>
                                                 </div>
                                             </div>
                                         </div>
                                         <FriendsList showOffline={this.state.showOffline} socket={this.state.socket} user={this.state.user} friendsList={this.state.user.friendsList} whenClicked={this.openThread}/>
                                         <div className="AddFriend">
-                                            <input className="statusInput" type="text" placeholder="Add Friend" onBlur={this.addFriend} onKeyDown={this.addFriend}/>
+                                            <input className="statusInput" type="text" placeholder="Add Friend" onBlur={this.sendFriendRequest} onKeyDown={this.sendFriendRequest}/>
                                         </div>
                                         <MessageBoxGroup newMessage={this.newMessage} makeActive={this.makeActive} closeThread={this.closeThread} profile={this.state.profile} chatThreads={this.state.chatThreads} socket={this.props.socket}/>
                                 </div>
@@ -346,6 +352,10 @@ var ChatSystem = React.createClass({
 });
 
 var socket = io.connect();
+socket.on('connect',function(){
+    console.log('Connected');
+    console.log(socket);
+});
 socket.on('log',function(data){console.log(data);});
 var whoIsOnline = function(){
     socket.emit("all_online",'Hello',function(err,profiles){profiles.map(function(profile){console.log(profile.username);});});
