@@ -29,3 +29,4 @@ node_modules
 app/.module-cache
 db
 app/open-iconic
+viewer
