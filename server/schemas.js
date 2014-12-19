@@ -34,17 +34,32 @@ module.exports.ProfileSchema = new mongoose.Schema({
     connection: String
 });
 
+module.exports.FriendSchema = new mongoose.Schema({
+    profile: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Profile'
+    },
+    note: {
+        type: String,
+        default: 'No note'
+    },
+    friendStatus: {
+        type: Number,
+        default: 0 // 0 is you added 1 is they requested 2 is mutually added. -1 is ignored
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
+});
+
 module.exports.FriendGroupSchema = new mongoose.Schema({
-    friends: [{
-        profile: {
+    friends: [
+        {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Profile'
-        },
-        note: {
-            type: String,
-            default: 'No note'
+            ref: 'Friend'
         }
-    }],
+    ],
     name: {
         type: String,
         default: 'General'
@@ -79,12 +94,27 @@ module.exports.UserSchema = new mongoose.Schema({
     friendsList: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'FriendList'
-    }
+    },
+    notifications: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Notification'
+    }]
 
 });
 module.exports.UserSchema.plugin(deepPopulate /* more on options below */ );
 
-
+module.exports.NotificationSchema = new mongoose.Schema({
+    notificationType: String,
+    message: String,
+    to: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Profile'
+    },
+    from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Profile'
+    }
+});
 
 module.exports.ChatMessageSchema = new mongoose.Schema({
     to: [{

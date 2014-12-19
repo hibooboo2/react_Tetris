@@ -1,77 +1,23 @@
 var data = function () { // jshint ignore:line
-
-    var mongoose = require('mongoose');
-    var schemas = require('./schemas.js');
-    var siteDB = 'mongodb://admin:tetris@ds053190.mongolab.com:53190/tetris';
-    var testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test';
-    mongoose.connect(process.env.PORT ? siteDB : testDB);
-    var data = {};
+    'use strict';
+    var mongoose = require('mongoose'),
+        schemas = require('./schemas.js'),
+        siteDB = 'mongodb://admin:tetris@ds053190.mongolab.com:53190/tetris',
+        //        testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test',
+        testDB = 'mongodb://localhost:27017/test',
+        dbToUse = process.env.PORT ? siteDB : testDB,
+        data = {};
+    mongoose.connect(dbToUse);
 
     data.db = mongoose.connection;
     data.db.on('error', console.error.bind(console, 'Connection Error: '));
+    if (dbToUse === testDB) {
 
+    }
     data.ObjectId = mongoose.Types.ObjectId;
 
-    data.getUseraddFriend = function (socket, username, sendUpdate) {
-        data.getCurrentUser(socket.id, function (err, user) {
-            if (!err && user) {
-                data.addFriend(user, username, sendUpdate);
-            }
-        });
-    };
 
-    data.addFriend = function (dataFromClient, sendUpdate) {
-        if (!sendUpdate) {
-            sendUpdate = function (dataFromClient) {
-                console.log(dataFromClient);
-            };
-        }
-        var canAddFriend = true;
-        data.Profile.findOne({
-            username: dataFromClient.friend
-        }).exec(function (err, userToAdd) {
-            if (!err && userToAdd) {
-                data.User.findOne(dataFromClient.user).exec(function (err, user) {
-                    if (!err && user) {
-                        user.deepPopulate('friendsList.friendGroups.friends.profile', function (err) {
-                            if (!err) {
-                                user.friendsList.friendGroups.map(function (friendGroup) {
-                                    friendGroup.friends.map(function (friend) {
-                                        var areEqual = friend.profile._id.toString() === userToAdd._id.toString();
-                                        if (areEqual) {
-                                            canAddFriend = false;
-                                        }
-                                    });
-                                });
-                                if (canAddFriend) {
-                                    user.friendsList.friendGroups.map(function (friendGroup) {
-                                        if (friendGroup.name === 'General') {
-                                            friendGroup.friends.push({
-                                                profile: userToAdd
-                                            });
-                                            friendGroup.save(function (err) {
-                                                if (!err) {
-                                                    sendUpdate(user.friendsList);
-                                                }
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    sendUpdate(false);
-                                }
-                            }
-                        });
-                    } else {
-                        sendUpdate(false);
-                    }
-                });
-
-            } else {
-                sendUpdate(false);
-            }
-        });
-    };
-
+    data.Friend = mongoose.model('Friend', schemas.FriendSchema);
     data.Score = mongoose.model('Score', schemas.ScoreSchema);
 
     data.Profile = mongoose.model('Profile', schemas.ProfileSchema);
@@ -83,6 +29,95 @@ var data = function () { // jshint ignore:line
     data.User = mongoose.model('User', schemas.UserSchema);
     data.FriendGroup = mongoose.model('FriendGroup', schemas.FriendGroupSchema);
     data.FriendList = mongoose.model('FriendList', schemas.FriendListSchema);
+    data.Notification = mongoose.model('Notification', schemas.FriendListSchema);
+
+    data.sendFriendRequest = function (dataFromClient, sendUpdate, socket) {
+        //create friend. if profile exists.
+        data.Profile.findOne({
+            username: dataFromClient.friend
+        }).exec(function (err, profileFound) {
+            if (!err && profileFound) {
+                data.Friend.findOne({
+                    owner: data.ObjectId(dataFromClient.user._id),
+                    profile: profileFound._id
+                }).exec(function (err, friend) {
+                    if (!err && friend) {
+                        sendUpdate({
+                            message: dataFromClient.friend + ' is alread your friend.',
+                            notificationType: 'Add Friend Error'
+                        });
+                    } else if (!err && !friend) {
+                        var newFriend = new data.Friend({
+                            owner: data.ObjectId(dataFromClient.user._id),
+                            profile: profileFound._id
+                        });
+                        newFriend.save(function (err) {
+                            if (!err) {
+                                data.User.findOne({
+                                    _id: data.ObjectId(dataFromClient.user._id)
+                                }).exec(
+                                    function (err, user) {
+                                        if (!err && user) {
+                                            user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+                                                if (!err) {
+                                                    user.friendsList.friendGroups = user.friendsList.friendGroups.map(function (friendGroup) {
+                                                        if (friendGroup.name === 'General') {
+                                                            friendGroup.friends.push(newFriend);
+                                                        }
+                                                        return friendGroup;
+                                                    });
+                                                    user.save(function (err) {
+                                                        if (!err) {
+                                                            var newNotification = new data.Notification({
+                                                                message: user.profile.username + ' has sent you a friend request.',
+                                                                notificationType: 'Friend Request',
+                                                                to: newFriend.profile,
+                                                                from: newFriend.owner
+                                                            });
+                                                            newNotification.save(function (err) {
+                                                                if (!err) {
+                                                                    data.User.findOne({
+                                                                        profile: newFriend.profile._id
+                                                                    }).exec(function (err, user) {
+                                                                        if (!err && user) {
+                                                                            user.notifications.push(newNotification);
+                                                                            user.save(function (err) {
+                                                                                if (!err) {
+                                                                                    data.sendEventToProfile(user.profile, 'notification', newNotification, socket);
+                                                                                    sendUpdate({
+                                                                                        message: dataFromClient.friend + ' has been sent a friend request.',
+                                                                                        notificationType: 'Friend Request Sent'
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                            }
+                        });
+                    }
+                });
+            } else if (!err && !profileFound) {
+                sendUpdate({
+                    message: dataFromClient.friend + ' does not exist. Verify the name and try again.',
+                    notificationType: 'Add Friend Error'
+                });
+            }
+        });
+    };
+
+    data.acceptFriendRequest = function (friendRequest, socket) {
+
+    };
 
     data.getUserChatThreads = function (profileId, callback) {
         data.Profile.findOne({
@@ -149,7 +184,7 @@ var data = function () { // jshint ignore:line
                 }
             });
         });
-    }
+    };
 
     data.getCurrentUser = function (socketId, callback) {
         data.Profile.findOne({
