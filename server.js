@@ -109,7 +109,10 @@ io.sockets.on('connection', function (socket) {
     socket.on('send_FriendRequest', function (data, sendUpdate) {
         mongoose.sendFriendRequest(data, sendUpdate,socket);
     });
-    socket.on('respond_toFriendRequest', function (data, sendUpdate) {
+    socket.on('decline_FriendRequest', function (data, sendUpdate) {
+        mongoose.declineFriendRequest(data, sendUpdate);
+    });
+    socket.on('accept_FriendRequest', function (data, sendUpdate) {
         mongoose.acceptFriendRequest(data, sendUpdate);
     });
     socket.on('get_profile', function (profileId, callback) {
