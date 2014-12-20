@@ -143,6 +143,7 @@ var boardEngine = function () {
             var previousHeld = this.heldPiece;
             this.heldPiece = this.fallingPiece.tetromino;
             if (previousHeld) {
+                console.log(this.pieceEngine);
                 this.fallingPiece = new this.pieceEngine.newPiece(previousHeld);
             } else {
                 this.newFallingPiece();
