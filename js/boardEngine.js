@@ -146,7 +146,7 @@ var boardEngine = function () {
                 this.fallingPiece = new this.pieceEngine.newPiece(previousHeld,{
                     x: 3,
                     y: 0
-                }, 0, 6);
+                }, 0, 1);
             } else {
                 this.newFallingPiece();
             }
