@@ -23,8 +23,6 @@
 }
 .allChat {} .Friend {
     background-color: transparent;
-    top: 0em;
-    right: 0em;
     color: #FFF;
     display: flex;
     flex-direction: row;
@@ -38,8 +36,14 @@
     -ms-user-select: none;
     user-select: none;
 }
+.Friend.Offline{
+    height: 1em;
+}
+.Friend.hidden{
+    height: 0em;
+    width: 0em;
+}
 .ChatSystem {
-    background-color: red;
     position: fixed;
     bottom: 0em;
     right: 0em;
@@ -148,7 +152,11 @@
     color: #00CCFF;
 }
 .chatInput {
-    width: 23em;
+    position: absolute;
+    width: 22.5em;
+    left: 0.5em;
+    padding-left : 0.5em;
+    border-radius: 20px;
 }
 .FriendsList {
     overflow-y: scroll;
@@ -233,4 +241,36 @@
 }
 .flex2{
     flex:2
+}
+.Notification{
+    height:4em;
+    width: 10em;
+    color: #9DCDE5;
+    background-color: #0D2951;
+}
+.Notification.Header{
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    height:1em;
+    width: 10em;
+    width: calc(10em - 0.8em);
+    color: #9DCDE5;
+    overflow: hidden;
+}
+.Notification.Message{
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    height:1.8em;
+    width: calc(10em - 0.8em);
+    color: #9DCDE5;
+    overflow: hidden;
+}
+.Notification.Input{
+    display: flex;
+    justify-content: space-around;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    height:1.2em;
+    width: calc(10em - 0.8em);
+    overflow: hidden;
 }
