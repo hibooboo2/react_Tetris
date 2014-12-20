@@ -1,4 +1,4 @@
-//pieceEngine.js relys on cellEngine.js,pieces.json, and boardEngine.js
+//pieceEngine.js relies on cellEngine.js,pieces.json, and boardEngine.js
 function PieceEngine() {  // jshint ignore:line
 
     function NewPiece(tetromino, position, rotation, type) {

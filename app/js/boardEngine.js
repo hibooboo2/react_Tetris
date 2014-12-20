@@ -148,7 +148,10 @@ var BoardEngine = function () {  // jshint ignore:line
             var previousHeld = this.heldPiece;
             this.heldPiece = this.fallingPiece.tetromino;
             if (previousHeld) {
-                this.fallingPiece = new this.pieceEngine.newPiece(previousHeld);
+                this.fallingPiece = new this.pieceEngine.newPiece(previousHeld,{
+                    x: 3,
+                    y: 0
+                }, 0, 6);
             } else {
                 this.newFallingPiece();
             }
