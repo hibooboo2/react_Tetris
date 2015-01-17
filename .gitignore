@@ -30,4 +30,9 @@ node_modules
 app/.module-cache
 db
 app/open-iconic
+
+#Ignore the local db.
+db
+
+#Ignore The database viewer.
 viewer
