@@ -45,7 +45,7 @@ module.exports.FriendSchema = new mongoose.Schema({
     },
     friendStatus: {
         type: Number,
-        default: 0 // 0 is you added 1 is they requested 2 is mutually added. -1 is ignored
+        default: 0 // 0 is you added 1 is mutually added. -1 is ignored/ blocked
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -153,7 +153,7 @@ module.exports.ProfileSchema.methods.updateStatus = function (status, callback) 
 
 module.exports.UserSchema.methods.login = function (socket, notifyFriends, sendToClient) {
     var user = this;
-    user.deepPopulate('friendsList.friendGroups.friends.profile, profile', function (err) {
+    user.deepPopulate('friendsList.friendGroups.friends.profile, profile, notifications', function (err) {
         if (!err) {
             user.profile.presence = 1;
             user.profile.connection = socket.id;
