@@ -89,7 +89,6 @@ var MessageBox = React.createClass({
         this.props.makeActive(this.props.chatThread.name);
     },render: function() {
         var currentUser = this.props.from;
-        console.log(this.props.chatThread);
         var theMessages = this.props.chatThread.messages.map(function(message){
                 return (
                            <Message username={currentUser.username} data={message}/>
@@ -142,27 +141,27 @@ var Friend = React.createClass({
             this.props.whenClicked(this.props.friend);
         }
     },render: function() {
-        console.log(this.props.friend);
 
         var theFriend = <div className="Friend hidden">
                         </div>;
-        if(this.props.friend && (this.props.friend.profile.presence > 0 || this.props.showOffline)){
+        if(this.props.friend && (this.props.friend.profile.presence > 0 && this.props.friend.friendStatus === 1 || this.props.showOffline)){
             var friend = this.props.friend;
+            var friendIcon = (friend.friendStatus === 1 ? <img style={{height:'2em',width:'2em'}}src={friend.profile.icon}/>:'')
             theFriend =
-                <div onClick={this.clicked} className="Friend">
-                    <img style={{height:'2em',width:'2em'}}src={friend.profile.icon}/>
+                <div onClick={this.clicked} className={"Friend" + (friend.friendStatus === 1 ? '':' Offline') }>
+                    {friendIcon}
                     <div className='flex2'>
                         <div className="flex between">
                             <div className="flex1">{friend.profile.username}</div>
                             <div className="flex flex1" style={{justifyContent:'center'}}>
-                                <svg className='status' fill={friend.profile.presence > 0 && friend.friendStatus === 2 ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                                <svg className='status' fill={friend.profile.presence > 0 && friend.friendStatus === 1 ? "green":"red"} xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
                                   <path d="M3 0v4h1v-4h-1zm-1.28 1.44l-.38.31c-.81.64-1.34 1.64-1.34 2.75 0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5c0-1.11-.53-2.11-1.34-2.75l-.38-.31-.63.78.38.31c.58.46.97 1.17.97 1.97 0 1.39-1.11 2.5-2.5 2.5s-2.5-1.11-2.5-2.5c0-.8.36-1.51.94-1.97l.41-.31-.63-.78z"
                                   />
                                 </svg>
                             </div>
                         </div>
-                        <div className="flex">
-                        <p> {friend.friendStatus === 2 ? friend.profile.statusMessage: ''}</p>
+                        <div className={friend.friendStatus === 1 ? 'flex': 'hidden'}>
+                            <p>{friend.profile.statusMessage}</p>
                         </div>
                     </div>
                 </div>;
@@ -211,12 +210,9 @@ var ChatSystem = React.createClass({
     },componentDidMount:function(){
         this.state.socket.on("new_message", this.newMessage);
         this.state.socket.on("new_thread", this.addThread);
-        this.state.socket.on("still_connected", function(data,cb){
-            cb(data);
-        });
         this.state.socket.on('user_status_update',this.profileChanged);
         this.state.socket.on('friend_list',this.friendsUpdate);
-        this.state.socket.on('friend_request',function(data){console.log(data)});
+        this.state.socket.on('notification',function(data){console.log(data)});
         var theSocket = this.props.socket;
         var id = this.state.profile._id;
         var fn = this.updateChatHistory;
@@ -242,7 +238,6 @@ var ChatSystem = React.createClass({
         this.setState({chatThreads:this.state.chatThreads});
         this.render();
     },addThread:function(thread){
-        console.log(thread);
         this.state.chatThreads.threads.push(thread);
         this.setState({chatThreads:this.state.chatThreads});
         this.makeActive(thread.name);
@@ -259,15 +254,12 @@ var ChatSystem = React.createClass({
             }
         }
     },friendsUpdate:function(data){
-        console.log('friendsList');
-        console.log(data);
         if(data.success){
             this.state.user.friendsList = friendsList;
             this.setState({user:this.state.user});
             this.render();
         }
     },profileChanged:function(profile){
-        var start = new Date().getTime();
         this.state.user.friendsList.friendGroups = this.state.user.friendsList.friendGroups.map(function(friendGroup){
             friendGroup.friends =  friendGroup.friends.map(function(friend){
                 if(profile._id===friend.profile._id){
@@ -279,8 +271,6 @@ var ChatSystem = React.createClass({
         });
         this.setState({user:this.state.user});
         this.render();
-        var end = new Date().getTime();
-        console.log(end - start + " milliseconds to update friend Status.");
     },openThread:function(friend){
         var threadName = [this.state.profile._id,friend.profile._id].sort().toString();
         this.state.chatThreads.activeChatThread = threadName;
@@ -324,6 +314,7 @@ var ChatSystem = React.createClass({
         this.state.chatThreads.threads = chatHistory;
         this.setState({chatThreads:this.state.chatThreads});
     },render: function() {
+        console.log(this.state.user.notifications);
         var theChatSystem =    <div className="ChatSystem">
                                         <div className="LoggedinUser">
                                             <img lassName="flex1" style={{height:'2em',width:'2em'}}src={this.state.profile.icon}/>
@@ -351,16 +342,33 @@ var ChatSystem = React.createClass({
     }
 });
 
-var socket = io.connect();
-socket.on('connect',function(){
-    console.log('Connected');
-    console.log(socket);
-});
+var socket = io.connect('localhost:3000');
 socket.on('log',function(data){console.log(data);});
-var whoIsOnline = function(){
-    socket.emit("all_online",'Hello',function(err,profiles){profiles.map(function(profile){console.log(profile.username);});});
-}
+
 React.render(
             <LoginPrompt socket={socket}/>,
             document.getElementById("prompt")
-        );
+);
+
+var Notification = React.createClass({
+    accept:function(){
+        console.log(this.props.data);
+    },decline:function(){
+
+    },render: function(){
+        var theMessage =    <div className="Notification">
+                            <div className="Notification Header"> {this.props.data.notificationType}</div>
+                            <div className="Notification Message"> {this.props.data.message}</div>
+                                <div className={"Notification Input" + (this.props.data.notificationType === 'Friend Request' ? '':' hidden')}>
+                                    <svg viewBox="0 0 8 8" className="icon" alt="Circle Check" onClick={this.accept}>
+                                        <path d="M4 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm2 1.781l.719.719-3.219 3.219-1.719-1.719.719-.719 1 1 2.5-2.5z"></path>
+                                    </svg>
+                                    <svg viewBox="0 0 8 8" className="icon" alt="Circle X" onClick={this.decline}>
+                                        <path d="M4 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm-1.5 1.781l1.5 1.5 1.5-1.5.719.719-1.5 1.5 1.5 1.5-.719.719-1.5-1.5-1.5 1.5-.719-.719 1.5-1.5-1.5-1.5.719-.719z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+        return theMessage;
+    }
+});

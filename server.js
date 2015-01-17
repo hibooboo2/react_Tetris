@@ -102,12 +102,15 @@ io.sockets.on('connection', function (socket) {
         mongoose.updateStatus(status, socket, callback);
     });
     socket.on('send_FriendRequest', function (data, sendUpdate) {
+        console.log(data);
         mongoose.sendFriendRequest(data, sendUpdate,socket);
     });
     socket.on('decline_FriendRequest', function (data, sendUpdate) {
+        console.log(data);
         mongoose.declineFriendRequest(data, sendUpdate);
     });
     socket.on('accept_FriendRequest', function (data, sendUpdate) {
+        console.log(data);
         mongoose.acceptFriendRequest(data, sendUpdate);
     });
     socket.on('get_profile', function (profileId, callback) {
