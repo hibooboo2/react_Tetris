@@ -32,4 +32,7 @@ node_modules
 db
 
 #Ignore The database viewer.
+app/.module-cache
+db
+app/open-iconic
 viewer

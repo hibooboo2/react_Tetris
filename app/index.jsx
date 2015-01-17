@@ -14,7 +14,8 @@ var GameBox = React.createClass({
             useGhost: true,
             canPreview: true,
             fullScreen: false,
-            announcer: true
+            announcer: true,
+            useAutoSave: false
         };
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
@@ -49,6 +50,12 @@ var GameBox = React.createClass({
         else if(!this.state.gameState.gameOver){
             if(this.state.gameState.fallingPiece){
                 if(!this.state.gameState.moveFallingDown()){
+                    if( this.state.gameState.settings.useAutoSave ){
+                        window.localStorage.board = JSON.stringify(this.state.gameState);
+                        console.log(window.localStorage.board);
+                    }else{
+                        window.localStorage.board = null;
+                    }
                     this.state.gameState.dropFallingPiece();
                     document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
                     this.playBlock(this.state.gameState.fallingPiece.name());
@@ -58,12 +65,6 @@ var GameBox = React.createClass({
         }else{
             this.state.closeGameoverScreen = false;
             this.pause();
-        }
-        if( this.state.gameState.settings.useAutoSave ){
-            window.localStorage.board = JSON.stringify(this.state.gameState);
-            console.log(window.localStorage.board);
-        }else{
-            window.localStorage.board = null;
         }
         this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
@@ -92,12 +93,13 @@ var GameBox = React.createClass({
         if(this.state.gameState.started){
             this.state.paused = !this.state.paused;
         }
+        window.localStorage.settings = JSON.stringify(this.state.gameState.settings);
         this.setState({paused:this.state.paused});
     },
     play: function(){
         this.state.paused = false;
         this.state.gameState.started = true;
-        var newFalling = new Piece().draw();
+        var newFalling = this.state.gameState.pieceEngine.draw();
         this.playBlock("FirstPiece",newFalling.name());
         gameState = this.state.gameState;
         if(this.state.gameState.settings.announcer){
@@ -151,10 +153,8 @@ var GameBox = React.createClass({
             document.getElementsByClassName("GameBox")[0].style.fontSize = "12px";
             }
         this.setState({gameState:this.state.gameState});
-    },
-    playBlock: function(pieceName,secondPiece){
+    },playBlock: function(pieceName,secondPiece){
         var playBlock = this.playBlock;
-        console.log("Play Called:" + pieceName);
         var godBlocks = {
                             FirstPiece:{start:3.7,end:12.5},
                             Tetris:{start:76.5,end:80.6},
@@ -199,26 +199,7 @@ var GameBox = React.createClass({
         this.setState({gameState:this.state.gameState});
     },
     drawPiece: function(aPiece) {
-        var positionCell = function(cell){
-            return {
-                        top:(cell.y*2)+"em",
-                        left:(cell.x*2)+"em",
-                        backgroundColor: cell.color
-                    };
-
-        };
-        var cells = aPiece.cells();
-        var theCells = cells.map(function(cell){
-            return (
-                        <div className={"TetrisCell "+cell.getType()}
-                                    style={positionCell(cell)}>
-                        </div>
-                    )
-        });
-        var theCells = <div className="TetrisPiece">
-                        {theCells}
-                        </div>;
-        return theCells;
+        return <TetrisPiece piece={aPiece}/>
     },
     render: function() {
         var tempBoard = this.state.gameState.getCurrentBoard();
@@ -235,19 +216,12 @@ var GameBox = React.createClass({
                         backgroundColor:cell.color
                     };
         };
-        var ghostPiece = {};
-        if (this.state.gameState.settings.useGhost && this.state.gameState.fallingPiece){
-            var fallingCopy = this.state.gameState.fallingPiece.ghost(this.state.gameState);
-            var ghostPiece = this.drawPiece(fallingCopy);
-        }
-
         var drawnBoard = <div className={"cells"}>
                             {tempBoard.map(function(row) {
                                 return row.map(function(cell) {
                                     return <div className={"TetrisCell "+cell.getType()} style={positionCell(cell)}></div>;
                             });
                             })}
-                            {ghostPiece}
                             <p>Total Lines cleared: {this.state.gameState.score.linesCleared}</p>
                             <p>Next Level Up</p>
                             <p>From Lines Cleared = {this.state.gameState.score.nextLevelUp().linesToLevelUp}</p>
@@ -255,28 +229,13 @@ var GameBox = React.createClass({
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
-            drawnHeld = this.drawPiece(new Piece(this.state.gameState.heldPiece,0,0,6));
+            drawnHeld = <TetrisPiece piece={new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6)}/>;
         };
         return (
             <div className="GameBox">
                 {drawnBoard}
                     <div className="Controls">
-                        <div className="keyMappings">
-                        {this.state.keyMapping.keys.readableLines().map(function(line){
-                            return <p className="leftAlign">{line}</p>
-                        })}
-                        </ div>
-                        <div>
-                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
-                        </div>
                     </div>
-                    <div className ="Issues">
-                    <hr />
-                    Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
-                    <hr />
-                    All Issues: {this.state.issues.length}
-                    {currentIssues}
-                    </ div>
                     <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
                         <p>Congratulations! </p>
                         <p>You got to level {this.state.gameState.score.level}</p>
@@ -290,16 +249,30 @@ var GameBox = React.createClass({
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
                     </div>
                     <div className={this.state.paused? "pauseScreen" : "disabled"}>
-                        Paused
 
+                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        <div className="keyMappings">
+                        {this.state.keyMapping.keys.readableLines().map(function(line){
+                            return <p className="leftAlign">{line}</p>
+                        })}
+                        </ div>
+                        <div>
+                        </div>
                         <div className="Settings">
-                            <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "on":"off"} type="button" value="Auto Save"/>
+                            <input onClick={this.toggleAutoSave} className={this.state.gameState.settings.useAutoSave ? "off":"on"} type="button" value="Auto Save"/>
                             <input onClick={this.toggleGhost} className={this.state.gameState.settings.useGhost ? "off":"on"} type="button" value="Ghost"/>
                             <input onClick={this.togglePreview} className={this.state.gameState.settings.canPreview ? "off":"on"} type="button" value="Preview"/>
                             <input onClick={this.toggleHold} className={this.state.gameState.settings.canHold ? "off":"on"} type="button" value="Hold"/>
                             <input onClick={this.togglefullScreen} className={this.state.gameState.settings.fullScreen ? "off":"on"} type="button" value="Fullscreen"/>
                             <input onClick={this.toggleAnnouncer} className={this.state.gameState.settings.announcer ? "off":"on"} type="button" value="Announcer"/>
                             <TetrisSong/>
+                        </ div>
+                        <div className ="Issues">
+                        <hr />
+                        Any New issues? <a href="https://github.com/hibooboo2/react_Tetris/issues" target="_blank">Add Them</a>
+                        <hr />
+                        All Issues: {this.state.issues.length}
+                        {currentIssues}
                         </ div>
 
                     </div>
@@ -308,9 +281,12 @@ var GameBox = React.createClass({
                             Preview:
 
                             Next Piece:
-                            <div style={{position:"absolute",top:"0em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[0])}</div>
-
-                            <div style={{position:"absolute",top:"8em"}}>{this.drawPiece(Piece.prototype.que.slice(0).reverse()[1])}</div>
+                            <div style={{position:"absolute",top:"0em"}}>
+                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[0]}/>
+                            </div>
+                            <div style={{position:"absolute",top:"8em"}}>
+                                <TetrisPiece piece={this.state.gameState.pieceEngine.que.slice(0).reverse()[1]}/>
+                            </div>
                     </ div>
                     <div className={"heldBox "+(this.state.gameState.settings.canHold ? "enabled":"disabled")}>
                             <div style={{top: "0em",position: "absolute"}} className="inline">Currently Holding:</div>
@@ -358,6 +334,34 @@ var TetrisPreview = React.createClass({
             }
 });
 */
+
+var TetrisPiece = React.createClass({
+    getInitialState: function(){
+        return {piece:this.props.piece};
+    },
+    render: function() {
+        var positionCell = function(cell){
+            return {
+                        top:(cell.y*2)+"em",
+                        left:(cell.x*2)+"em",
+                        backgroundColor: cell.color
+                    };
+
+        };
+        var cells = this.props.piece.cells();
+        var theCells = cells.map(function(cell){
+            return (
+                        <div className={"TetrisCell "+cell.getType()}
+                                    style={positionCell(cell)}>
+                        </div>
+                    )
+        });
+        var theCells = <div className="TetrisPiece">
+                        {theCells}
+                        </div>;
+        return theCells;
+    }
+});
 
 var TetrisSong = React.createClass({
     getInitialState: function(){
@@ -430,7 +434,6 @@ var TetrisGame = React.createClass({
 var theKeys = keyMappings();
 
 React.render(
-  <TetrisGame gameState={new boardEngine()} keyMappings={theKeys}/>,
-/*  <TetrisPiece thePiece={new Piece().draw()}/>,*/
+  <TetrisGame gameState={new BoardEngine()} keyMappings={theKeys}/>,
   document.getElementById('main_Container')
 );

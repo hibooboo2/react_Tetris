@@ -7,13 +7,30 @@
     min-height 8em;
     font-size: 1em;
 }
+@-webkit-keyframes greenPulse {
+    from {
+        opacity: 0;
+        -webkit-box-shadow: 0 0 9px #333;
+    }
+    to {
+        opacity: 1;
+        -webkit-box-shadow: 0 0 9px #333;
+    }
+}
 .cell,
 .TetrisCell {
+    transition-property: background-color;
+    transition-duration: 0s;
     padding: 0.9em;
     position: absolute;
     display: inline-block;
     border: 0.1em solid white;
     font-size: 1em;
+}
+.TetrisCell:hover {
+    -webkit-animation-name: greenPulse;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: 1;
 }
 .cells {
     background-color: lightgrey;
@@ -26,13 +43,11 @@
     left: 20em;
 }
 .GameBox {
-    position: fixed;
-    width:inherit;
+    position: absolute;
     font-size: 12px;
     width: 60em;
     height: 44em;
-    top: 1em;
-    margin: 0 auto;
+    margin: 10% 20%;
 }
 .heldBox {
     position: absolute;
@@ -74,8 +89,8 @@ button,
 .Settings {
     position: absolute;
     height: 5em;
-    right: 3em;
-    top: 5em;
+    right: 1em;
+    top: 7em;
     width: 4em;
 }
 @media (max-width: 641px) {
@@ -104,14 +119,15 @@ button,
         text-align: center;
         width: 2.5em;
         height: 1.4em;
-        left: 0em;
-        top: 0em;
-        font-size: 3.4em;
+        left: 2em;
+        top: 10em;
+        font-size: 1em;
     }
     .keyMappings {
-        top: 5em;
-        left: 0em;
+        top: 1em;
+        left: 1em;
         position: absolute;
+        font-size: 0.5em;
     }
     .previewBox {
         position: absolute;
@@ -122,10 +138,11 @@ button,
     }
     .Issues {
         position: absolute;
-        width: 20em;
+        width: 20.4em;
         text-align: center;
-        top: 25em;
-        left: 40em;
+        bottom: 2em;
+        left: 0em;
+        font-size: 0.5em;
     }
 }
 .rightCenter {
@@ -200,6 +217,17 @@ button,
 .inline {
     display: inline;
 }
-div {
-    border: 0em solid black;
+div:hover {
+    border: 0em solid red;
+}
+.hidden {
+    display: none;
+    z-index: -999999;
+}
+#main_Container2 {
+    height: 75%;
+    width: 80%;
+    position: absolute;
+    right: 10%;
+    bottom: 12.5%;
 }
