@@ -26,3 +26,10 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+
+#Ignore the local db.
+db
+
+#Ignore The database viewer.
+viewer
