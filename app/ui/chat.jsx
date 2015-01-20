@@ -342,7 +342,7 @@ var ChatSystem = React.createClass({
     }
 });
 
-var socket = io.connect('localhost:3000');
+var socket = io.connect();
 socket.on('log',function(data){console.log(data);});
 
 React.render(
