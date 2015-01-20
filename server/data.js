@@ -11,7 +11,7 @@ var data = function () { // jshint ignore:line
 
     data.db = mongoose.connection;
     data.db.on('error', console.error.bind(console, 'Connection Error: '));
-    if (dbToUse === testDB) {
+    if (dbToUse === dockerDB) {
 
     }
     data.ObjectId = mongoose.Types.ObjectId;
