@@ -4,14 +4,14 @@ var data = function () { // jshint ignore:line
         schemas = require('./schemas.js'),
         siteDB = 'mongodb://admin:tetris@ds053190.mongolab.com:53190/tetris',
         //        testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test',
-        testDB = 'mongodb://localhost:27017/test',
-        dbToUse = process.env.PORT ? siteDB : testDB,
+        dockerDB = 'mongodb://mongo:27017/',
+        dbToUse = process.env.PORT ? siteDB : dockerDB,
         data = {};
     mongoose.connect(dbToUse);
 
     data.db = mongoose.connection;
     data.db.on('error', console.error.bind(console, 'Connection Error: '));
-    if (dbToUse === testDB) {
+    if (dbToUse === dockerDB) {
 
     }
     data.ObjectId = mongoose.Types.ObjectId;
