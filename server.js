@@ -4,7 +4,7 @@ var express = require('express'),
     io = require('socket.io').listen(server),
     mongoose = require('./server/data.js');
 
-server.listen(process.env.PORT ? process.env.PORT : 3000);
+server.listen(process.env.PORT ? process.env.PORT : 4000);
 
 app.use('/', express.static(__dirname + '/app'));
 
