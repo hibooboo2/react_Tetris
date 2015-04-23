@@ -6,4 +6,4 @@ echo Running Ci for $(pwd)
 pushd .
 ls -la
 popd
-exit 2
+exit 0
