@@ -2,6 +2,6 @@
 set -e
 
 echo Running Ci for $(pwd)
-
+env
 ls -la
 exit 0
