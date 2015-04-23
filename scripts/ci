@@ -2,6 +2,7 @@
 set -e
 
 echo Running Ci for $(pwd)
+## Run our build container. Build from top level docker file. 
 env
 ls -la
 exit 0
