@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+echo Running Ci for $(pwd)
+
+pushd .
+ls -la
+popd
+exit 2
