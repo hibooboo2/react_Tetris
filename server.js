@@ -1,7 +1,7 @@
 var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
-    io = require('socket.io').listen(server),
+    io = require('socket.io').listen(server);
     mongoose = require('./server/data.js');
 
 server.listen(process.env.PORT ? process.env.PORT : 3000);

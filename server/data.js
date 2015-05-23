@@ -3,9 +3,9 @@ var data = function () { // jshint ignore:line
     var mongoose = require('mongoose'),
         schemas = require('./schemas.js'),
         siteDB = 'mongodb://admin:tetris@ds053190.mongolab.com:53190/tetris',
-        //        testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test',
+        testDB = 'mongodb://admin:tetris@ds061360.mongolab.com:61360/tetris-test',
         dockerDB = 'mongodb://mongo:27017/',
-        dbToUse = process.env.PORT ? siteDB : dockerDB,
+        dbToUse = process.env.PORT ? siteDB : testDB,
         data = {};
     mongoose.connect(dbToUse);
 

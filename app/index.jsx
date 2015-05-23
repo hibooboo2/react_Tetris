@@ -20,14 +20,14 @@ var GameBox = React.createClass({
         var issues = "Not sure..";
         issues = loadIssuesNumber(issues);
         return {
-                gameState: this.props.gameState,
-                paused: true,
-                issues: issues,
-                keyMappings: this.props.keyMappings,
-                keyMapping: this.props.keyMappings["default"],
-                currentMap: "default",
-                closeGameoverScreen: true,
-                };
+            gameState: this.props.gameState,
+            paused: true,
+            issues: issues,
+            keyMappings: this.props.keyMappings,
+            keyMapping: this.props.keyMappings["default"],
+            currentMap: "default",
+            closeGameoverScreen: true,
+        };
     },
      componentDidMount: function(){
         // componentDidMount is called by react when the component
