@@ -1,4 +1,4 @@
-if( window.location.host==="tetris.jamescarlharris.com"){
+if( window.location.host === "tetris.jamescarlharris.com"){
 
 }
 var GameBox = React.createClass({
@@ -26,7 +26,7 @@ var GameBox = React.createClass({
             keyMappings: this.props.keyMappings,
             keyMapping: this.props.keyMappings["default"],
             currentMap: "default",
-            closeGameoverScreen: true,
+            closeGameoverScreen: true
         };
     },
      componentDidMount: function(){
@@ -36,7 +36,6 @@ var GameBox = React.createClass({
         document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
     },
-
     componentWillUnmount: function(){
         // This method is called immediately before the component is removed
         // from the page and destroyed. We can clear the interval here:
@@ -44,29 +43,15 @@ var GameBox = React.createClass({
     },
     gravity: function(){
         this.autoGravity = setTimeout(this.gravity, this.state.gameState.score.getDelay());
-        if(this.state.paused) {
-            return;
-        }
-        else if(!this.state.gameState.gameOver){
-            if(this.state.gameState.fallingPiece){
-                if(!this.state.gameState.moveFallingDown()){
-                    if( this.state.gameState.settings.useAutoSave ){
-                        window.localStorage.board = JSON.stringify(this.state.gameState);
-                        console.log(window.localStorage.board);
-                    }else{
-                        window.localStorage.board = null;
-                    }
-                    this.state.gameState.dropFallingPiece();
-                    document.getElementById("TetrisSong").playbackRate = this.state.gameState.score.getPlaybackRate();
-                    this.playBlock(this.state.gameState.fallingPiece.name());
-                }else{
-                }
+        try {
+            this.state.gameState.gravity();
+        } catch(err) {
+            if (err === this.state.gameState.gameOverConst){
+                this.pause();
             }
-        }else{
-            this.state.closeGameoverScreen = false;
-            this.pause();
+        } finally {
+            this.setState({gameState:this.state.gameState, closeGameoverScreen:this.state.closeGameoverScreen});
         }
-        this.setState({gameState:this.state.gameState,closeGameoverScreen:this.state.closeGameoverScreen});
     },pickAlevel:function(){
         var level = parseInt(prompt("Starting Level?"));
         this.state.gameState.restart();
@@ -112,9 +97,11 @@ var GameBox = React.createClass({
         this.setState({paused:this.state.paused,gameState:this.state.gameState});
     },
     handleKeys:function(evt){
-        var currEvent = evt;
         var key = evt.keyCode;
-        //console.log(key);
+        if (this.state.keyMapping.keys[key] === undefined){
+            return;
+        }
+        console.log(this.state.keyMapping.keys[key].function);
         if(evt instanceof KeyboardEvent){
             if(!this.state.paused && this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
@@ -229,7 +216,7 @@ var GameBox = React.createClass({
                         </div>;
         var drawnHeld = false
         if(this.state.gameState.heldPiece){
-            drawnHeld = <TetrisPiece piece={new this.state.gameState.pieceEngine.newPiece(this.state.gameState.heldPiece,0,0,6)}/>;
+            drawnHeld = <TetrisPiece piece={this.state.gameState.heldPiece}/>;
         };
         return (
             <div className="GameBox">
@@ -305,7 +292,6 @@ var GameBox = React.createClass({
         )
     }
 });
-/*
 
 var TetrisPreview = React.createClass({
     render: function() {
@@ -333,7 +319,7 @@ var TetrisPreview = React.createClass({
                 );
             }
 });
-*/
+
 
 var TetrisPiece = React.createClass({
     getInitialState: function(){

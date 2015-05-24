@@ -25,6 +25,12 @@ var BoardEngine = function () {  // jshint ignore:line
         this.started = false;
         this.pieceEngine = new PieceEngine();  // jshint ignore:line
     }
+
+    Board.prototype.gameOverConst = "Game Over";
+    Board.prototype.gameOverErr = function (){
+        this.gameOver = true;
+        throw this.gameOverConst;
+    }
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
         var board = [];
@@ -251,5 +257,28 @@ var BoardEngine = function () {  // jshint ignore:line
         this.started = previousBoardJSON.started;
         return this;
     };
+
+    Board.prototype.gravity = function(){
+        if(this.paused || this.gameOver) {
+            return;
+        }
+        else if(!this.gameOver){
+            if(this.fallingPiece){
+                if(!this.moveFallingDown()){
+                    if( this.settings.useAutoSave ){
+                        window.localStorage.board = JSON.stringify(this);
+                        console.log(window.localStorage.board);
+                    }else{
+                        window.localStorage.board = null;
+                    }
+                    this.dropFallingPiece();
+                    document.getElementById("TetrisSong").playbackRate = this.score.getPlaybackRate();
+                    this.playBlock(this.fallingPiece.name());
+                }
+            }
+        }else{
+            this.gameOverErr();
+        }
+    }
     return new Board();
 };

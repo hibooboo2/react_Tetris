@@ -3,8 +3,8 @@
     display: absolute;
     max-width: 8em;
     min-width: 8em;
-    max-height 8em;
-    min-height 8em;
+    max-height: 8em;
+    min-height: 8em;
     font-size: 1em;
 }
 @-webkit-keyframes greenPulse {
@@ -47,7 +47,7 @@
     font-size: 12px;
     width: 60em;
     height: 44em;
-    margin: 10% 20%;
+    margin: 1% 0%;
 }
 .heldBox {
     position: absolute;
