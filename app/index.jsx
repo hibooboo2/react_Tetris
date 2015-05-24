@@ -226,7 +226,7 @@ var GameBox = React.createClass({
                     <div className={this.state.closeGameoverScreen? "disabled" : "gameOver"}>
                         <p>Congratulations! </p>
                         <p>You got to level {this.state.gameState.score.level}</p>
-                        <p>Your Score was {this.state.gameState.score.score}</p>
+                        <p>Your Score was {this.state.gameState.score.getValue()}</p>
                         <p>You Cleared {this.state.gameState.score.linesCleared} lines!</p>
                         <p>You got {this.state.gameState.score.singles} Singles!</p>
                         <p>You got {this.state.gameState.score.doubles} Doubles!</p>
@@ -282,7 +282,7 @@ var GameBox = React.createClass({
                 </div>
                 <div className="ScoreBox">
                     <p>Level: {this.state.gameState.score.level}</p>
-                    <p>Score: {this.state.gameState.score.score}</p>
+                    <p>Score: {this.state.gameState.score.getValue()}</p>
                 </div>
                 <audio id="GodSong" width="0" height="0" loop="1" autoPlay="1" muted>
                     <source src={"http://hibooboo2.github.io/react_Tetris/audio/test.mp3"} type="audio/mp3" />

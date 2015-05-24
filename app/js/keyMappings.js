@@ -3,6 +3,7 @@ var keyMappings = function () {  // jshint ignore:line
     var codeToKey = {
         65: "a",
         68: "d",
+        76: "l",
         82: "r",
         83: "s",
         87: "w",
@@ -19,6 +20,10 @@ var keyMappings = function () {  // jshint ignore:line
         drop: {
             function: "dropFallingPiece",
             english: "Drop Current Piece."
+        },
+        pickAlevel: {
+            function: "pickAlevel",
+            english: "Use this to skip to a tetris level"
         },
         softDrop: {
             function: "moveFallingDown",
@@ -69,6 +74,7 @@ var keyMappings = function () {  // jshint ignore:line
             13: functions.restart,
             32: functions.pause,
             192: functions.changeMapping,
+            76: functions.pickAlevel,
             readableLine: function (key) {
                 var readable;
                 if (this[key] !== undefined) {
@@ -98,6 +104,7 @@ var keyMappings = function () {  // jshint ignore:line
             13: functions.restart,
             32: functions.pause,
             192: functions.changeMapping,
+            76: functions.pickAlevel,
             readableLine: function (key) {
                 var readable;
                 if (this[key] !== undefined) {

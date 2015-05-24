@@ -1,7 +1,7 @@
 var Score = function () {
     "use strict";
     this.level = 0;
-    this.score = 0;
+    this._score = 0;
     this.linesCleared = 0;
     this.singles = 0;
     this.doubles = 0;
@@ -14,31 +14,31 @@ var Score = function () {
 Score.prototype.linesToScore = ["hardDrop", "single", "double", "triple", "tetris", "softDrop"];
 
 Score.prototype.single = function () {
-    this.score += 100 * (this.level + 1);
+    this._score += 100 * (this.level + 1);
     this.singles += 1;
 };
 Score.prototype.double = function () {
-    this.score += 300 * (this.level + 1);
+    this._score += 300 * (this.level + 1);
     this.doubles += 1;
 };
 Score.prototype.triple = function () {
-    this.score += 500 * (this.level + 1);
+    this._score += 500 * (this.level + 1);
     this.triples += 1;
 };
 Score.prototype.tetris = function () {
-    this.score += 800 * (this.level + 1);
+    this._score += 800 * (this.level + 1);
     this.tetrises += 1;
 };
 Score.prototype.combo = function () {
-    this.score += 50 * this.comboCount * this.level;
+    this._score += 50 * this.comboCount * this.level;
     this.comboCount += 1;
 };
 Score.prototype.softDrop = function () {
-    this.score += 1 * (this.level + 1);
+    this._score += 1 * (this.level + 1);
 };
 Score.prototype.hardDrop = function (cellsDropped) {
     var scoreToAdd = (2 * (this.level + 1) * (cellsDropped + 1)) + 20;
-    this.score += scoreToAdd;
+    this._score += scoreToAdd;
 };
 Score.prototype.levelUp = function (lines) {
     this.lastCleared += lines;
@@ -59,8 +59,8 @@ Score.prototype.nextLevelUp = function () {
         linesFromTetris: this.lastCleared >= this.levelUpFactor().tetris
     };
 };
-Score.prototype.getScore = function () {
-    return this.score;
+Score.prototype.getValue = function () {
+    return this._score;
 };
 Score.prototype.getDelay = function () {
     return 800 - (this.level * 50);
@@ -78,7 +78,7 @@ Score.prototype.fromJson = function (previousScore) {
         previousScore = JSON.parse(previousScore);
     }
     this.level = previousScore.level;
-    this.score = previousScore.score;
+    this._score = previousScore.score;
     this.linesCleared = previousScore.linesCleared;
     this.singles = previousScore.singles;
     this.doubles = previousScore.doubles;
