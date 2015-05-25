@@ -19,6 +19,7 @@
 }
 .cell,
 .TetrisCell {
+    background-size: contain;
     transition-property: background-color;
     transition-duration: 0s;
     padding: 0.9em;
@@ -188,12 +189,14 @@ button,
 }
 .default {
     border-color: orange;
+    background-image: none;
 }
 .offMap {
     border-color: red;
 }
 .unused {
     border-color: white;
+    background-image: None;
     opacity: 1;
 }
 .preview {

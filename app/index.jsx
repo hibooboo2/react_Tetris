@@ -21,7 +21,6 @@ var GameBox = React.createClass({
         issues = loadIssuesNumber(issues);
         return {
             gameState: this.props.gameState,
-            paused: true,
             issues: issues,
             keyMappings: this.props.keyMappings,
             keyMapping: this.props.keyMappings["default"],
@@ -56,7 +55,7 @@ var GameBox = React.createClass({
         var level = parseInt(prompt("Starting Level?"));
         this.state.gameState.restart();
         this.state.gameState.score.level = level;
-        this.setState({gameState:this.state.gameState,paused:true});
+        this.setState({gameState:this.state.gameState});
     },
     restart: function(){
         if(confirm("Are You Sure You Want to Restart?")){
@@ -72,29 +71,24 @@ var GameBox = React.createClass({
         this.state.keyMapping = this.state.keyMappings[this.state.currentMap];
     },
     pause: function(){
-        if(this.state.gameState.gameOver&&this.state.paused){
-            this.restart();
-        }
-        if(this.state.gameState.started){
-            this.state.paused = !this.state.paused;
-        }
+        this.state.gameState.pause();
         window.localStorage.settings = JSON.stringify(this.state.gameState.settings);
-        this.setState({paused:this.state.paused});
+        this.setState({gameState: this.state.gameState});
     },
     play: function(){
-        this.state.paused = false;
+        this.state.gameState.paused = false;
         this.state.gameState.started = true;
         var newFalling = this.state.gameState.pieceEngine.draw();
         this.playBlock("FirstPiece",newFalling.name());
-        gameState = this.state.gameState;
-        if(this.state.gameState.settings.announcer){
+        var gameState = this.state.gameState;
+        if(gameState.settings.announcer){
             setTimeout(function(){
                 gameState.fallingPiece = newFalling;
             },8800);
         }else{
             gameState.fallingPiece = newFalling;
         }
-        this.setState({paused:this.state.paused,gameState:this.state.gameState});
+        this.setState({gameState:this.state.gameState});
     },
     handleKeys:function(evt){
         var key = evt.keyCode;
@@ -103,7 +97,8 @@ var GameBox = React.createClass({
         }
         console.log(this.state.keyMapping.keys[key].function);
         if(evt instanceof KeyboardEvent){
-            if(!this.state.paused && this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
+            if(!this.state.gameState.gameOver && !this.state.gameState.paused &&
+                this.state.gameState.fallingPiece && this.state.keyMapping.keys[key] !== undefined){
                 if(this.state.gameState[this.state.keyMapping.keys[key].function] !== undefined){
                     this.state.gameState[this.state.keyMapping.keys[key].function]();
                     if (this.state.keyMapping.keys[key].function === "dropFallingPiece" ){
@@ -113,7 +108,7 @@ var GameBox = React.createClass({
                     this[this.state.keyMapping.keys[key].function]();
                 }
             }else if(evt instanceof KeyboardEvent){
-                if(key === 32||key === 13||key === 192){
+                if(key === 32||key === 13||key === 192 || key === 76){
                     this[this.state.keyMapping.keys[key].function]();
                 }
             }
@@ -235,9 +230,9 @@ var GameBox = React.createClass({
                         <p>Good Job!</p>
                         <input onClick={this.closeGameoverScreen} className="button" type="button" value="Close"/>
                     </div>
-                    <div className={this.state.paused? "pauseScreen" : "disabled"}>
+                    <div className={this.state.gameState.paused? "pauseScreen" : "disabled"}>
 
-                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.paused ?"paused":"notPaused")}>{this.state.paused ?"Play":"Pause"}</p>
+                        <p onClick={this.state.gameState.started ? this.pause : this.play} className={"pauseLabel "+(this.state.gameState.paused ?"paused":"notPaused")}>{this.state.gameState.paused ?"Play":"Pause"}</p>
                         <div className="keyMappings">
                         {this.state.keyMapping.keys.readableLines().map(function(line){
                             return <p className="leftAlign">{line}</p>

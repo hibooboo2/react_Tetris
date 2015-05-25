@@ -18,6 +18,7 @@ var BoardEngine = function () {  // jshint ignore:line
             useAutoSave: false
         };
         this.gameOver = false;
+        this.paused = true;
         this.justHeld = false;
         this.score = new Score(); // jshint ignore:line
         this.fallingPiece = false;
@@ -30,7 +31,7 @@ var BoardEngine = function () {  // jshint ignore:line
     Board.prototype.gameOverErr = function (){
         this.gameOver = true;
         throw this.gameOverConst;
-    }
+    };
     //Get a 2d array of the usedCells for mapping.
     Board.prototype.getCurrentBoard = function () {
         var board = [];
@@ -152,10 +153,9 @@ var BoardEngine = function () {  // jshint ignore:line
     Board.prototype.holdPiece = function () {
         if (!this.justHeld && this.settings.canHold) {
             var previousHeld = this.heldPiece;
-            this.heldPiece = this.fallingPiece.tetromino;
+            this.heldPiece = this.fallingPiece;
             if (previousHeld) {
-                console.log(this.pieceEngine);
-                this.fallingPiece = new Piece(previousHeld,{x:3,y:0},0,1);
+                this.fallingPiece = this.pieceEngine.fromHeld(previousHeld);
             } else {
                 this.newFallingPiece();
             }
@@ -205,6 +205,7 @@ var BoardEngine = function () {  // jshint ignore:line
         this.heldPiece = false;
         this.score = new Score();   // jshint ignore:line
         this.started = false;
+        this.paused = true;
     };
     Board.prototype.newBoard = function () {
         for (var i = 0; i < this.height; i++) {
@@ -218,19 +219,22 @@ var BoardEngine = function () {  // jshint ignore:line
         return this.fallingPiece;
     };
     Board.prototype.isGameOver = function () {
-        var isGameOver = false;
-        var rows = [this.usedCells[0], this.usedCells[1]];
-        rows.map(function (row) {
-            row.map(function (cell) {
-                if (cell.type === 2) {
-                    isGameOver = true;
-                }
+        if (!this.gameOver) {
+            var rows = [this.usedCells[0], this.usedCells[1]];
+            rows.map(function (row) {
+                row.map(function (cell) {
+                    if (cell.type === 2) {
+                        this.gameOver = true;
+                    }
+                });
             });
-        });
-        if (isGameOver) {
-            this.gameOver = isGameOver;
         }
-        return isGameOver;
+        if (this.gameOver) {
+            this.gameOverErr();
+        }
+        else {
+            return this.gameOver;
+        }
     };
     Board.prototype.fromJson = function (previousBoardJSON) {
         previousBoardJSON = JSON.parse(previousBoardJSON);
@@ -259,26 +263,31 @@ var BoardEngine = function () {  // jshint ignore:line
     };
 
     Board.prototype.gravity = function(){
-        if(this.paused || this.gameOver) {
+        if(this.paused) {
             return;
         }
-        else if(!this.gameOver){
-            if(this.fallingPiece){
-                if(!this.moveFallingDown()){
-                    if( this.settings.useAutoSave ){
-                        window.localStorage.board = JSON.stringify(this);
-                        console.log(window.localStorage.board);
-                    }else{
-                        window.localStorage.board = null;
-                    }
-                    this.dropFallingPiece();
-                    document.getElementById("TetrisSong").playbackRate = this.score.getPlaybackRate();
-                    this.playBlock(this.fallingPiece.name());
+        if(this.fallingPiece){
+            if(!this.moveFallingDown()){
+                if( this.settings.useAutoSave ){
+                    window.localStorage.board = JSON.stringify(this);
+                    console.log(window.localStorage.board);
+                }else{
+                    window.localStorage.board = null;
                 }
+                this.dropFallingPiece();
+                document.getElementById("TetrisSong").playbackRate = this.score.getPlaybackRate();
+                this.playBlock(this.fallingPiece.name());
             }
-        }else{
-            this.gameOverErr();
         }
-    }
+    };
+
+    Board.prototype.pause = function(){
+        if(this.gameOver && this.paused){
+            this.restart();
+        }
+        if(this.started){
+            this.paused = !this.paused;
+        }
+    };
     return new Board();
 };
