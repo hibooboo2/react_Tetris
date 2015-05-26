@@ -210,7 +210,7 @@ var GameBox = React.createClass({
                             <p className={this.state.gameState.score.nextLevelUp().linesFromTetris ? "enabled" : "disabled"}>Go for a tetris to Levelup!</p>
                         </div>;
         var drawnHeld = false
-        if(this.state.gameState.heldPiece){
+        if(this.state.gameState.heldPiece instanceof Piece){
             drawnHeld = <TetrisPiece piece={this.state.gameState.heldPiece}/>;
         };
         return (

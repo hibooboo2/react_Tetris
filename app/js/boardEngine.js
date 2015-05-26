@@ -154,6 +154,8 @@ var BoardEngine = function () {  // jshint ignore:line
         if (!this.justHeld && this.settings.canHold) {
             var previousHeld = this.heldPiece;
             this.heldPiece = this.fallingPiece;
+            this.heldPiece.position = { x: 1, y: 1 };
+            this.heldPiece.rotation = 0;
             if (previousHeld) {
                 this.fallingPiece = this.pieceEngine.fromHeld(previousHeld);
             } else {

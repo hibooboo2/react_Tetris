@@ -91,7 +91,7 @@ var keyMappings = function () {  // jshint ignore:line
                 }
                 return lines;
             }
-        },
+        }
     };
     var remapToArrowKeys = {
         keys: {
@@ -121,7 +121,7 @@ var keyMappings = function () {  // jshint ignore:line
                 }
                 return lines;
             }
-        },
+        }
     };
     return {
         default: remapToDefaultKeys,

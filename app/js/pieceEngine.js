@@ -2,7 +2,7 @@
 "use strict";
 function PieceEngine() {  // jshint ignore:line
     this.rand = function () {
-        var aRandPiece = new NewPiece(this.shuffledPieces.pop(), {
+        var aRandPiece = new Piece(this.shuffledPieces.pop(), {
             x: 3,
             y: 0
         }, 0, 6);
@@ -22,7 +22,7 @@ function PieceEngine() {  // jshint ignore:line
     };
 
     this.fromHeld = function (heldPiece) {
-        return new NewPiece(heldPiece.tetromino, {x:3,y:0},0,1);
+        return new Piece(heldPiece.tetromino, {x:3,y:0},0,1);
     }
 
     this.shuffle = function (array) { //v1.0
@@ -50,10 +50,10 @@ function PieceEngine() {  // jshint ignore:line
 
     this.shuffle(this.shuffledPieces);
     for (var i = 0; i < this.shuffledPieces.length; i++) {
-        this.que.push(new NewPiece(this.shuffledPieces[i]));
+        this.que.push(new Piece(this.shuffledPieces[i]));
     }
     this.shuffle(this.shuffledPieces);
-    this.NewPiece = NewPiece;
+    this.Piece = Piece;
 
     return this;
 }

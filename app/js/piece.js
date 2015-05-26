@@ -1,5 +1,5 @@
 "use strict";
-function NewPiece(tetromino, position, rotation, type) {
+function Piece(tetromino, position, rotation, type) {
     this.tetromino = tetromino ? tetromino : allTetromino[0];  // jshint ignore:line
     this.rotation = rotation ? rotation : 0;  // jshint ignore:line
     this.position = position ? position : {  // jshint ignore:line
@@ -9,31 +9,31 @@ function NewPiece(tetromino, position, rotation, type) {
     this.type = type ? type : 5;  // jshint ignore:line
 }
 
-NewPiece.prototype.getType = function () {
+Piece.prototype.getType = function () {
     return Cell.prototype.types[this.type];  // jshint ignore:line
 };
 
-NewPiece.prototype.copy = function () {
-    return new NewPiece(this.tetromino, {
+Piece.prototype.copy = function () {
+    return new Piece(this.tetromino, {
         x: this.position.x,
         y: this.position.y
     }, this.rotation, this.type);
 };
 
-NewPiece.prototype.equals = function (piece) {
+Piece.prototype.equals = function (piece) {
     return piece.type === this.type && this.position.x === piece.position.x &&
         this.position.y === piece.position.y && this.rotation === piece.rotation;
 };
 
-NewPiece.prototype.name = function () {
+Piece.prototype.name = function () {
     return this.tetromino.name;
 };
 
-NewPiece.prototype.color = function () {
+Piece.prototype.color = function () {
     return this.tetromino.color;
 };
 
-NewPiece.prototype.collides = function (piece) {
+Piece.prototype.collides = function (piece) {
     var collides = false;
     this.cells().map(function (cell) {
         piece.cells().map(function (cellB) {
@@ -45,7 +45,7 @@ NewPiece.prototype.collides = function (piece) {
     return collides;
 };
 
-NewPiece.prototype.collidesWithCell = function (cellToCheck) {
+Piece.prototype.collidesWithCell = function (cellToCheck) {
     var collides = false;
     this.cells().map(function (cell) {
         if (cell.collides(cellToCheck)) {
@@ -55,7 +55,7 @@ NewPiece.prototype.collidesWithCell = function (cellToCheck) {
     return collides;
 };
 
-NewPiece.prototype.collidesWithCells = function (cells) {
+Piece.prototype.collidesWithCells = function (cells) {
     var collided = false;
     for (var i = 0; i < cells.length; i++) {
         if (this.collidesWithCell(cells[i])) {
@@ -65,7 +65,7 @@ NewPiece.prototype.collidesWithCells = function (cells) {
     return collided;
 };
 
-NewPiece.prototype.movePiece = function (currentBoard, newPostion) {
+Piece.prototype.movePiece = function (currentBoard, newPostion) {
     var moved = false;
     if (this.canMove(currentBoard, newPostion)) {
         this.position.y += newPostion.y;
@@ -75,7 +75,7 @@ NewPiece.prototype.movePiece = function (currentBoard, newPostion) {
     return moved;
 };
 
-NewPiece.prototype.movePieceDown = function (currentBoard) {
+Piece.prototype.movePieceDown = function (currentBoard) {
     var newPostion = {
         x: 0,
         y: 1
@@ -83,7 +83,7 @@ NewPiece.prototype.movePieceDown = function (currentBoard) {
     return this.movePiece(currentBoard, newPostion);
 };
 
-NewPiece.prototype.canMove = function (currentBoard, newPosition) {
+Piece.prototype.canMove = function (currentBoard, newPosition) {
     var pieceCanMove = {
         x: this.position.x + newPosition.x,
         y: this.position.y + newPosition.y
@@ -96,14 +96,14 @@ NewPiece.prototype.canMove = function (currentBoard, newPosition) {
     return pieceCanMove;
 };
 
-NewPiece.prototype.canMoveDown = function (currentBoard) {
+Piece.prototype.canMoveDown = function (currentBoard) {
     return this.canMove(currentBoard, {
         x: 0,
         y: 1
     });
 };
 
-NewPiece.prototype.canRotate = function (currentBoard, newRotation) {
+Piece.prototype.canRotate = function (currentBoard, newRotation) {
     var canRotate = true;
     var oldRotation = this.rotation;
     this.rotation = newRotation;
@@ -117,20 +117,20 @@ NewPiece.prototype.canRotate = function (currentBoard, newRotation) {
     return canRotate;
 };
 
-NewPiece.prototype.dropPiece = function (currentBoard) {
+Piece.prototype.dropPiece = function (currentBoard) {
     var curPosy = this.position.y;
-    while (this.movePieceDown(currentBoard)) {}
+    while (this.movePieceDown(currentBoard)) {};
     return this.position.y === curPosy;  // jshint ignore:line
 };
 
-NewPiece.prototype.ghost = function (currentBoard) {
+Piece.prototype.ghost = function (currentBoard) {
     var ghostCopy = this.copy();
     ghostCopy.type = 0;
     ghostCopy.dropPiece(currentBoard);
     return ghostCopy;
 };
 
-NewPiece.prototype.cells = function () {
+Piece.prototype.cells = function () {
     var currentCells = [];
     var startingPos = this.position;
     var color = this.color();
@@ -147,7 +147,7 @@ NewPiece.prototype.cells = function () {
     return currentCells;
 };
 
-NewPiece.prototype.cells2d = function () {
+Piece.prototype.cells2d = function () {
     var currentCells = [];
     var startingPos = this.position;
     var color = this.color();
@@ -164,7 +164,7 @@ NewPiece.prototype.cells2d = function () {
     return currentCells;
 };
 
-NewPiece.prototype.shiftLeft = function (currentBoard) {
+Piece.prototype.shiftLeft = function (currentBoard) {
     var newPostion = {
         x: -1,
         y: 0
@@ -172,7 +172,7 @@ NewPiece.prototype.shiftLeft = function (currentBoard) {
     return this.movePiece(currentBoard, newPostion);
 };
 
-NewPiece.prototype.shiftRight = function (currentBoard) {
+Piece.prototype.shiftRight = function (currentBoard) {
     var newPostion = {
         x: 1,
         y: 0
@@ -180,7 +180,7 @@ NewPiece.prototype.shiftRight = function (currentBoard) {
     return this.movePiece(currentBoard, newPostion);
 };
 
-NewPiece.prototype.rotateClockWise = function (currentBoard) {
+Piece.prototype.rotateClockWise = function (currentBoard) {
     var rotated = false;
     var newRotation = this.rotation + 1;
     if (newRotation > this.tetromino.cells.length - 1) {
@@ -193,7 +193,7 @@ NewPiece.prototype.rotateClockWise = function (currentBoard) {
     return rotated;
 };
 
-NewPiece.prototype.rotateCounterClockWise = function (currentBoard) {
+Piece.prototype.rotateCounterClockWise = function (currentBoard) {
     var rotated = false;
     var newRotation = this.rotation - 1;
     if (newRotation < 0) {
@@ -206,7 +206,7 @@ NewPiece.prototype.rotateCounterClockWise = function (currentBoard) {
     return rotated;
 };
 
-NewPiece.prototype.fromJson = function (jsonPiece) {
+Piece.prototype.fromJson = function (jsonPiece) {
     if (jsonPiece.tetromino === undefined) {
         jsonPiece = JSON.parse(jsonPiece);
     }
