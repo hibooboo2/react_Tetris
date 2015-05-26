@@ -21,11 +21,6 @@
   },
   "homepage": "https://github.com/hibooboo2/react_Tetris",
   "dependencies": {
-    "express": "^4.12.4",
-    "mongodb": "^2.0.33",
-    "mongoose": "^4.0.3",
-    "mongoose-deep-populate": "0.0.5",
-    "socket.io": "^1.2.1"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
