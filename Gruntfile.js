@@ -5,8 +5,8 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
             allSrc: {
-                src: 'app/**/*.js',
-                dest: 'app/reactTetris.all.min.js'
+                src: 'game/**/*.js',
+                dest: 'game/reactTetris.all.min.js'
             }
         }
     });

@@ -27,7 +27,7 @@ var BoardEngine = function () {  // jshint ignore:line
         this.pieceEngine = new PieceEngine();  // jshint ignore:line
     }
 
-    Board.prototype.gameOverConst = "Game Over";
+    Board.prototype.gameOverConst = "GameOver";
     Board.prototype.gameOverErr = function (){
         this.gameOver = true;
         throw this.gameOverConst;
@@ -226,7 +226,7 @@ var BoardEngine = function () {  // jshint ignore:line
             rows.map(function (row) {
                 row.map(function (cell) {
                     if (cell.type === 2) {
-                        this.gameOver = true;
+                         this.gameOver = true;
                     }
                 });
             });
